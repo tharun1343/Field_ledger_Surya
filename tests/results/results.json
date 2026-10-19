@@ -1,0 +1,679 @@
+{
+  "ranAt": "2026-10-19T19:20:09.883Z",
+  "passed": 112,
+  "total": 112,
+  "results": [
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Brinjal Oct 2026: 8 rows sorted by date, no duplicates",
+      "pass": true,
+      "detail": "2026-10-01,2026-10-02,2026-10-03,2026-10-04,2026-10-05,2026-10-06,2026-10-07,2026-10-08"
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Brinjal totals 94 bags / 3,008 kg / ₹45,120 / ₹12,000 / ₹14,500 labour / 29 workers",
+      "pass": true,
+      "detail": "{\"bags\":94,\"kg\":3008,\"gross\":45120,\"exp\":12000,\"labour\":14500,\"workers\":29}"
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Brinjal net after costs = 45,120 − 12,000 − 14,500 = ₹18,620",
+      "pass": true,
+      "detail": "18620"
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Muskmelon Oct 2026: 6 rows, 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹1,12,500 net",
+      "pass": true,
+      "detail": "{\"records\":6,\"bags\":0,\"kg\":10900,\"gross\":130500,\"expenses\":18000,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":112500,\"avgRate\":11.972477064220184}"
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Report screen TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620",
+      "pass": true,
+      "detail": "TOTAL 94 3,008 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620"
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Statement dates oldest → newest",
+      "pass": true,
+      "detail": "1 Oct|2 Oct|3 Oct|4 Oct|5 Oct|6 Oct|7 Oct|8 Oct"
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "Legacy aggregate labour shown in its own “split unknown” column (not as men)",
+      "pass": true,
+      "detail": "DATE BAGS TOTAL WEIGHT (KG) RATE/KG (₹) GROSS SALES (₹) OPERATING EXPENSES (₹) MEN WOMEN WORKERS, SPLIT UNKNOWN (LEGACY) LABOUR SALARY (₹) NET AFTER COSTS (₹) "
+    },
+    {
+      "group": "11. Monthly report reconciles with the source sheet (sample data)",
+      "name": "A month without data shows an empty statement message",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Switching to Muskmelon changes theme to yellow/amber",
+      "pass": true,
+      "detail": "#b07a06"
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Muskmelon overview is month-first (month navigator + Monthly performance table)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Muskmelon uses the melon SVG icon and no coconut icon",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Muskmelon KPIs show its own totals (10,900 kg, ₹1,30,500, ₹18,000, ₹1,12,500)",
+      "pass": true,
+      "detail": "10,900 kg | ₹1,30,500 | ₹18,000 | ₹1,12,500"
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Brinjal KPIs are different (no mixing)",
+      "pass": true,
+      "detail": "94 | 3,008 kg | ₹45,120 | ₹12,000 | ₹14,500 | ₹18,620"
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "“Statement” button on a month row opens that month’s report (prototype bug fixed)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Muskmelon statement labels Gross income and Net after expenses (not “Profit”)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Muskmelon Records list shows only muskmelon records (6)",
+      "pass": true,
+      "detail": "6"
+    },
+    {
+      "group": "9/10. Product switching, theming and Muskmelon monthly-first overview",
+      "name": "Switching back restores Brinjal violet theme",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "1/2. Bag selector opens exactly N bag sections; weights sum",
+      "name": "Selecting 5 bags shows exactly 5 bag sections",
+      "pass": true,
+      "detail": "5"
+    },
+    {
+      "group": "1/2. Bag selector opens exactly N bag sections; weights sum",
+      "name": "Sections are numbered Bag 1 … Bag 5",
+      "pass": true,
+      "detail": "1\nBag 1,2\nBag 2,3\nBag 3,4\nBag 4,5\nBag 5"
+    },
+    {
+      "group": "1/2. Bag selector opens exactly N bag sections; weights sum",
+      "name": "Each bag has weight, type dropdown and S/M/L size",
+      "pass": true,
+      "detail": "[[1,1,\"SML\"],[1,1,\"SML\"],[1,1,\"SML\"],[1,1,\"SML\"],[1,1,\"SML\"]]"
+    },
+    {
+      "group": "1/2. Bag selector opens exactly N bag sections; weights sum",
+      "name": "Modal running total shows 160 kg",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "1/2. Bag selector opens exactly N bag sections; weights sum",
+      "name": "Daily form shows total weight 160 kg and 5 bags",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "1/2. Bag selector opens exactly N bag sections; weights sum",
+      "name": "Bag count selector matches saved bag rows (5)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "4. Bag draft persists when the modal is reopened",
+      "name": "Reopened modal still has 30, 32, 33, 34, 31",
+      "pass": true,
+      "detail": "30,32,33,34,31"
+    },
+    {
+      "group": "4. Bag draft persists when the modal is reopened",
+      "name": "Sizes kept (M, L, M, S, M)",
+      "pass": true,
+      "detail": "MLMSM"
+    },
+    {
+      "group": "4. Bag draft persists when the modal is reopened",
+      "name": "Cancel asks before discarding modal edits and keeps the saved draft (160 kg)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "4. Bag draft persists when the modal is reopened",
+      "name": "Editing one bag in the modal updates the draft total (162 kg)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Bag count changes never silently lose data",
+      "name": "Reducing 5 → 3 asks for confirmation naming Bags 4–5 and their weight",
+      "pass": true,
+      "detail": "Reduce from 5 to 3 bags?  Bags 4–5 (65 kg) will be removed when you save the bag details. Bags 1–3 keep their values."
+    },
+    {
+      "group": "Bag count changes never silently lose data",
+      "name": "Declining keeps 5 bags and the selector at 5",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Bag count changes never silently lose data",
+      "name": "Increasing 5 → 7 keeps bags 1–5 and adds 2 new bags",
+      "pass": true,
+      "detail": "30,32,33,34,31,32,32"
+    },
+    {
+      "group": "Bag count changes never silently lose data",
+      "name": "Cancelling the modal reverts the selector to the saved count (5)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "3. Settings brinjal types flow into the bag dropdown",
+      "name": "Leaving Daily entry with unsaved changes asks first; declining stays on the form",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "6. Men/women labour",
+      "name": "5 men × ₹500 + 5 women × ₹400 = ₹4,500",
+      "pass": true,
+      "detail": "₹4,500"
+    },
+    {
+      "group": "6. Men/women labour",
+      "name": "Men and women subtotals shown separately (₹2,500 / ₹2,000)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "6. Men/women labour",
+      "name": "Zero is selectable for men and women",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "New expense item date defaults to today",
+      "pass": true,
+      "detail": "2026-10-19"
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "“Add another expense” appends a second full item",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "Modal total ₹400",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "Daily form shows operating expenses ₹400 (notes left blank)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "Reopen shows both items with their values",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "Edit item to ₹100 and delete the other → total ₹100",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "Validation: an item without “What for?” is rejected",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "5. Expense modal",
+      "name": "Three items saved; draft expense total ₹1,000",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Gross 160 kg × ₹15 = ₹2,400",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Net = 2,400 − 1,000 − 4,500 = −₹3,100 (negative highlighted)",
+      "pass": true,
+      "detail": "−₹3,100"
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Negative rate is rejected on save",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Daily entry saved → Records view",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Saved record has 5 bags, 160 kg, men/women split, 3 expense items with ids",
+      "pass": true,
+      "detail": "{\"bags\":5,\"men\":5}"
+    },
+    {
+      "group": "4b. Persistence after reload + edit",
+      "name": "Edit form loads saved record (5 bags, rate 40)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "4b. Persistence after reload + edit",
+      "name": "After reload, bag weights 30,32,33,34,31 and sizes M,L,M,S,M are intact",
+      "pass": true,
+      "detail": "30,32,33,34,31 MLMSM"
+    },
+    {
+      "group": "4b. Persistence after reload + edit",
+      "name": "After reload, expense items load with date, purpose, amount and notes",
+      "pass": true,
+      "detail": "[[\"2026-10-15\",\"Transport\",\"150\",\"\"],[\"2026-10-15\",\"Packing\",\"250\",\"\"],[\"2026-11-02\",\"Seeds for next month\",\"600\",\"Paid in advance\"]]"
+    },
+    {
+      "group": "5b. Expense-date rule in monthly reports",
+      "name": "October counts only expense items dated in October for 15 Oct (₹400)",
+      "pass": true,
+      "detail": "400 / total 12400"
+    },
+    {
+      "group": "5b. Expense-date rule in monthly reports",
+      "name": "The 2 Nov item appears in November as an “expenses only” row (₹600), not double-counted",
+      "pass": true,
+      "detail": "{\"records\":0,\"bags\":0,\"kg\":0,\"gross\":0,\"expenses\":600,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":-600,\"avgRate\":0}"
+    },
+    {
+      "group": "5b. Expense-date rule in monthly reports",
+      "name": "Statement rows add up exactly to the month total",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "7. Changing a day’s rate updates gross/net and report totals",
+      "name": "Live gross updates to ₹3,200",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "7. Changing a day’s rate updates gross/net and report totals",
+      "name": "Report gross = 45,120 + 3,200 = ₹48,320; net = 48,320 − 12,400 − 19,000 = ₹16,920",
+      "pass": true,
+      "detail": "{\"g\":48320,\"l\":19000,\"n\":16920}"
+    },
+    {
+      "group": "7. Changing a day’s rate updates gross/net and report totals",
+      "name": "Report screen totals match (₹48,320 / ₹12,400 / ₹19,000 / ₹16,920)",
+      "pass": true,
+      "detail": "TOTAL 99 3,168 — ₹48,320 ₹12,400 5 5 29 ₹19,000 ₹16,920"
+    },
+    {
+      "group": "7. Changing a day’s rate updates gross/net and report totals",
+      "name": "9 dated rows in October (8 sample + 15 Oct), no duplicates",
+      "pass": true,
+      "detail": "9"
+    },
+    {
+      "group": "3b. Brinjal types: add / remove without rewriting history",
+      "name": "Settings has no “calculation defaults” panel",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "3b. Brinjal types: add / remove without rewriting history",
+      "name": "New type listed in Settings",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "3b. Brinjal types: add / remove without rewriting history",
+      "name": "“Green long” appears in the bag type dropdown without reload",
+      "pass": true,
+      "detail": "Local,Hybrid,Long,Round,Green long"
+    },
+    {
+      "group": "3b. Brinjal types: add / remove without rewriting history",
+      "name": "Removing a type asks for confirmation and says saved bags keep the label",
+      "pass": true,
+      "detail": "Remove “Green long” from the brinjal type list?  1 saved bag(s) use this type. They will KEEP the label “Green long” — it is only removed from the dropdown for new bags."
+    },
+    {
+      "group": "3b. Brinjal types: add / remove without rewriting history",
+      "name": "Historical record still says “Green long” after removal",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "3b. Brinjal types: add / remove without rewriting history",
+      "name": "Editing that record keeps “Green long” selected (marked removed from list)",
+      "pass": true,
+      "detail": "Green long (removed from list)"
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "Saving a second entry on the same date asks before replacing",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "Accepting replaces it: still exactly one 16 Oct record (2 bags, ₹10)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "Delete asks for confirmation; declining keeps the record",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "Accepting deletes it",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "View modal shows bags, labour breakdown and expense items",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "Records search filters (1 match for “seeds”)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Duplicate date handling and delete",
+      "name": "Records month filter shows a no-match state for November",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8b. Muskmelon daily entry formula",
+      "name": "Muskmelon form has no bag/labour fields",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8b. Muskmelon daily entry formula",
+      "name": "Gross 1,000 × ₹12 = ₹12,000; net = 12,000 − 500 = ₹11,500",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "8b. Muskmelon daily entry formula",
+      "name": "Muskmelon October now 11,900 kg / ₹1,42,500 / ₹18,500 / ₹1,24,000 net",
+      "pass": true,
+      "detail": "{\"records\":7,\"bags\":0,\"kg\":11900,\"gross\":142500,\"expenses\":18500,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":124000,\"avgRate\":11.974789915966387}"
+    },
+    {
+      "group": "8b. Muskmelon daily entry formula",
+      "name": "Brinjal October totals unaffected by the Muskmelon entry",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "CSV filename fieldledger-muskmelon-2026-10.csv",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "CSV has header + 7 rows + TOTAL with correct totals",
+      "pass": true,
+      "detail": "TOTAL,11900,,142500,18500,124000"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "XLSX opens in openpyxl with Statement + Expense items sheets",
+      "pass": true,
+      "detail": "Statement,Expense items"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "XLSX totals numeric: 11900 kg, 142500 gross, 18500 expenses, 124000 net",
+      "pass": true,
+      "detail": "[\"TOTAL\",11900,null,142500,18500,124000]"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "XLSX title names product and month; 5 expense items listed",
+      "pass": true,
+      "detail": "Muskmelon monthly statement — October 2026 / 5"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "PNG is a real PNG image named fieldledger-muskmelon-2026-10.png",
+      "pass": true,
+      "detail": "{\"fmt\":\"PNG\",\"size\":[2200,1208]}"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "Brinjal CSV header includes men, women, legacy workers, labour salary and net",
+      "pass": true,
+      "detail": "Date,Bags,Total weight (kg),Rate/kg (₹),Gross sales (₹),Operating expenses (₹),Men,Women,\"Workers, split unknown (legacy)\",Labour salary (₹),Net after costs (₹)"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "Brinjal CSV TOTAL row: 99 bags, 3168 kg, 48320, 12400, 5 men, 5 women, 29 legacy, 19000, 16920",
+      "pass": true,
+      "detail": "TOTAL,99,3168,,48320,12400,5,5,29,19000,16920"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "PDF button opens the print dialog in report print mode, titled fieldledger-brinjal-2026-10",
+      "pass": true,
+      "detail": "{\"calls\":1,\"cls\":true,\"title\":\"fieldledger-brinjal-2026-10\"}"
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "Printed PDF contains the statement title and totals, not the app chrome",
+      "pass": true,
+      "detail": "🍆 Brinjal — October 2026 / M Y FA R M · M O N T H LY S TAT E M E N T / "
+    },
+    {
+      "group": "14. Exports (selected product + month)",
+      "name": "JSON backup has both products, expense details, settings and profile",
+      "pass": true,
+      "detail": "9 brinjal / 7 muskmelon"
+    },
+    {
+      "group": "14b. JSON import: malformed, invalid, cancel, success",
+      "name": "Malformed JSON is rejected with a message; data unchanged",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14b. JSON import: malformed, invalid, cancel, success",
+      "name": "Wrong-shape JSON is rejected; data unchanged",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14b. JSON import: malformed, invalid, cancel, success",
+      "name": "Backup with an invalid record date is rejected with the record named",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14b. JSON import: malformed, invalid, cancel, success",
+      "name": "Import asks for confirmation; cancelling changes nothing",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14b. JSON import: malformed, invalid, cancel, success",
+      "name": "Restore sample data asks first and resets to 8 + 6 records",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "14b. JSON import: malformed, invalid, cancel, success",
+      "name": "Accepting restores the backup exactly (round-trip)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "12. Theme, text size and reduced motion",
+      "name": "Dark theme and Large text survive reload",
+      "pass": true,
+      "detail": "{\"theme\":\"dark\",\"large\":true,\"bg\":\"rgb(17, 16, 24)\"}"
+    },
+    {
+      "group": "12. Theme, text size and reduced motion",
+      "name": "Text size actually changes small print (Large > Small)",
+      "pass": true,
+      "detail": "13.8px vs 10.8px"
+    },
+    {
+      "group": "12. Theme, text size and reduced motion",
+      "name": "prefers-reduced-motion: view animations collapse to ~0s",
+      "pass": true,
+      "detail": "1e-05s"
+    },
+    {
+      "group": "Migration from the original prototype storage",
+      "name": "Prototype (v1) data is upgraded automatically with identical totals",
+      "pass": true,
+      "detail": "{\"bags\":94,\"labour\":14500}"
+    },
+    {
+      "group": "Migration from the original prototype storage",
+      "name": "Migration keeps the men/women values exactly as stored (no silent re-labelling) and keeps the v1 copy",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Migration from the original prototype storage",
+      "name": "No page errors in the migration run",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "No page-level horizontal overflow at 360px on any screen (both products)",
+      "pass": true,
+      "detail": "all 14 screens fit"
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "Bottom navigation is fixed and fully on-screen",
+      "pass": true,
+      "detail": "{\"x\":8,\"y\":664,\"width\":344,\"height\":68}"
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "Bottom nav touch targets ≥ 48px tall",
+      "pass": true,
+      "detail": "54,54,54,54,54"
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "Bottom nav still reachable after scrolling to the bottom",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "12-bag modal scrolls internally and its Save button stays visible",
+      "pass": true,
+      "detail": "{\"scrollable\":true,\"saveBottom\":728,\"saveTop\":665.40625,\"vw\":0}"
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "Bag modal usable on phone (12 bags saved)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "Expense modal Save button visible on phone",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "Escape closes the modal",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "No page errors on mobile",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "No horizontal overflow at 768px (tablet)",
+      "pass": true,
+      "detail": "all screens fit"
+    },
+    {
+      "group": "13. Mobile 360px, tablet and desktop layouts",
+      "name": "No horizontal overflow at 1440px (desktop)",
+      "pass": true,
+      "detail": "all screens fit"
+    },
+    {
+      "group": "Android back button / browser history",
+      "name": "Back returns to the previous screen (Records)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "15. Console errors and dead controls",
+      "name": "Every visible button has a wired action",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "15. Console errors and dead controls",
+      "name": "No uncaught errors / console errors during the whole run",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

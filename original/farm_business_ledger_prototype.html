@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#6d45d9" />
+<title>FieldLedger — Farm Business Tracker</title>
+<style>
+  :root {
+    --bg: #f5f5fb; --surface: #ffffff; --surface-2: #f8f7fc; --text: #201d2b; --muted: #777386;
+    --line: #e8e5ef; --primary: #7248df; --primary-2: #a18af4; --primary-soft: #f0eaff;
+    --positive: #16885a; --negative: #d64c4c; --yellow: #d99a18; --shadow: 0 12px 36px rgba(35, 24, 76, .08);
+    --radius: 22px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.45; transition: background .2s, color .2s; }
+  body[data-product="muskmelon"] { --primary: #c58b12; --primary-2: #f1ca63; --primary-soft: #fff5d5; }
+  body[data-theme="dark"] { --bg: #111018; --surface: #1c1a26; --surface-2: #242130; --text: #f2effb; --muted: #aaa5bb; --line: #353142; --primary-soft: #302745; --shadow: 0 12px 36px rgba(0,0,0,.22); }
+  body[data-theme="dark"][data-product="muskmelon"] { --primary-soft: #382e1b; }
+  body.text-small { font-size: 12px; } body.text-large { font-size: 16px; }
+  button, input, select { font: inherit; } button { cursor: pointer; }
+  .app-shell { max-width: 1440px; margin: auto; padding: 18px clamp(12px, 2.5vw, 34px) 38px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+  .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+  .brand-mark { width:48px; height:48px; border-radius:17px; display:grid; place-items:center; font-size:25px; background:linear-gradient(145deg,var(--primary-2),var(--primary)); box-shadow:inset 0 2px 2px #ffffff99, 0 7px 13px color-mix(in srgb, var(--primary) 25%, transparent); transform:rotate(-3deg); }
+  .brand-title { font-size:18px; font-weight:850; letter-spacing:-.5px; line-height:1.15; }
+  .brand-sub { color:var(--muted); font-size:12px; margin-top:4px; }
+  .top-actions { display:flex; align-items:center; gap:8px; }
+  .icon-btn, .profile-chip { border:1px solid var(--line); color:var(--text); background:var(--surface); border-radius:14px; min-height:42px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 3px 9px rgba(25,20,50,.025); }
+  .icon-btn { width:42px; font-size:17px; padding:0; }
+  .profile-chip { font-weight:700; }
+  .avatar { width:25px; height:25px; display:grid; place-items:center; border-radius:9px; color:white; background:linear-gradient(145deg,#a891f7,#5e35cb); font-size:12px; }
+  .product-switch { display:flex; align-items:center; gap:8px; padding:6px; width:max-content; max-width:100%; border-radius:18px; background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow); margin-bottom:16px; }
+  .product-tab { display:flex; align-items:center; gap:9px; border:0; color:var(--muted); background:transparent; padding:10px 17px; border-radius:13px; font-weight:800; white-space:nowrap; }
+  .product-tab .mini-icon { width:30px; height:30px; display:grid; place-items:center; font-size:17px; border-radius:10px; background:var(--surface-2); box-shadow:inset 0 1px #ffffff66; }
+  .product-tab.active { color:var(--primary); background:var(--primary-soft); box-shadow:inset 0 1px 0 #ffffff8c; }
+  .context-row { display:flex; justify-content:space-between; align-items:end; gap:12px; margin:16px 2px 18px; }
+  .eyebrow { color:var(--primary); text-transform:uppercase; font-weight:850; letter-spacing:1.5px; font-size:10px; }
+  h1 { margin:3px 0 0; font-size:clamp(25px,3.3vw,34px); letter-spacing:-1.1px; line-height:1.12; }
+  h2 { margin:0; font-size:17px; letter-spacing:-.35px; } h3 { margin:0; font-size:14px; }
+  p { margin:0; } .muted { color:var(--muted); } .small { font-size:12px; } .mono { font-variant-numeric:tabular-nums; }
+  .context-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { border:1px solid var(--line); color:var(--text); background:var(--surface); border-radius:13px; padding:10px 14px; font-weight:750; transition:transform .15s, box-shadow .15s, background .15s; }
+  .btn:hover { transform:translateY(-1px); box-shadow:0 7px 18px rgba(30,20,60,.08); }
+  .btn.primary { background:linear-gradient(135deg,var(--primary-2),var(--primary)); color:white; border-color:transparent; box-shadow:0 6px 14px color-mix(in srgb, var(--primary) 23%, transparent), inset 0 1px 0 #ffffff75; }
+  .btn.soft { color:var(--primary); background:var(--primary-soft); border-color:transparent; }
+  .btn.danger { color:var(--negative); background:color-mix(in srgb, var(--negative) 8%, var(--surface)); }
+  .btn.small-btn { padding:7px 10px; border-radius:10px; font-size:12px; }
+  .nav { display:flex; gap:5px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none; margin:0 0 20px; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav-btn { border:0; background:transparent; color:var(--muted); border-bottom:3px solid transparent; padding:12px 15px 13px; white-space:nowrap; font-weight:750; display:flex; align-items:center; gap:8px; }
+  .nav-btn .nav-emoji { font-size:16px; filter:drop-shadow(0 2px 1px #00000014); }
+  .nav-btn.active { border-bottom-color:var(--primary); color:var(--primary); }
+  .view { min-height:330px; }
+  .grid { display:grid; gap:15px; } .grid.kpis { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .grid.two { grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr); }
+  .grid.equal { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .card { min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
+  .card-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:15px; }
+  .kpi { position:relative; overflow:hidden; padding:17px; }
+  .kpi::after { content:""; position:absolute; width:95px; height:95px; border-radius:50%; right:-40px; bottom:-45px; background:var(--primary-soft); opacity:.9; }
+  .kpi-top { display:flex; align-items:center; justify-content:space-between; gap:8px; color:var(--muted); font-weight:700; font-size:12px; position:relative; z-index:1; }
+  .kpi-icon { width:36px; height:36px; border-radius:13px; display:grid; place-items:center; font-size:18px; background:var(--primary-soft); box-shadow:inset 0 1px 1px #ffffff8c, 0 4px 8px color-mix(in srgb, var(--primary) 10%, transparent); }
+  .kpi-value { font-size:clamp(20px,2.1vw,28px); font-weight:850; letter-spacing:-.8px; margin-top:15px; position:relative; z-index:1; }
+  .kpi-note { margin-top:3px; color:var(--muted); font-size:11px; position:relative; z-index:1; }
+  .section-gap { margin-top:16px; }
+  .quick-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+  .quick-card { text-align:left; display:flex; align-items:center; gap:11px; min-height:78px; padding:14px; border:1px solid var(--line); border-radius:17px; background:var(--surface-2); color:var(--text); }
+  .quick-card:hover { border-color:var(--primary-2); transform:translateY(-1px); }
+  .quick-icon { flex-shrink:0; height:42px; width:42px; display:grid; place-items:center; border-radius:14px; font-size:21px; background:linear-gradient(145deg,var(--primary-soft),var(--surface)); box-shadow:inset 0 1px #ffffffa6, 0 5px 10px rgba(25,20,50,.05); }
+  .quick-card strong { display:block; font-size:12px; } .quick-card span { color:var(--muted); font-size:11px; display:block; margin-top:3px; }
+  .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:14px; }
+  table { width:100%; border-collapse:separate; border-spacing:0; min-width:650px; font-size:12px; }
+  thead th { background:var(--surface-2); color:var(--muted); text-align:left; text-transform:uppercase; letter-spacing:.65px; font-size:10px; padding:12px 13px; white-space:nowrap; border-bottom:1px solid var(--line); }
+  tbody td { padding:12px 13px; border-bottom:1px solid var(--line); white-space:nowrap; } tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover { background:color-mix(in srgb,var(--primary-soft) 34%,transparent); }
+  tfoot td { background:var(--surface-2); padding:12px 13px; font-weight:850; border-top:1px solid var(--line); white-space:nowrap; }
+  .tag { display:inline-flex; align-items:center; gap:5px; color:var(--primary); background:var(--primary-soft); border-radius:8px; padding:5px 8px; font-size:10px; font-weight:850; }
+  .positive { color:var(--positive); font-weight:800; } .negative { color:var(--negative); font-weight:800; }
+  .chart { height:190px; display:flex; align-items:end; gap:9px; padding:18px 4px 0; border-bottom:1px solid var(--line); }
+  .bar-col { flex:1; height:100%; display:flex; flex-direction:column; justify-content:end; align-items:center; min-width:0; gap:8px; }
+  .bar { width:min(100%,40px); min-height:4px; border-radius:10px 10px 3px 3px; background:linear-gradient(180deg,var(--primary-2),var(--primary)); box-shadow:inset 0 1px #ffffff85; }
+  .bar-label { font-size:10px; color:var(--muted); white-space:nowrap; }
+  .bar-value { font-size:9px; color:var(--muted); }
+  .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; }
+  .field { display:flex; flex-direction:column; gap:7px; min-width:0; }
+  .field.full { grid-column:1/-1; }
+  .field label, .field-label { color:var(--muted); font-size:12px; font-weight:750; }
+  input, select { width:100%; color:var(--text); background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:12px 13px; outline:none; min-height:44px; }
+  input:focus, select:focus { border-color:var(--primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 14%,transparent); }
+  input[readonly] { opacity:.8; }
+  .field-hint { color:var(--muted); font-size:11px; margin-top:-2px; }
+  .form-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:18px; padding-top:17px; border-top:1px solid var(--line); }
+  .calc-strip { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); align-items:stretch; gap:10px; margin-top:16px; }
+  .calc-strip.three-col { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .calc-item { min-width:0; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 5px 16px rgba(35,24,76,.045); transition:transform .2s, border-color .2s; }
+  .calc-item:hover { transform:translateY(-2px); border-color:color-mix(in srgb,var(--primary) 32%,var(--line)); }
+  .calc-item span { display:block; color:var(--muted); font-size:11px; font-weight:750; }
+  .calc-item strong { font-size:clamp(16px,1.7vw,21px); display:block; margin-top:6px; color:var(--primary); overflow-wrap:anywhere; }
+  .calc-item.sale strong { color:#16885a; } .calc-item.expense strong { color:#d64c4c; } .calc-item.labour strong { color:#8b50c7; } .calc-item.net strong { color:var(--primary); }
+  .detail-edit { width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; margin-top:8px; color:var(--text); background:var(--surface-2); border:1px solid var(--line); border-radius:13px; transition:background .2s,border-color .2s,transform .2s; }
+  .detail-edit:hover { border-color:var(--primary-2); transform:translateY(-1px); }
+  .detail-edit strong { color:var(--primary); }
+  .bag-preview { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .bag-chip { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border:1px solid var(--line); border-radius:9px; color:var(--muted); background:var(--surface); font-size:11px; }
+  .modal-layer { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(17,14,28,.56); backdrop-filter:blur(8px); animation:fadeIn .18s ease both; }
+  .modal-panel { width:min(760px,100%); max-height:min(88dvh,920px); overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:24px; box-shadow:0 28px 90px rgba(0,0,0,.28); animation:modalIn .24s cubic-bezier(.2,.8,.2,1) both; }
+  .modal-head { position:sticky; top:0; z-index:2; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:18px 20px; background:var(--surface); border-bottom:1px solid var(--line); }
+  .modal-body { padding:18px 20px; }
+  .modal-foot { position:sticky; bottom:0; z-index:2; display:flex; justify-content:space-between; gap:10px; padding:14px 20px; background:var(--surface); border-top:1px solid var(--line); }
+  .bag-entry-card, .expense-entry-card { padding:14px; margin-bottom:11px; border:1px solid var(--line); border-radius:17px; background:var(--surface-2); }
+  .entry-card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+  .entry-card-title { display:flex; align-items:center; gap:9px; font-weight:850; }
+  .entry-card-number { display:grid; place-items:center; width:30px; height:30px; border-radius:10px; color:var(--primary); background:var(--primary-soft); box-shadow:inset 0 1px #ffffff90; }
+  .melon-svg { display:inline-block; width:1.25em; height:1.25em; vertical-align:-.22em; flex:none; }
+  .type-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .type-pill { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:var(--surface-2); }
+  .type-pill button { border:0; background:transparent; color:var(--negative); font-size:15px; padding:1px 4px; }
+  .month-focus { display:flex; justify-content:flex-end; align-items:center; gap:9px; margin-bottom:14px; }
+  .month-focus input { max-width:190px; }
+  @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+  @keyframes modalIn { from {opacity:0; transform:translateY(14px) scale(.985)} to {opacity:1; transform:translateY(0) scale(1)} }
+  @keyframes viewEnter { from {opacity:0; transform:translateY(7px)} to {opacity:1; transform:translateY(0)} }
+  @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+  .subsection { padding-top:18px; margin-top:18px; border-top:1px dashed var(--line); }
+  .subsection-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+  .inline-fields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .check-row { display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--muted); }
+  .check-row input { width:16px; min-height:16px; height:16px; accent-color:var(--primary); }
+  .filter-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .filter-row input { width:auto; min-width:160px; }
+  .report-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+  .report-tile { padding:13px 14px; border-radius:15px; background:var(--surface-2); border:1px solid var(--line); }
+  .report-tile span { display:block; color:var(--muted); font-size:11px; font-weight:700; } .report-tile strong { display:block; font-size:18px; margin-top:5px; letter-spacing:-.5px; }
+  .notice { border-radius:14px; padding:12px 14px; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); font-size:12px; }
+  .settings-layout { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+  .setting-choice { display:flex; flex-wrap:wrap; gap:8px; }
+  .choice { border:1px solid var(--line); border-radius:12px; padding:10px 13px; color:var(--muted); font-weight:750; background:var(--surface-2); }
+  .choice.active { background:var(--primary-soft); color:var(--primary); border-color:color-mix(in srgb,var(--primary) 30%,var(--line)); }
+  .profile-hero { display:flex; align-items:center; gap:15px; margin-bottom:18px; }
+  .profile-big { width:68px; height:68px; border-radius:23px; display:grid; place-items:center; font-size:30px; background:linear-gradient(145deg,var(--primary-2),var(--primary)); box-shadow:inset 0 2px #ffffff8a, 0 10px 20px color-mix(in srgb,var(--primary) 18%,transparent); }
+  .empty { text-align:center; padding:30px 16px; color:var(--muted); }
+  .empty .empty-icon { font-size:30px; margin-bottom:8px; }
+  .toast { position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); background:#24202f; color:#fff; border-radius:13px; padding:12px 17px; box-shadow:0 12px 35px #0003; z-index:99; opacity:0; pointer-events:none; transition:.22s; max-width:calc(100vw - 28px); text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .mobile-note { font-size:11px; color:var(--muted); margin-top:14px; text-align:center; }
+  .footer { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:20px 3px 0; margin-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:11px; }
+  .hidden { display:none !important; }
+  @media(max-width:960px) { .grid.kpis { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+  @media(max-width:640px) {
+    .app-shell { padding:12px 11px calc(88px + env(safe-area-inset-bottom)); }
+    .view > * { animation:viewEnter .25s ease both; }
+    .footer { padding-bottom:0; }
+    .nav { position:fixed; z-index:100; left:8px; right:8px; bottom:calc(8px + env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:2px; margin:0; padding:7px 5px; border:1px solid color-mix(in srgb,var(--line) 80%,transparent); border-radius:22px; background:color-mix(in srgb,var(--surface) 92%,transparent); backdrop-filter:blur(18px); box-shadow:0 14px 45px rgba(18,12,38,.22); }
+    .nav-btn { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; min-width:0; min-height:53px; padding:5px 2px; border:0; border-radius:15px; color:var(--muted); font-size:10px; white-space:normal; line-height:1.1; transition:background .2s,color .2s,transform .2s; }
+    .nav-btn .nav-emoji { font-size:19px; line-height:1; }
+    .nav-btn.active { background:var(--primary-soft); color:var(--primary); }
+    .nav-btn:active { transform:scale(.96); }
+    .calc-strip,.calc-strip.three-col { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .calc-item { padding:12px; }
+    .calc-item strong { font-size:18px; }
+    .modal-layer { align-items:flex-end; padding:0; }
+    .modal-panel { width:100%; max-height:92dvh; border-radius:24px 24px 0 0; border-bottom:0; animation:modalIn .22s ease both; }
+    .modal-head { padding:17px 16px; }
+    .modal-body { padding:14px 16px; }
+    .modal-foot { padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
+    .month-focus { justify-content:space-between; }
+    .month-focus input { max-width:160px; } .topbar { align-items:flex-start; } .brand-title { font-size:16px; } .brand-mark { width:42px; height:42px; border-radius:14px; }
+    .profile-chip .profile-name { display:none; } .product-switch { width:100%; } .product-tab { min-width:0; flex:1 1 0; justify-content:center; flex-wrap:wrap; padding:7px 5px; font-size:11px; line-height:1.2; gap:5px; white-space:normal; overflow-wrap:anywhere; } .product-tab .mini-icon { width:26px; height:26px; } .product-tab .muted { max-width:100%; font-size:10px; white-space:normal; overflow-wrap:anywhere; }
+    .context-row { align-items:flex-start; flex-direction:column; } .context-actions { width:100%; } .context-actions .btn { flex:1; }
+    .nav-btn { padding:11px 12px; font-size:12px; } .card { padding:15px; border-radius:18px; } .kpi { padding:14px; } .kpi-icon { width:30px; height:30px; border-radius:11px; } .kpi-value { font-size:22px; }
+    .form-grid, .inline-fields, .settings-layout { grid-template-columns:1fr; } .report-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } .quick-card { padding:11px; min-height:74px; gap:8px; } .quick-icon { width:36px; height:36px; font-size:18px; }
+    .filter-row { align-items:stretch; } .filter-row input { flex:1; min-width:120px; } .form-actions .btn { flex:1; } .calc-strip { align-items:flex-start; }
+  }
+  @media print {
+    body { background:white !important; color:#111 !important; font-size:10px !important; }
+    body.printing-report * { visibility:hidden !important; }
+    body.printing-report #printArea, body.printing-report #printArea * { visibility:visible !important; }
+    body.printing-report #printArea { position:absolute !important; left:0 !important; top:0 !important; width:100% !important; background:white !important; color:#111 !important; padding:0 !important; margin:0 !important; border:0 !important; box-shadow:none !important; }
+    body.printing-report #printArea .no-print { display:none !important; }
+    body.printing-report #printArea table { min-width:0 !important; font-size:8px !important; }
+    body.printing-report #printArea th, body.printing-report #printArea td { padding:5px 4px !important; color:#111 !important; border-color:#ddd !important; white-space:normal !important; }
+    body.printing-report #printArea .report-tile { background:#fafafa !important; border-color:#ddd !important; }
+    body.printing-report #printArea .report-tile strong { font-size:12px !important; }
+    body.printing-report #printArea .eyebrow { color:#555 !important; }
+    body.printing-report #printArea h1 { font-size:22px !important; }
+    body.printing-report #printArea .tag { color:#222 !important; background:#eee !important; }
+    @page { size:landscape; margin:12mm; }
+  }
+</style>
+</head>
+<body data-theme="light" data-product="brinjal" class="text-medium">
+<div class="app-shell" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">🌱</div>
+      <div><div class="brand-title">FieldLedger</div><div class="brand-sub">Your farm business, in one place</div></div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="quickThemeBtn" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+      <button class="icon-btn" id="quickTextBtn" aria-label="Change text size" title="Change text size">Aa</button>
+      <button class="profile-chip" data-nav="profile" title="Open profile"><span class="avatar" id="avatarInitial">T</span><span class="profile-name" id="profileChipName">My Farm</span><span>⌄</span></button>
+    </div>
+  </header>
+
+  <div class="product-switch" role="tablist" aria-label="Choose product">
+    <button class="product-tab active" data-product-tab="brinjal" role="tab" aria-selected="true"><span class="mini-icon">🍆</span> Brinjal <span class="muted">/ கத்திரிக்காய்</span></button>
+    <button class="product-tab" data-product-tab="muskmelon" role="tab" aria-selected="false"><span class="mini-icon melon-tab-icon"><svg class="melon-svg" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="melonGradTop" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8f28a"/><stop offset="1" stop-color="#8dbb42"/></linearGradient></defs><ellipse cx="20" cy="22" rx="15" ry="12" fill="url(#melonGradTop)" stroke="#6c9637" stroke-width="1.4"/><path d="M7 22 Q20 7 33 22 M10 29 Q20 16 30 29 M14 11 Q20 22 14 33 M26 11 Q20 22 26 33" fill="none" stroke="#f7ffd8" stroke-width="1.1" opacity=".9"/><path d="M20 10 Q17 4 22 3 Q28 5 24 10Z" fill="#4f8c3e"/><path d="M20 11 Q14 5 11 9 Q14 13 20 11Z" fill="#78ab43"/></svg></span> Muskmelon <span class="muted">/ முலாம்பழம்</span></button>
+  </div>
+
+  <div class="context-row">
+    <div><div class="eyebrow" id="pageEyebrow">Farm overview · October 2026</div><h1 id="pageTitle">Brinjal business</h1></div>
+    <div class="context-actions"><button class="btn" data-nav="entry">＋ Daily entry</button><button class="btn primary" data-nav="reports">▤ Monthly statement</button></div>
+  </div>
+
+  <nav class="nav" aria-label="Main navigation">
+    <button class="nav-btn active" data-nav="dashboard"><span class="nav-emoji">⌂</span><span>Overview</span></button>
+    <button class="nav-btn" data-nav="entry"><span class="nav-emoji">✚</span><span>Daily entry</span></button>
+    <button class="nav-btn" data-nav="records"><span class="nav-emoji">▤</span><span>Records</span></button>
+    <button class="nav-btn" data-nav="reports"><span class="nav-emoji">▥</span><span>Reports</span></button>
+    <button class="nav-btn" data-nav="tools"><span class="nav-emoji">•••</span><span>More</span></button>
+  </nav>
+
+  <main id="viewContainer" class="view" aria-live="polite"></main>
+  <footer class="footer"><span>FieldLedger prototype · Data is saved in this browser</span><span>Designed for phone, tablet and desktop</span></footer>
+</div>
+<input type="file" id="importFile" accept=".json,application/json" class="hidden" />
+<div class="toast" id="toast" role="status"></div>
+<div id="modalRoot"></div>
+<script>
+(() => {
+  'use strict';
+  const STORAGE_KEY = 'fieldledger-prototype-v1';
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const fmt = n => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(Number(n || 0));
+  const money = n => '₹' + fmt(n);
+  const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+  const currentMonth = () => todayISO().slice(0,7);
+  const monthLabel = ym => { const [y,m] = String(ym || currentMonth()).split('-').map(Number); return new Date(y,(m||1)-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'}); };
+  const dateLabel = iso => { if (!iso) return '—'; const [y,m,d] = String(iso).split('-').map(Number); return new Date(y,(m||1)-1,d||1).toLocaleDateString('en-IN',{day:'numeric',month:'short'}); };
+  const clone = obj => JSON.parse(JSON.stringify(obj));
+  const seedState = () => ({
+    version: 1,
+    settings: { theme:'light', textSize:'medium', brinjalTypes:['Local','Hybrid','Long','Round'] },
+    profile: { name:'Tharun', farmName:'My Farm', phone:'', location:'Tamil Nadu' },
+    data: {
+      brinjal: [
+        {id:'b1',date:'2026-10-01',bags:10,kg:320,rate:15,expenses:1500,men:3,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b2',date:'2026-10-02',bags:12,kg:384,rate:15,expenses:1500,men:4,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b3',date:'2026-10-03',bags:15,kg:480,rate:15,expenses:1500,men:4,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b4',date:'2026-10-04',bags:10,kg:320,rate:15,expenses:1500,men:3,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b5',date:'2026-10-05',bags:15,kg:480,rate:15,expenses:1500,men:4,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b6',date:'2026-10-06',bags:12,kg:384,rate:15,expenses:1500,men:4,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b7',date:'2026-10-07',bags:10,kg:320,rate:15,expenses:1500,men:4,women:0,maleWage:500,femaleWage:400,manualKg:false},
+        {id:'b8',date:'2026-10-08',bags:10,kg:320,rate:15,expenses:1500,men:3,women:0,maleWage:500,femaleWage:400,manualKg:false}
+      ],
+      muskmelon: [
+        {id:'m1',date:'2026-10-02',kg:3500,rate:15,expenses:3000},
+        {id:'m2',date:'2026-10-04',kg:2000,rate:12,expenses:0},
+        {id:'m3',date:'2026-10-10',kg:1500,rate:10,expenses:5000},
+        {id:'m4',date:'2026-10-12',kg:1200,rate:10,expenses:2000},
+        {id:'m5',date:'2026-10-18',kg:1500,rate:10,expenses:0},
+        {id:'m6',date:'2026-10-20',kg:1200,rate:10,expenses:8000}
+      ]
+    }
+  });
+  let state;
+  const freshState = seedState();
+  try {
+    const savedText = localStorage.getItem(STORAGE_KEY);
+    const saved = savedText ? JSON.parse(savedText) : null;
+    state = saved ? {...freshState, ...saved, settings:{...freshState.settings,...(saved.settings||{})}, profile:{...freshState.profile,...(saved.profile||{})}, data:{brinjal:[...(saved.data?.brinjal||freshState.data.brinjal)],muskmelon:[...(saved.data?.muskmelon||freshState.data.muskmelon)]}} : freshState;
+  } catch (_) { state = freshState; }
+  let activeProduct = 'brinjal';
+  let activeView = 'dashboard';
+  let editingId = null;
+  let reportMonth = currentMonth();
+  let toastTimer;
+  let bagDetailsDraft = [];
+  let expenseDetailsDraft = [];
+  let modalBagDraft = [];
+  let modalExpenseDraft = [];
+  const melonSvg = '<svg class="melon-svg" viewBox="0 0 40 40" aria-hidden="true"><defs><linearGradient id="melonGradInline" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d8f28a"/><stop offset="1" stop-color="#8dbb42"/></linearGradient></defs><ellipse cx="20" cy="22" rx="15" ry="12" fill="url(#melonGradInline)" stroke="#6c9637" stroke-width="1.4"/><path d="M7 22 Q20 7 33 22 M10 29 Q20 16 30 29 M14 11 Q20 22 14 33 M26 11 Q20 22 26 33" fill="none" stroke="#f7ffd8" stroke-width="1.1" opacity=".9"/><path d="M20 10 Q17 4 22 3 Q28 5 24 10Z" fill="#4f8c3e"/><path d="M20 11 Q14 5 11 9 Q14 13 20 11Z" fill="#78ab43"/></svg>';
+  const cfg = {
+    brinjal: {name:'Brinjal', icon:'🍆', subtitle:'Bag-by-bag weight, variety, sales and labour', unit:'kg'},
+    muskmelon: {name:'Muskmelon', icon:melonSvg, subtitle:'Monthly production, income and expenses', unit:'kg'}
+  };
+  function upgradeDataModel(){
+    state.settings = {...{theme:'light',textSize:'medium',brinjalTypes:['Local','Hybrid','Long','Round']},...(state.settings||{})};
+    if(!Array.isArray(state.settings.brinjalTypes)||!state.settings.brinjalTypes.length) state.settings.brinjalTypes=['Local','Hybrid','Long','Round'];
+    delete state.settings.bagWeight; delete state.settings.maleWage; delete state.settings.femaleWage;
+    (state.data.brinjal||[]).forEach(r=>{
+      const count=Math.max(0,Number(r.bags||0));
+      if(!Array.isArray(r.bagDetails)){
+        const each=count?Number(r.kg||0)/count:32;
+        r.bagDetails=Array.from({length:count},()=>({weight:Number(each.toFixed(2)),type:state.settings.brinjalTypes[0]||'Local',size:'M'}));
+      }
+      r.bags=r.bagDetails.length; r.kg=Number(r.bagDetails.reduce((sum,b)=>sum+Number(b.weight||0),0).toFixed(2));
+      if(!Array.isArray(r.expenseItems)) r.expenseItems=Number(r.expenses||0)>0?[{date:r.date||todayISO(),purpose:'Daily farm expenses',amount:Number(r.expenses||0),notes:''}]:[];
+      r.expenses=Number(r.expenseItems.reduce((sum,x)=>sum+Number(x.amount||0),0).toFixed(2));
+    });
+    (state.data.muskmelon||[]).forEach(r=>{
+      if(!Array.isArray(r.expenseItems)) r.expenseItems=Number(r.expenses||0)>0?[{date:r.date||todayISO(),purpose:'Daily farm expenses',amount:Number(r.expenses||0),notes:''}]:[];
+      r.expenses=Number(r.expenseItems.reduce((sum,x)=>sum+Number(x.amount||0),0).toFixed(2));
+    });
+  }
+  upgradeDataModel();
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (_) {}
+  const dataset = () => state.data[activeProduct] || (state.data[activeProduct]=[]);
+  const brinjalGross = r => Number(r.kg||0) * Number(r.rate||0);
+  const labourSalary = r => Number(r.men||0)*Number(r.maleWage||0) + Number(r.women||0)*Number(r.femaleWage||0);
+  const rowGross = r => activeProduct === 'brinjal' ? brinjalGross(r) : Number(r.kg||0)*Number(r.rate||0);
+  const rowNet = r => activeProduct === 'brinjal' ? rowGross(r)-Number(r.expenses||0)-labourSalary(r) : rowGross(r)-Number(r.expenses||0);
+  function saveState(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) { showToast('Browser storage is full; please export a backup.'); } }
+  function showToast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),2800); }
+  function totals(rows, product=activeProduct){
+    return rows.reduce((t,r)=>{
+      t.kg += Number(r.kg||0); t.bags += Number(r.bags||0); t.gross += Number(r.kg||0)*Number(r.rate||0); t.expenses += Number(r.expenses||0);
+      if(product==='brinjal'){t.men+=Number(r.men||0);t.women+=Number(r.women||0);t.labour+=Number(r.men||0)+Number(r.women||0);t.labourSalary+=labourSalary(r);}
+      return t;
+    },{kg:0,bags:0,gross:0,expenses:0,men:0,women:0,labour:0,labourSalary:0});
+  }
+  function filteredRows(month=reportMonth, product=activeProduct){ return (state.data[product]||[]).filter(r=>String(r.date||'').startsWith(month)).slice().sort((a,b)=>a.date.localeCompare(b.date)); }
+  function applySettings(){ document.body.dataset.theme = state.settings.theme || 'light'; document.body.dataset.product = activeProduct; document.body.classList.remove('text-small','text-medium','text-large'); document.body.classList.add('text-'+(state.settings.textSize||'medium')); $('#quickThemeBtn').textContent = state.settings.theme==='dark' ? '☀️' : '🌙'; $('#avatarInitial').textContent=(state.profile.name||'F').trim().charAt(0).toUpperCase()||'F'; $('#profileChipName').textContent=state.profile.farmName || 'My Farm'; $$('.product-tab').forEach(b=>{const on=b.dataset.productTab===activeProduct;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on));}); $$('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.nav===activeView)); }
+  function shellTitle(){
+    const d = new Date(reportMonth+'-01T12:00:00'); const month = d.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+    const map={dashboard:[`${cfg[activeProduct].name} · ${month}`,`${cfg[activeProduct].name} business`],entry:['Daily record','Add daily entry'],records:['Your saved records','Daily records'],reports:[`Monthly statement · ${month}`,'Monthly report'],tools:['Take your data with you','Data & exports'],settings:['Make it work your way','Settings'],profile:['Your workspace','Profile']};
+    const [eyebrow,title]=map[activeView]||map.dashboard; $('#pageEyebrow').textContent=eyebrow; $('#pageTitle').textContent=title;
+  }
+  function kpi(label,value,icon,note=''){return `<div class="card kpi"><div class="kpi-top"><span>${label}</span><span class="kpi-icon">${icon}</span></div><div class="kpi-value mono">${value}</div><div class="kpi-note">${note}</div></div>`;}
+  function dashboardView(){
+    if(activeProduct==='muskmelon') return muskmelonMonthlyDashboardView();
+    const monthRows=filteredRows(reportMonth); const t=totals(monthRows); const all=dataset().slice().sort((a,b)=>b.date.localeCompare(a.date)); const recent=all.slice(0,5);
+    const grossThis=t.gross; const netThis=t.gross-t.expenses-(activeProduct==='brinjal'?t.labourSalary:0);
+    let cards = activeProduct==='brinjal' ?
+      kpi('Total bags',fmt(t.bags),'🧺','Bags recorded this month')+kpi('Total weight',fmt(t.kg)+' kg','⚖️','Based on daily entries')+kpi('Gross sales',money(grossThis),'💹','Weight × rate per kg')+kpi('Net after costs',money(netThis),'✨','Sales − expenses − labour') :
+      kpi('Total quantity',fmt(t.kg)+' kg','⚖️','Quantity recorded this month')+kpi('Gross income',money(grossThis),'💛','Kg × rate per kg')+kpi('Expenses',money(t.expenses),'🧾','Manually entered costs')+kpi('Net after costs',money(netThis),'✨','Gross income − expenses');
+    const chartRows=monthRows.slice(-7); const max=Math.max(1,...chartRows.map(r=>Number(r.kg||0)*Number(r.rate||0)));
+    const chart=chartRows.length?chartRows.map(r=>`<div class="bar-col"><div class="bar-value">${fmtShort(rowGrossForProduct(r,activeProduct))}</div><div class="bar" style="height:${Math.max(4,Math.round(rowGrossForProduct(r,activeProduct)/max*125))}px"></div><div class="bar-label">${escapeHtml(dateLabel(r.date))}</div></div>`).join(''):`<div class="empty">No records for this month yet.</div>`;
+    const recentRows=recent.length?recent.map(r=>`<tr><td><strong>${escapeHtml(dateLabel(r.date))}</strong></td>${activeProduct==='brinjal'?`<td>${fmt(r.bags)} bags</td>`:''}<td>${fmt(r.kg)} kg</td><td>${money(rowGrossForProduct(r,activeProduct))}</td><td class="${rowNetForProduct(r,activeProduct)>=0?'positive':'negative'}">${money(rowNetForProduct(r,activeProduct))}</td><td><button class="btn small-btn" data-action="edit" data-id="${escapeHtml(r.id)}">Edit</button></td></tr>`).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-icon">🗂️</div>No entries yet. Add your first daily record.</div></td></tr>`;
+    return `<div class="grid kpis">${cards}</div>
+      <div class="grid two section-gap">
+        <section class="card"><div class="card-head"><div><h2>Sales activity</h2><div class="muted small">Daily gross amount · ${escapeHtml(monthLabel(reportMonth))}</div></div><span class="tag">${chartRows.length} entries</span></div><div class="chart">${chart}</div><div class="small muted" style="margin-top:12px">Bars show gross sales by date, before expenses and labour costs.</div></section>
+        <section class="card"><div class="card-head"><div><h2>Quick actions</h2><div class="muted small">Everything you need for today</div></div><span class="kpi-icon">✨</span></div><div class="quick-grid" style="grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button class="quick-card" data-nav="entry"><span class="quick-icon">✚</span><span><strong>New daily entry</strong><span>Add today's numbers</span></span></button>
+          <button class="quick-card" data-nav="reports"><span class="quick-icon">▤</span><span><strong>Monthly report</strong><span>View statement</span></span></button>
+          <button class="quick-card" data-nav="tools"><span class="quick-icon">📤</span><span><strong>Export data</strong><span>Excel, PDF, PNG</span></span></button>
+          <button class="quick-card" data-nav="settings"><span class="quick-icon">⚙️</span><span><strong>Preferences</strong><span>Theme & brinjal types</span></span></button>
+        </div></section>
+      </div>
+      <section class="card section-gap"><div class="card-head"><div><h2>Recent entries</h2><div class="muted small">Latest saved days for ${cfg[activeProduct].name}</div></div><button class="btn small-btn" data-nav="records">View all →</button></div><div class="table-wrap"><table><thead><tr><th>Date</th>${activeProduct==='brinjal'?'<th>Bags</th>':''}<th>Weight</th><th>Gross amount</th><th>Net after costs</th><th>Action</th></tr></thead><tbody>${recentRows}</tbody></table></div></section>`;
+  }
+  function muskmelonMonthlyDashboardView(){
+    const rows=dataset().slice().sort((a,b)=>b.date.localeCompare(a.date));
+    const monthMap=new Map();
+    rows.forEach(r=>{const key=String(r.date||'').slice(0,7);if(!key)return;if(!monthMap.has(key))monthMap.set(key,[]);monthMap.get(key).push(r);});
+    const months=[...monthMap.entries()].sort((a,b)=>b[0].localeCompare(a[0]));
+    const selected=filteredRows(reportMonth); const t=totals(selected); const net=t.gross-t.expenses;
+    const monthRows=months.length?months.map(([month,items])=>{const mt=totals(items,'muskmelon');const mn=mt.gross-mt.expenses;return `<tr><td><strong>${escapeHtml(monthLabel(month))}</strong><div class="muted small">${items.length} daily record${items.length===1?'':'s'}</div></td><td>${fmt(mt.kg)} kg</td><td class="positive">${money(mt.gross)}</td><td class="negative">${money(mt.expenses)}</td><td class="${mn>=0?'positive':'negative'}">${money(mn)}</td><td><button class="btn small-btn" data-month-report="${escapeHtml(month)}">View daily statement →</button></td></tr>`;}).join(''):`<tr><td colspan="6"><div class="empty"><div class="empty-icon">${melonSvg}</div>No monthly totals yet. Add muskmelon records to get started.</div></td></tr>`;
+    return `<div class="month-focus"><label class="field-label" for="dashboardMonth">Monthly focus</label><input id="dashboardMonth" type="month" value="${escapeHtml(reportMonth)}"></div>
+      <div class="grid kpis">${kpi('Quantity this month',fmt(t.kg)+' kg','⚖️',monthLabel(reportMonth))}${kpi('Gross income',money(t.gross),melonSvg,'Quantity × daily rate')}${kpi('Expenses',money(t.expenses),'🧾','Expense items logged')}${kpi('Net after expenses',money(net),'✨','Gross income − expenses')}</div>
+      <section class="card section-gap"><div class="card-head"><div><h2>Monthly performance</h2><div class="muted small">Muskmelon statistics are grouped by month, not by individual day.</div></div><span class="kpi-icon">${melonSvg}</span></div>
+      <div class="table-wrap"><table style="min-width:620px"><thead><tr><th>Month</th><th>Total quantity</th><th>Gross income</th><th>Expenses</th><th>Net after expenses</th><th>Statement</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+      <div class="form-actions" style="margin-top:14px"><span class="muted small">Daily entry remains available; this overview rolls those records into monthly totals.</span><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-nav="records">View daily records</button><button class="btn primary" data-nav="entry">＋ Add daily entry</button></div></div></section>`;
+  }
+  function fmtShort(n){ n=Number(n||0); return n>=100000? (n/100000).toFixed(1)+'L':n>=1000?(n/1000).toFixed(1)+'k':fmt(n); }
+  function rowGrossForProduct(r,p){return Number(r.kg||0)*Number(r.rate||0)}
+  function rowNetForProduct(r,p){return rowGrossForProduct(r,p)-Number(r.expenses||0)-(p==='brinjal'?labourSalary(r):0)}
+  function numOptions(selected, max=30){let out='';for(let i=0;i<=max;i++)out+=`<option value="${i}" ${Number(selected||0)===i?'selected':''}>${i}</option>`;return out;}
+  function bagTypeOptions(selected){return (state.settings.brinjalTypes||[]).map(t=>`<option value="${escapeHtml(t)}" ${String(selected||'')===t?'selected':''}>${escapeHtml(t)}</option>`).join('');}
+  function bagDetailsSummary(items){
+    if(!items||!items.length)return '<span class="muted small">Choose the number of bags, then enter each bag’s weight, type and size.</span>';
+    const total=items.reduce((n,b)=>n+Number(b.weight||0),0);
+    const mix={}; items.forEach(b=>{const k=(b.type||'Type not set')+' / '+(b.size||'—');mix[k]=(mix[k]||0)+1;});
+    return `<div class="small"><strong>${items.length} bags · ${fmt(total)} kg total</strong></div><div class="bag-preview">${Object.entries(mix).map(([name,count])=>`<span class="bag-chip">${escapeHtml(name)} × ${count}</span>`).join('')}</div>`;
+  }
+  function expenseItemsTotal(items){return Number((items||[]).reduce((n,x)=>n+Number(x.amount||0),0).toFixed(2));}
+  function expenseDetailsSummary(items){
+    if(!items||!items.length)return '<span class="muted small">No expense items added yet.</span>';
+    const meaningful=items.filter(x=>x.purpose||Number(x.amount||0));
+    return `<div class="small"><strong>${meaningful.length} expense item${meaningful.length===1?'':'s'} · ${money(expenseItemsTotal(items))}</strong></div><div class="muted small">${meaningful.slice(0,3).map(x=>`${escapeHtml(x.purpose||'Expense')} · ${money(x.amount||0)}`).join(' &nbsp; · &nbsp; ')}${meaningful.length>3?' · +'+(meaningful.length-3)+' more':''}</div>`;
+  }
+  function entryView(){
+    const old=editingId ? dataset().find(r=>r.id===editingId) : null;
+    const today=old?.date||todayISO();
+    const latest=dataset().slice().sort((a,b)=>b.date.localeCompare(a.date))[0];
+    const rate=old?.rate ?? latest?.rate ?? (activeProduct==='brinjal'?15:10);
+    bagDetailsDraft=clone(old?.bagDetails||[]);
+    expenseDetailsDraft=clone(old?.expenseItems||[]);
+    if(activeProduct==='brinjal'){
+      const bagCount=old?.bags ?? '';
+      const men=old?.men??0; const women=old?.women??0;
+      const bagOptions=Array.from({length:50},(_,i)=>i+1).map(n=>`<option value="${n}" ${Number(bagCount)===n?'selected':''}>${n} bag${n===1?'':'s'}</option>`).join('');
+      const weight=bagDetailsDraft.reduce((n,b)=>n+Number(b.weight||0),0);
+      return `<section class="card"><div class="card-head"><div><h2>${old?'Edit':'Add'} brinjal daily entry</h2><div class="muted small">Record each bag separately. Total weight is summed from the bag details.</div></div><span class="kpi-icon">🍆</span></div>
+      <form id="entryForm"><input type="hidden" name="id" value="${escapeHtml(old?.id||'')}"><div class="form-grid">
+        <div class="field"><label for="entryDate">Date</label><input id="entryDate" name="date" type="date" required value="${escapeHtml(today)}"></div>
+        <div class="field"><label for="bags">Number of bags</label><select id="bags" name="bags" required><option value="">Choose bag count</option>${bagOptions}</select><div class="field-hint">Selecting a count opens one detail section per bag.</div></div>
+        <div class="field full"><label>Individual bag details</label><button class="detail-edit" type="button" data-action="open-bags"><span><strong id="bagActionLabel">${bagDetailsDraft.length?'View / edit bag details':'Enter bag details'}</strong><span class="muted small" style="display:block;margin-top:3px">Weight in kg · Brinjal type · Size (S / M / L)</span></span><span>✎</span></button><div id="bagDetailsSummary" class="section-gap" style="margin-top:8px">${bagDetailsSummary(bagDetailsDraft)}</div></div>
+        <input type="hidden" id="kg" name="kg" value="${escapeHtml(weight)}">
+        <div class="field"><label for="rate">Rate per kg (₹)</label><input id="rate" name="rate" type="number" min="0" step="0.01" required value="${escapeHtml(rate)}" placeholder="Today's market rate"></div>
+        <div class="field"><label>Operating expenses</label><button class="detail-edit" type="button" data-action="open-expenses"><span><strong id="expenseActionLabel">${expenseDetailsDraft.length?'View / edit expense details':'Add expense details'}</strong><span class="muted small" style="display:block;margin-top:3px">Date, purpose, amount and optional notes</span></span><span>＋</span></button><div id="expenseDetailsSummary" class="section-gap" style="margin-top:8px">${expenseDetailsSummary(expenseDetailsDraft)}</div><input type="hidden" id="expenses" name="expenses" value="${expenseItemsTotal(expenseDetailsDraft)}"></div>
+        <div class="field"><label>Labour count</label><div class="inline-fields"><div><div class="field-label" style="margin-bottom:6px">Men</div><select name="men" id="men">${numOptions(men)}</select></div><div><div class="field-label" style="margin-bottom:6px">Women</div><select name="women" id="women">${numOptions(women)}</select></div></div></div>
+      </div>
+      <div class="subsection"><div class="subsection-head"><div><h3>Labour wages for this day</h3><div class="muted small">Set the current day's men's and women's pay separately.</div></div><span class="tag">Auto-calculated</span></div>
+        <div class="inline-fields"><div class="field"><label for="maleWage">Men's wage per person (₹)</label><input id="maleWage" name="maleWage" type="number" min="0" step="1" value="${escapeHtml(old?.maleWage ?? 500)}" required></div><div class="field"><label for="femaleWage">Women's wage per person (₹)</label><input id="femaleWage" name="femaleWage" type="number" min="0" step="1" value="${escapeHtml(old?.femaleWage ?? 400)}" required></div></div>
+      </div>
+      <div class="calc-strip"><div class="calc-item sale"><span>Total sale value</span><strong id="calcGross">₹0</strong></div><div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong></div><div class="calc-item labour"><span>Total labour salary</span><strong id="calcLabour">₹0</strong></div><div class="calc-item net"><span>Net after costs</span><strong id="calcNet">₹0</strong></div></div>
+      <div class="form-actions"><span class="muted small">Bag and expense details stay in this draft until you save the daily entry.</span><div style="display:flex;gap:8px"><button type="button" class="btn" data-action="reset-entry">Clear</button><button class="btn primary" type="submit">${old?'Save changes':'Save daily entry'} →</button></div></div></form></section>
+      <div class="notice section-gap">🧮 <strong>Calculation:</strong> Total weight = sum of each bag's weight. Sale value = total weight × rate/kg. Net after costs = sale value − operating expenses − labour salary.</div>`;
+    }
+    return `<section class="card"><div class="card-head"><div><h2>${old?'Edit':'Add'} muskmelon daily entry</h2><div class="muted small">Enter the day's quantity and market rate. Monthly overview groups daily records by month.</div></div><span class="kpi-icon">${melonSvg}</span></div>
+      <form id="entryForm"><input type="hidden" name="id" value="${escapeHtml(old?.id||'')}"><div class="form-grid">
+        <div class="field"><label for="entryDate">Date</label><input id="entryDate" name="date" type="date" required value="${escapeHtml(today)}"></div>
+        <div class="field"><label for="kg">Quantity (kg)</label><input id="kg" name="kg" type="number" min="0" step="0.01" required placeholder="e.g. 1500" value="${escapeHtml(old?.kg??'')}"></div>
+        <div class="field"><label for="rate">Rate per kg (₹)</label><input id="rate" name="rate" type="number" min="0" step="0.01" required value="${escapeHtml(rate)}" placeholder="Today's market rate"></div>
+        <div class="field"><label>Operating expenses</label><button class="detail-edit" type="button" data-action="open-expenses"><span><strong id="expenseActionLabel">${expenseDetailsDraft.length?'View / edit expense details':'Add expense details'}</strong><span class="muted small" style="display:block;margin-top:3px">Date, purpose, amount and optional notes</span></span><span>＋</span></button><div id="expenseDetailsSummary" class="section-gap" style="margin-top:8px">${expenseDetailsSummary(expenseDetailsDraft)}</div><input type="hidden" id="expenses" name="expenses" value="${expenseItemsTotal(expenseDetailsDraft)}"></div>
+      </div>
+      <div class="calc-strip three-col"><div class="calc-item sale"><span>Gross income</span><strong id="calcGross">₹0</strong></div><div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong></div><div class="calc-item net"><span>Net after expenses</span><strong id="calcNet">₹0</strong></div></div>
+      <div class="form-actions"><span class="muted small">Expense details stay in this draft until you save the daily entry.</span><div style="display:flex;gap:8px"><button type="button" class="btn" data-action="reset-entry">Clear</button><button class="btn primary" type="submit">${old?'Save changes':'Save daily entry'} →</button></div></div></form></section>
+      <div class="notice section-gap">🍈 <strong>Calculation:</strong> Gross income = quantity × daily rate. Net after expenses = gross income − operating expenses. Monthly overview summarises records month by month.</div>`;
+  }
+  function recordTableRow(r){
+    const gross=rowGrossForProduct(r,activeProduct), net=rowNetForProduct(r,activeProduct);
+    if(activeProduct==='brinjal') return `<tr><td><strong>${escapeHtml(dateLabel(r.date))}</strong></td><td>${fmt(r.bags)}</td><td>${fmt(r.kg)}</td><td>${money(r.rate)}</td><td class="positive">${money(gross)}</td><td>${money(r.expenses)}</td><td>${fmt(r.men)}</td><td>${fmt(r.women)}</td><td>${fmt(Number(r.men||0)+Number(r.women||0))}</td><td>${money(labourSalary(r))}</td><td class="${net>=0?'positive':'negative'}">${money(net)}</td><td><button class="btn small-btn" data-action="edit" data-id="${escapeHtml(r.id)}">Edit</button> <button class="btn small-btn danger" data-action="delete" data-id="${escapeHtml(r.id)}">×</button></td></tr>`;
+    return `<tr><td><strong>${escapeHtml(dateLabel(r.date))}</strong></td><td>${fmt(r.kg)}</td><td>${money(r.rate)}</td><td class="positive">${money(gross)}</td><td>${money(r.expenses)}</td><td class="${net>=0?'positive':'negative'}">${money(net)}</td><td><button class="btn small-btn" data-action="edit" data-id="${escapeHtml(r.id)}">Edit</button> <button class="btn small-btn danger" data-action="delete" data-id="${escapeHtml(r.id)}">×</button></td></tr>`;
+  }
+  function recordsView(){
+    const rows=dataset().slice().sort((a,b)=>b.date.localeCompare(a.date));
+    return `<section class="card"><div class="card-head"><div><h2>${cfg[activeProduct].name} records</h2><div class="muted small">All saved entries, newest first</div></div><button class="btn primary" data-nav="entry">＋ Add entry</button></div>${rows.length?`<div class="table-wrap"><table><thead><tr><th>Date</th>${activeProduct==='brinjal'?'<th>Bags</th>':''}<th>Weight (kg)</th><th>Rate/kg</th><th>Gross amount</th><th>Expenses</th>${activeProduct==='brinjal'?'<th>Men</th><th>Women</th><th>Workers</th><th>Labour salary</th>':''}<th>Net after costs</th><th>Actions</th></tr></thead><tbody>${rows.map(recordTableRow).join('')}</tbody></table></div>`:`<div class="empty"><div class="empty-icon">📒</div>No records yet. Create a daily entry to get started.</div>`}</section>`;
+  }
+  function reportMetrics(t){ const net=t.gross-t.expenses-(activeProduct==='brinjal'?t.labourSalary:0); return `<div class="report-summary">${activeProduct==='brinjal'?`<div class="report-tile"><span>Total bags</span><strong>${fmt(t.bags)}</strong></div>`:''}<div class="report-tile"><span>Total weight</span><strong>${fmt(t.kg)} kg</strong></div><div class="report-tile"><span>Gross sales</span><strong>${money(t.gross)}</strong></div><div class="report-tile"><span>Operating expenses</span><strong>${money(t.expenses)}</strong></div><div class="report-tile"><span>Net after costs</span><strong class="${net>=0?'positive':'negative'}">${money(net)}</strong></div>${activeProduct==='brinjal'?`<div class="report-tile"><span>Total workers</span><strong>${fmt(t.labour)}</strong></div><div class="report-tile"><span>Labour salary</span><strong>${money(t.labourSalary)}</strong></div>`:''}</div>`; }
+  function reportView(){
+    const rows=filteredRows(reportMonth); const t=totals(rows); const net=t.gross-t.expenses-(activeProduct==='brinjal'?t.labourSalary:0);
+    const headers=activeProduct==='brinjal'?['Date','Bags','Total weight (kg)','Rate/kg','Total rate','Expenses','Men','Women','No. labour','Labour salary','Net after costs']:['Date','No. kg','Rate/kg','Gross income','Expenses','Net after expenses'];
+    const trs=rows.map(r=>activeProduct==='brinjal'?`<tr><td>${escapeHtml(dateLabel(r.date))}</td><td>${fmt(r.bags)}</td><td>${fmt(r.kg)}</td><td>${money(r.rate)}</td><td class="positive">${money(rowGrossForProduct(r,activeProduct))}</td><td>${money(r.expenses)}</td><td>${fmt(r.men)}</td><td>${fmt(r.women)}</td><td>${fmt(Number(r.men||0)+Number(r.women||0))}</td><td>${money(labourSalary(r))}</td><td class="${rowNetForProduct(r,activeProduct)>=0?'positive':'negative'}">${money(rowNetForProduct(r,activeProduct))}</td></tr>`:`<tr><td>${escapeHtml(dateLabel(r.date))}</td><td>${fmt(r.kg)}</td><td>${money(r.rate)}</td><td class="positive">${money(rowGrossForProduct(r,activeProduct))}</td><td>${money(r.expenses)}</td><td class="${rowNetForProduct(r,activeProduct)>=0?'positive':'negative'}">${money(rowNetForProduct(r,activeProduct))}</td></tr>`).join('');
+    const totalsCells=activeProduct==='brinjal'?`<td>TOTAL</td><td>${fmt(t.bags)}</td><td>${fmt(t.kg)}</td><td>—</td><td>${money(t.gross)}</td><td>${money(t.expenses)}</td><td>${fmt(t.men)}</td><td>${fmt(t.women)}</td><td>${fmt(t.labour)}</td><td>${money(t.labourSalary)}</td><td>${money(net)}</td>`:`<td>TOTAL</td><td>${fmt(t.kg)}</td><td>—</td><td>${money(t.gross)}</td><td>${money(t.expenses)}</td><td>${money(net)}</td>`;
+    return `<div id="reportArea">
+      <section class="card" id="printArea"><div class="card-head"><div><div class="eyebrow">${escapeHtml(state.profile.farmName||'My Farm')} · monthly statement</div><h2 style="font-size:22px;margin:4px 0 4px">${cfg[activeProduct].icon} ${cfg[activeProduct].name} — ${escapeHtml(monthLabel(reportMonth))}</h2><div class="muted small">Prepared ${escapeHtml(new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}))}${state.profile.location?' · '+escapeHtml(state.profile.location):''}</div></div><div class="no-print" style="display:flex;gap:7px;flex-wrap:wrap"><button class="btn small-btn" data-action="export-png">🖼 Save PNG</button><button class="btn small-btn" data-action="export-xlsx">▦ Excel</button><button class="btn small-btn primary" data-action="export-pdf">⇩ Download PDF</button></div></div>
+      ${reportMetrics(t)}
+      <div class="table-wrap"><table id="reportTable"><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${trs||`<tr><td colspan="${headers.length}"><div class="empty"><div class="empty-icon">🗓️</div>No entries for ${escapeHtml(monthLabel(reportMonth))}. Choose another month or add entries.</div></td></tr>`}</tbody>${rows.length?`<tfoot><tr>${totalsCells}</tr></tfoot>`:''}</table></div>
+      ${activeProduct==='muskmelon'?`<div class="notice" style="margin-top:13px">Note: Gross income is calculated as kg × rate/kg. Net after expenses is gross income minus expenses. This keeps the original sheet's “Profit” calculation visible while also calculating net profit.</div>`:''}
+      <div class="mobile-note no-print">PDF opens the print dialog — select “Save as PDF”. PNG can be downloaded or shared to your phone's Gallery/Photos.</div>
+      </section>
+      <div class="card section-gap no-print"><div class="card-head"><div><h2>Statement actions</h2><div class="muted small">Export this product's ${escapeHtml(monthLabel(reportMonth))} statement.</div></div><span class="kpi-icon">📦</span></div><div class="quick-grid">
+        <button class="quick-card" data-action="export-pdf"><span class="quick-icon">📄</span><span><strong>Download PDF</strong><span>Print / Save as PDF</span></span></button>
+        <button class="quick-card" data-action="export-xlsx"><span class="quick-icon">📊</span><span><strong>Excel workbook</strong><span>Editable .xlsx file</span></span></button>
+        <button class="quick-card" data-action="export-png"><span class="quick-icon">🖼️</span><span><strong>Save as PNG</strong><span>Share or save to Gallery</span></span></button>
+        <button class="quick-card" data-action="export-csv"><span class="quick-icon">📃</span><span><strong>Export CSV</strong><span>Simple data file</span></span></button>
+      </div></div>
+    </div>`;
+  }
+  function toolsView(){
+    const allCount=(state.data.brinjal||[]).length+(state.data.muskmelon||[]).length;
+    return `<div class="grid equal"><section class="card"><div class="card-head"><div><h2>More tools</h2><div class="muted small">Exports, settings and your farm profile.</div></div><span class="kpi-icon">📤</span></div><div class="quick-grid" style="grid-template-columns:1fr">
+      <button class="quick-card" data-action="export-xlsx"><span class="quick-icon">📊</span><span><strong>Export monthly Excel</strong><span>${cfg[activeProduct].name} · ${escapeHtml(monthLabel(reportMonth))}</span></span></button>
+      <button class="quick-card" data-action="export-pdf"><span class="quick-icon">📄</span><span><strong>Print / save monthly PDF</strong><span>Choose “Save as PDF” in the print dialog</span></span></button>
+      <button class="quick-card" data-action="export-png"><span class="quick-icon">🖼️</span><span><strong>Save monthly statement as PNG</strong><span>Download or share to Gallery/Photos on mobile</span></span></button>
+      <button class="quick-card" data-action="export-json"><span class="quick-icon">🗃️</span><span><strong>Export complete backup</strong><span>All products, profile and settings · JSON</span></span></button>
+      <button class="quick-card" data-nav="settings"><span class="quick-icon">⚙️</span><span><strong>Settings</strong><span>Theme, text size and brinjal types</span></span></button>
+      <button class="quick-card" data-nav="profile"><span class="quick-icon">👤</span><span><strong>Farm profile</strong><span>Edit business details</span></span></button>
+    </div></section>
+    <section class="card"><div class="card-head"><div><h2>Import / restore data</h2><div class="muted small">Restore a FieldLedger JSON backup on this device.</div></div><span class="kpi-icon">📥</span></div><div class="notice">Your entries are stored in this browser. Use a backup when changing phones, browsers or clearing browser data.</div><div style="height:14px"></div><button class="btn primary" data-action="import-json">Choose backup file</button><div style="height:16px"></div><div class="report-summary" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="report-tile"><span>Brinjal entries</span><strong>${fmt((state.data.brinjal||[]).length)}</strong></div><div class="report-tile"><span>Muskmelon entries</span><strong>${fmt((state.data.muskmelon||[]).length)}</strong></div></div><div class="small muted">Total of ${allCount} saved daily entries across both product books.</div><div class="subsection"><h3>Demo data</h3><p class="muted small" style="margin:7px 0 12px">The prototype is preloaded with the figures from your image for October 2026. You can edit or delete them.</p><button class="btn danger" data-action="reset-demo">Restore sample data</button></div></section></div>
+      <div class="notice section-gap">🔒 <strong>Prototype privacy:</strong> information stays in this browser's local storage. This is a front-end demo, not cloud-synced. Export backups regularly before clearing site data.</div>`;
+  }
+  function settingsView(){
+    const s=state.settings;
+    const types=(s.brinjalTypes||[]).map((type,i)=>`<span class="type-pill"><span>🍆 ${escapeHtml(type)}</span><button type="button" title="Remove ${escapeHtml(type)}" aria-label="Remove ${escapeHtml(type)}" data-action="remove-type" data-type="${escapeHtml(type)}">×</button></span>`).join('');
+    return `<div class="settings-layout"><section class="card"><div class="card-head"><div><h2>Appearance</h2><div class="muted small">Make the app comfortable to use.</div></div><span class="kpi-icon">🎨</span></div><div class="field" style="margin-bottom:18px"><label>Display theme</label><div class="setting-choice"><button class="choice ${s.theme==='light'?'active':''}" data-action="set-theme" data-value="light">☀️ Light</button><button class="choice ${s.theme==='dark'?'active':''}" data-action="set-theme" data-value="dark">🌙 Dark</button></div></div><div class="field"><label>Text size</label><div class="setting-choice"><button class="choice ${s.textSize==='small'?'active':''}" data-action="set-text" data-value="small">Small</button><button class="choice ${s.textSize==='medium'?'active':''}" data-action="set-text" data-value="medium">Medium</button><button class="choice ${s.textSize==='large'?'active':''}" data-action="set-text" data-value="large">Large</button></div></div><div class="notice" style="margin-top:18px">Brinjal uses a violet accent; Muskmelon uses a warm yellow accent. Common reports and exports are available from both product areas.</div></section>
+    <section class="card"><div class="card-head"><div><h2>Brinjal categories / types</h2><div class="muted small">Manage the choices shown for each bag in Daily Entry.</div></div><span class="kpi-icon">🍆</span></div><form id="typeForm"><div class="field"><label for="newBrinjalType">Add a brinjal type</label><input id="newBrinjalType" name="type" maxlength="50" placeholder="e.g. Local purple" required></div><div class="form-actions"><span class="muted small">Type names can be changed by adding a new option and removing an old one.</span><button class="btn primary" type="submit">＋ Add type</button></div></form><div class="type-list">${types||'<span class="muted small">No types configured.</span>'}</div><div class="notice" style="margin-top:15px">Existing saved bags keep their original type label if you remove it here. New bag entries will use the updated list.</div></section></div>
+    <section class="card section-gap"><div class="card-head"><div><h2>Data and workspace</h2><div class="muted small">Quick access to backup tools and farm details.</div></div><span class="kpi-icon">🗂️</span></div><div class="quick-grid"><button class="quick-card" data-action="export-json"><span class="quick-icon">📤</span><span><strong>Export backup</strong><span>JSON file</span></span></button><button class="quick-card" data-action="import-json"><span class="quick-icon">📥</span><span><strong>Import backup</strong><span>Restore JSON</span></span></button><button class="quick-card" data-nav="profile"><span class="quick-icon">👤</span><span><strong>Profile</strong><span>Farm details</span></span></button><button class="quick-card" data-nav="reports"><span class="quick-icon">📑</span><span><strong>Monthly reports</strong><span>PDF, Excel, PNG</span></span></button></div></section>`;
+  }
+  function profileView(){
+    const p=state.profile;
+    return `<section class="card"><div class="profile-hero"><div class="profile-big">👩‍🌾</div><div><h2>${escapeHtml(p.farmName||'My Farm')}</h2><div class="muted small">FieldLedger farm workspace</div><span class="tag" style="margin-top:7px">Local profile</span></div></div><form id="profileForm"><div class="form-grid"><div class="field"><label for="profileName">Your name</label><input id="profileName" name="name" value="${escapeHtml(p.name)}" placeholder="Your name"></div><div class="field"><label for="farmName">Farm / business name</label><input id="farmName" name="farmName" value="${escapeHtml(p.farmName)}" placeholder="e.g. Green Valley Farm"></div><div class="field"><label for="phone">Phone number (optional)</label><input id="phone" name="phone" type="tel" value="${escapeHtml(p.phone)}" placeholder="Contact number"></div><div class="field"><label for="location">Location</label><input id="location" name="location" value="${escapeHtml(p.location)}" placeholder="Village / district"></div></div><div class="form-actions"><span class="muted small">Used on statement headers and the app home screen.</span><button class="btn primary" type="submit">Save profile</button></div></form></section>
+    <section class="card section-gap"><div class="card-head"><div><h2>About this prototype</h2><div class="muted small">A local interactive demo of your proposed mobile app.</div></div><span class="kpi-icon">🌱</span></div><div class="grid equal"><div class="notice"><strong>🍆 Brinjal</strong><br>Daily bag/weight entry, sales, manual expenses and separate men's/women's labour wages.</div><div class="notice"><strong>${melonSvg} Muskmelon / முலாம்பழம்</strong><br>Daily quantity and expenses, with performance summarised by month.</div></div></section>`;
+  }
+  function render(){
+    applySettings(); shellTitle();
+    const views={dashboard:dashboardView,entry:entryView,records:recordsView,reports:reportView,tools:toolsView,settings:settingsView,profile:profileView};
+    $('#viewContainer').innerHTML=(views[activeView]||dashboardView)();
+    if(activeView==='entry') setupEntryCalculator();
+  }
+  function navigate(view){ if(!['dashboard','entry','records','reports','tools','settings','profile'].includes(view))return; activeView=view; if(view!=='entry') editingId=null; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+  function setupEntryCalculator(){
+    const form=$('#entryForm'); if(!form)return;
+    const recalc=()=>{
+      const get=n=>Number(form.elements[n]?.value||0);
+      if(activeProduct==='brinjal'){
+        form.elements.kg.value=Number(bagDetailsDraft.reduce((sum,b)=>sum+Number(b.weight||0),0).toFixed(2));
+        form.elements.bags.value=bagDetailsDraft.length?String(bagDetailsDraft.length):(form.elements.bags.value||'');
+      }
+      const gross=get('kg')*get('rate'); const exp=expenseItemsTotal(expenseDetailsDraft);
+      if(form.elements.expenses)form.elements.expenses.value=String(exp);
+      let labour=0;
+      if(activeProduct==='brinjal') labour=get('men')*get('maleWage')+get('women')*get('femaleWage');
+      $('#calcGross').textContent=money(gross); $('#calcExpenses').textContent=money(exp);
+      if($('#calcLabour'))$('#calcLabour').textContent=money(labour);
+      $('#calcNet').textContent=money(gross-exp-labour);
+    };
+    form.addEventListener('input',recalc); form.addEventListener('change',recalc); recalc();
+    form.addEventListener('submit',e=>{
+      e.preventDefault(); const fd=new FormData(form); const id=String(fd.get('id')||''); const date=String(fd.get('date')||''); if(!date){showToast('Please choose a date.');return;}
+      if(activeProduct==='brinjal' && (!bagDetailsDraft.length || bagDetailsDraft.length!==Number(fd.get('bags')||0))){showToast('Please enter details for every selected bag.');openBagModal();return;}
+      const existing=dataset().find(r=>r.date===date && r.id!==id); if(existing && !confirm('An entry already exists for this product and date. Replace it?'))return;
+      const rowExpenses=expenseItemsTotal(expenseDetailsDraft);
+      let row={id:id||makeId(),date,kg:Number(fd.get('kg')||0),rate:Number(fd.get('rate')||0),expenses:rowExpenses,expenseItems:clone(expenseDetailsDraft)};
+      if(activeProduct==='brinjal'){
+        row={...row,bags:bagDetailsDraft.length,bagDetails:clone(bagDetailsDraft),men:Number(fd.get('men')||0),women:Number(fd.get('women')||0),maleWage:Number(fd.get('maleWage')||0),femaleWage:Number(fd.get('femaleWage')||0)};
+        row.kg=Number(bagDetailsDraft.reduce((sum,b)=>sum+Number(b.weight||0),0).toFixed(2));
+      }
+      const arr=dataset(); const idx=arr.findIndex(r=>r.id===id || r.date===date); if(idx>=0)arr[idx]=row;else arr.push(row);
+      saveState(); editingId=null; bagDetailsDraft=[];expenseDetailsDraft=[]; reportMonth=date.slice(0,7); showToast('Daily entry saved successfully.'); navigate('records');
+    });
+    if(activeProduct==='brinjal'){
+      $('#bags').addEventListener('change',()=>{const count=Number($('#bags').value||0);if(count>0)openBagModal(true);else{bagDetailsDraft=[];$('#kg').value='0';$('#bagDetailsSummary').innerHTML=bagDetailsSummary([]);recalc();}});
+    }
+  }
+  function resizeBagDraft(count){
+    const items=clone(bagDetailsDraft||[]).slice(0,count);
+    while(items.length<count){items.push({weight:32,type:state.settings.brinjalTypes[0]||'Local',size:'M'});}
+    return items;
+  }
+  function openBagModal(autoOpen=false){
+    if(activeProduct!=='brinjal')return;
+    const count=Number($('#bags')?.value||0); if(!count){if(!autoOpen)showToast('Choose the number of bags first.');return;}
+    modalBagDraft=resizeBagDraft(count);
+    renderBagModal();
+  }
+  function renderBagModal(){
+    const root=$('#modalRoot');
+    const cards=modalBagDraft.map((b,i)=>`<section class="bag-entry-card"><div class="entry-card-head"><div class="entry-card-title"><span class="entry-card-number">${i+1}</span>Bag ${i+1}</div><span class="tag">Bag detail</span></div><div class="form-grid"><div class="field"><label for="bagWeight${i}">Weight (kg)</label><input id="bagWeight${i}" type="number" min="0.01" step="0.01" data-bag-index="${i}" data-bag-field="weight" value="${escapeHtml(b.weight??32)}" required></div><div class="field"><label for="bagType${i}">Brinjal category / type</label><select id="bagType${i}" data-bag-index="${i}" data-bag-field="type" required>${bagTypeOptions(b.type||state.settings.brinjalTypes[0])}</select></div><div class="field"><label for="bagSize${i}">Brinjal size</label><select id="bagSize${i}" data-bag-index="${i}" data-bag-field="size"><option value="S" ${b.size==='S'?'selected':''}>S · Small</option><option value="M" ${(!b.size||b.size==='M')?'selected':''}>M · Medium</option><option value="L" ${b.size==='L'?'selected':''}>L · Large</option></select></div></div></section>`).join('');
+    const total=modalBagDraft.reduce((n,b)=>n+Number(b.weight||0),0);
+    root.innerHTML=`<div class="modal-layer" data-modal-backdrop><section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="bagModalTitle"><div class="modal-head"><div><div class="eyebrow">Brinjal · bag-by-bag record</div><h2 id="bagModalTitle" style="margin-top:4px">Enter details for ${modalBagDraft.length} bags</h2><div class="muted small" style="margin-top:5px">Add weight, category and size for every bag.</div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">×</button></div><div class="modal-body">${cards}<div class="notice"><strong>Total bag weight: <span id="modalBagTotal">${fmt(total)} kg</span></strong><br><span class="muted small">This total updates the daily entry after you save these details.</span></div></div><div class="modal-foot"><button type="button" class="btn" data-modal-close>Cancel</button><button type="button" class="btn primary" id="saveBagModal">Save bag details ✓</button></div></section></div>`;
+    root.querySelectorAll('[data-bag-field]').forEach(el=>{const sync=()=>{const i=Number(el.dataset.bagIndex),field=el.dataset.bagField;modalBagDraft[i][field]=el.value;const sum=modalBagDraft.reduce((n,b)=>n+Number(b.weight||0),0);const totalEl=$('#modalBagTotal');if(totalEl)totalEl.textContent=fmt(sum)+' kg';};el.addEventListener('input',sync);el.addEventListener('change',sync);});
+    root.querySelectorAll('[data-modal-close]').forEach(el=>el.addEventListener('click',closeModal));
+    root.querySelector('[data-modal-backdrop]').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+    $('#saveBagModal').addEventListener('click',()=>{
+      const invalid=modalBagDraft.findIndex(b=>!Number(b.weight)||Number(b.weight)<=0||!String(b.type||'').trim()||!['S','M','L'].includes(b.size));
+      if(invalid>=0){showToast('Complete weight, type and size for each bag.');return;}
+      bagDetailsDraft=clone(modalBagDraft);
+      if($('#bags'))$('#bags').value=String(bagDetailsDraft.length);
+      if($('#kg'))$('#kg').value=String(bagDetailsDraft.reduce((n,b)=>n+Number(b.weight||0),0));
+      if($('#bagActionLabel'))$('#bagActionLabel').textContent='View / edit bag details';
+      if($('#bagDetailsSummary'))$('#bagDetailsSummary').innerHTML=bagDetailsSummary(bagDetailsDraft);
+      closeModal();$('#rate')?.dispatchEvent(new Event('input',{bubbles:true}));showToast('Bag details saved to this daily-entry draft.');
+    });
+  }
+  function openExpenseModal(){
+    modalExpenseDraft=clone(expenseDetailsDraft||[]);
+    if(!modalExpenseDraft.length)modalExpenseDraft=[{date:todayISO(),purpose:'',amount:'',notes:''}];
+    renderExpenseModal();
+  }
+  function renderExpenseModal(){
+    const root=$('#modalRoot');
+    const cards=modalExpenseDraft.map((x,i)=>`<section class="expense-entry-card"><div class="entry-card-head"><div class="entry-card-title"><span class="entry-card-number">${i+1}</span>Expense ${i+1}</div>${modalExpenseDraft.length>1?`<button type="button" class="btn small-btn danger" data-remove-expense="${i}">Remove</button>`:''}</div><div class="form-grid"><div class="field"><label for="expenseDate${i}">Date</label><input id="expenseDate${i}" type="date" data-exp-index="${i}" data-exp-field="date" value="${escapeHtml(x.date||todayISO())}" required></div><div class="field"><label for="expensePurpose${i}">What for?</label><input id="expensePurpose${i}" data-exp-index="${i}" data-exp-field="purpose" value="${escapeHtml(x.purpose||'')}" placeholder="e.g. Transport, food, packing" required></div><div class="field"><label for="expenseAmount${i}">How much (₹)</label><input id="expenseAmount${i}" type="number" min="0.01" step="0.01" data-exp-index="${i}" data-exp-field="amount" value="${escapeHtml(x.amount??'')}" placeholder="Enter amount" required></div><div class="field"><label for="expenseNotes${i}">Notes (optional)</label><input id="expenseNotes${i}" data-exp-index="${i}" data-exp-field="notes" value="${escapeHtml(x.notes||'')}" placeholder="Additional details"></div></div></section>`).join('');
+    const total=expenseItemsTotal(modalExpenseDraft);
+    root.innerHTML=`<div class="modal-layer" data-modal-backdrop><section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="expenseModalTitle"><div class="modal-head"><div><div class="eyebrow">Expense register</div><h2 id="expenseModalTitle" style="margin-top:4px">Daily expense details</h2><div class="muted small" style="margin-top:5px">Add each operating cost separately. Dates default to today.</div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">×</button></div><div class="modal-body"><div id="expenseCards">${cards}</div><button type="button" class="btn soft" id="addExpenseRow">＋ Add another expense</button><div class="calc-strip three-col" style="margin-top:14px"><div class="calc-item expense"><span>Total expenses</span><strong id="modalExpenseTotal">${money(total)}</strong></div><div class="calc-item"><span>Items</span><strong id="modalExpenseCount">${modalExpenseDraft.filter(x=>x.purpose||Number(x.amount||0)).length}</strong></div><div class="calc-item"><span>Included</span><strong style="font-size:14px">Daily record</strong></div></div></div><div class="modal-foot"><button type="button" class="btn" data-modal-close>Cancel</button><button type="button" class="btn primary" id="saveExpenseModal">Save expenses ✓</button></div></section></div>`;
+    root.querySelectorAll('[data-exp-field]').forEach(el=>el.addEventListener('input',()=>{const i=Number(el.dataset.expIndex),field=el.dataset.expField;modalExpenseDraft[i][field]=el.value;const total=expenseItemsTotal(modalExpenseDraft);$('#modalExpenseTotal').textContent=money(total);$('#modalExpenseCount').textContent=modalExpenseDraft.filter(x=>x.purpose||Number(x.amount||0)).length;}));
+    root.querySelectorAll('[data-remove-expense]').forEach(el=>el.addEventListener('click',()=>{modalExpenseDraft.splice(Number(el.dataset.removeExpense),1);renderExpenseModal();}));
+    $('#addExpenseRow').addEventListener('click',()=>{modalExpenseDraft.push({date:todayISO(),purpose:'',amount:'',notes:''});renderExpenseModal();const last=$('#expensePurpose'+(modalExpenseDraft.length-1));last?.focus();});
+    root.querySelectorAll('[data-modal-close]').forEach(el=>el.addEventListener('click',closeModal));
+    root.querySelector('[data-modal-backdrop]').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+    $('#saveExpenseModal').addEventListener('click',()=>{
+      const entries=modalExpenseDraft.filter(x=>String(x.purpose||'').trim()||String(x.amount??'').trim()||String(x.notes||'').trim());
+      if(entries.some(x=>!x.date||!String(x.purpose||'').trim()||!Number(x.amount)||Number(x.amount)<=0)){showToast('Each expense needs a date, purpose and amount.');return;}
+      expenseDetailsDraft=entries.map(x=>({date:String(x.date),purpose:String(x.purpose).trim(),amount:Number(x.amount),notes:String(x.notes||'').trim()}));
+      if($('#expenses'))$('#expenses').value=String(expenseItemsTotal(expenseDetailsDraft));
+      if($('#expenseActionLabel'))$('#expenseActionLabel').textContent=expenseDetailsDraft.length?'View / edit expense details':'Add expense details';
+      if($('#expenseDetailsSummary'))$('#expenseDetailsSummary').innerHTML=expenseDetailsSummary(expenseDetailsDraft);
+      closeModal();$('#rate')?.dispatchEvent(new Event('input',{bubbles:true}));showToast('Expense details saved to this daily-entry draft.');
+    });
+  }
+  function closeModal(){const root=$('#modalRoot');if(root)root.innerHTML='';}
+  function makeId(){return 'e'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+  function startEdit(id){const row=dataset().find(r=>r.id===id);if(!row)return;editingId=id;activeView='entry';render();window.scrollTo({top:0,behavior:'smooth'});}
+  function deleteRow(id){const row=dataset().find(r=>r.id===id);if(!row)return;if(!confirm(`Delete the ${cfg[activeProduct].name} entry for ${dateLabel(row.date)}? This cannot be undone unless you have a backup.`))return;state.data[activeProduct]=dataset().filter(r=>r.id!==id);saveState();render();showToast('Entry deleted.');}
+  function downloadBlob(blob,filename){const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);}
+  function fileBase(){return `${activeProduct}-${reportMonth}-statement`;}
+  function reportDataRows(){
+    const rows=filteredRows(reportMonth); const output=[];
+    if(activeProduct==='brinjal'){
+      output.push(['Date','No. bags','Total weight (kg)','Rate/kg (INR)','Total rate (INR)','Expenses (INR)','Men','Women','No. labour','Labour salary (INR)','Net after costs (INR)']);
+      rows.forEach(r=>output.push([r.date,Number(r.bags||0),Number(r.kg||0),Number(r.rate||0),rowGrossForProduct(r,activeProduct),Number(r.expenses||0),Number(r.men||0),Number(r.women||0),Number(r.men||0)+Number(r.women||0),labourSalary(r),rowNetForProduct(r,activeProduct)]));
+      const t=totals(rows);output.push(['TOTAL',t.bags,t.kg,'',t.gross,t.expenses,t.men,t.women,t.labour,t.labourSalary,t.gross-t.expenses-t.labourSalary]);
+    } else {
+      output.push(['Date','Quantity (kg)','Rate/kg (INR)','Gross income (INR)','Expenses (INR)','Net after expenses (INR)']);
+      rows.forEach(r=>output.push([r.date,Number(r.kg||0),Number(r.rate||0),rowGrossForProduct(r,activeProduct),Number(r.expenses||0),rowNetForProduct(r,activeProduct)]));
+      const t=totals(rows);output.push(['TOTAL',t.kg,'',t.gross,t.expenses,t.gross-t.expenses]);
+    }
+    return output;
+  }
+  function exportCSV(){const rows=reportDataRows();const csv=rows.map(row=>row.map(v=>{const s=String(v??'');return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(',')).join('\r\n');downloadBlob(new Blob(['\uFEFF',csv],{type:'text/csv;charset=utf-8;'}),fileBase()+'.csv');showToast('CSV statement downloaded.');}
+  function xmlEscape(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+  function colName(n){let s='';while(n>0){let r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26);}return s;}
+  function crc32(bytes){let c=-1;for(let i=0;i<bytes.length;i++){c^=bytes[i];for(let j=0;j<8;j++)c=(c>>>1)^((c&1)?0xEDB88320:0);}return (c^-1)>>>0;}
+  function le16(v){return [v&255,(v>>>8)&255];} function le32(v){return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255];}
+  function zipStore(files){
+    const encoder=new TextEncoder();const localParts=[];const centralParts=[];let offset=0;
+    for(const f of files){const name=encoder.encode(f.name);const data=typeof f.data==='string'?encoder.encode(f.data):f.data;const crc=crc32(data);const local=new Uint8Array([...le32(0x04034b50),...le16(20),...le16(0x0800),...le16(0),...le16(0),...le16(0),...le32(crc),...le32(data.length),...le32(data.length),...le16(name.length),...le16(0),...name,...data]);localParts.push(local);
+      const central=new Uint8Array([...le32(0x02014b50),...le16(20),...le16(20),...le16(0x0800),...le16(0),...le16(0),...le16(0),...le32(crc),...le32(data.length),...le32(data.length),...le16(name.length),...le16(0),...le16(0),...le16(0),...le16(0),...le32(0),...le32(offset),...name]);centralParts.push(central);offset+=local.length;
+    }
+    const centralSize=centralParts.reduce((s,a)=>s+a.length,0);const end=new Uint8Array([...le32(0x06054b50),...le16(0),...le16(0),...le16(files.length),...le16(files.length),...le32(centralSize),...le32(offset),...le16(0)]);
+    return new Blob([...localParts,...centralParts,end],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  }
+  function exportXLSX(){
+    const rows=reportDataRows(); const sheetRows=rows.map((row,ri)=>`<row r="${ri+1}">${row.map((v,ci)=>{const ref=colName(ci+1)+(ri+1);if(typeof v==='number'&&Number.isFinite(v))return `<c r="${ref}"><v>${v}</v></c>`;return `<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${xmlEscape(v)}</t></is></c>`;}).join('')}</row>`).join('');
+    const sheet=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><sheetFormatPr defaultRowHeight="18"/><sheetData>${sheetRows}</sheetData><autoFilter ref="A1:${colName(rows[0].length)}${rows.length}"/></worksheet>`;
+    const files=[
+      {name:'[Content_Types].xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>'},
+      {name:'_rels/.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>'},
+      {name:'xl/workbook.xml',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Monthly Statement" sheetId="1" r:id="rId1"/></sheets></workbook>'},
+      {name:'xl/_rels/workbook.xml.rels',data:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>'},
+      {name:'xl/worksheets/sheet1.xml',data:sheet}
+    ];
+    downloadBlob(zipStore(files),fileBase()+'.xlsx');showToast('Excel workbook downloaded.');
+  }
+  function exportJSON(){const backup={app:'FieldLedger',version:1,exportedAt:new Date().toISOString(),...clone(state)};downloadBlob(new Blob([JSON.stringify(backup,null,2)],{type:'application/json;charset=utf-8'}),'fieldledger-backup-'+todayISO()+'.json');showToast('Complete data backup downloaded.');}
+  function exportPDF(){const area=$('#printArea');if(!area){activeView='reports';render();setTimeout(exportPDF,80);return;}document.body.classList.add('printing-report');const oldTitle=document.title;document.title=fileBase();showToast('In the print window, choose “Save as PDF”.');setTimeout(()=>{window.print();setTimeout(()=>{document.body.classList.remove('printing-report');document.title=oldTitle;},500);},50);}
+  function exportPNG(){
+    const rows=reportDataRows();const title=`${cfg[activeProduct].name} Monthly Statement · ${monthLabel(reportMonth)}`;const t=totals(filteredRows(reportMonth));
+    const width=1200,rowH=38,top=235,height=top+(rows.length+1)*rowH+55;const colWidths=activeProduct==='brinjal'?[115,75,110,95,125,105,55,65,75,125,125]:[150,145,145,180,160,200];
+    const headers=rows[0];let x=30;let head='';headers.forEach((h,i)=>{head+=`<rect x="${x}" y="${top}" width="${colWidths[i]}" height="${rowH}" fill="#eee8ff"/><text x="${x+8}" y="${top+24}" font-size="13" font-weight="700" fill="#38266b">${xmlEscapeSvg(h)}</text>`;x+=colWidths[i];});
+    let body='';rows.slice(1).forEach((row,ri)=>{let xx=30;const yy=top+(ri+1)*rowH;row.forEach((v,ci)=>{body+=`<rect x="${xx}" y="${yy}" width="${colWidths[ci]}" height="${rowH}" fill="${ri%2?'#ffffff':'#faf9ff'}" stroke="#e7e2f1" stroke-width="1"/><text x="${xx+8}" y="${yy+24}" font-size="13" fill="#252136">${xmlEscapeSvg(v)}</text>`;xx+=colWidths[ci];});});
+    const net=t.gross-t.expenses-(activeProduct==='brinjal'?t.labourSalary:0);
+    const summary=[['TOTAL WEIGHT',fmt(t.kg)+' kg'],['GROSS SALES',money(t.gross)],['OPERATING EXPENSES',money(t.expenses)],...(activeProduct==='brinjal'?[['LABOUR SALARY',money(t.labourSalary)]]:[]),['NET AFTER COSTS',money(net)]];
+    let sum='';const sumWidth=activeProduct==='brinjal'?220:265, sumGap=activeProduct==='brinjal'?228:285;summary.forEach((p,i)=>{const xx=30+i*sumGap;sum+=`<rect x="${xx}" y="125" width="${sumWidth}" height="77" rx="13" fill="#f7f3ff" stroke="#e7defe"/><text x="${xx+12}" y="153" font-size="11" font-weight="700" fill="#756d87">${p[0]}</text><text x="${xx+12}" y="183" font-size="21" font-weight="800" fill="#6640ce">${xmlEscapeSvg(p[1])}</text>`;});
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#fff"/><rect x="0" y="0" width="100%" height="8" fill="${activeProduct==='brinjal'?'#7650db':'#d49b17'}"/><text x="30" y="48" font-family="Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="2" fill="#7650db">FIELDLEDGER · ${xmlEscapeSvg(state.profile.farmName||'MY FARM').toUpperCase()}</text><text x="30" y="88" font-family="Arial,sans-serif" font-size="30" font-weight="800" fill="#201d2b">${xmlEscapeSvg(title)}</text><text x="30" y="112" font-family="Arial,sans-serif" font-size="13" fill="#777386">Generated ${xmlEscapeSvg(new Date().toLocaleDateString('en-IN'))} · ${rows.length-1} daily record(s)</text>${sum}${head}${body}<text x="30" y="${height-18}" font-family="Arial,sans-serif" font-size="11" fill="#777386">Prototype statement · Net calculation excludes any costs not entered in the app.</text></svg>`;
+    const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});const url=URL.createObjectURL(blob);const img=new Image();img.onload=()=>{const canvas=document.createElement('canvas');canvas.width=width*2;canvas.height=height*2;const ctx=canvas.getContext('2d');ctx.scale(2,2);ctx.drawImage(img,0,0,width,height);canvas.toBlob(async png=>{URL.revokeObjectURL(url);if(!png){showToast('Could not create PNG in this browser.');return;}const filename=fileBase()+'.png';const file=new File([png],filename,{type:'image/png'});try{if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:title,text:'Monthly farm business statement'});showToast('Share sheet opened. Choose Save to Photos/Gallery if available.');return;}}catch(err){if(err?.name==='AbortError')return;}downloadBlob(png,filename);showToast('PNG downloaded. On a phone, save it to Gallery/Photos.');},'image/png');};img.onerror=()=>{URL.revokeObjectURL(url);showToast('PNG export failed in this browser.');};img.src=url;
+  }
+  function xmlEscapeSvg(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;');}
+  function importJSON(){ $('#importFile').click(); }
+  $('#importFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const parsed=JSON.parse(await file.text());const incoming=parsed.data?parsed:parsed.state;if(!incoming||!incoming.data||!Array.isArray(incoming.data.brinjal)||!Array.isArray(incoming.data.muskmelon))throw new Error('This is not a FieldLedger backup JSON file.');if(!confirm('Import this backup? It will replace the entries and settings currently stored in this browser.')){e.target.value='';return;}state={...seedState(),...incoming,data:{brinjal:incoming.data.brinjal,muskmelon:incoming.data.muskmelon},settings:{...seedState().settings,...incoming.settings},profile:{...seedState().profile,...incoming.profile}};upgradeDataModel();saveState();render();showToast('Backup restored successfully.');}catch(err){alert(err.message||'Unable to import this file. Please choose a FieldLedger JSON backup.');}e.target.value='';});
+  function resetEntry(){editingId=null;bagDetailsDraft=[];expenseDetailsDraft=[];activeView='entry';render();}
+  function handleAction(btn){const action=btn.dataset.action;switch(action){case'edit':startEdit(btn.dataset.id);break;case'delete':deleteRow(btn.dataset.id);break;case'reset-entry':resetEntry();break;case'open-bags':openBagModal();break;case'open-expenses':openExpenseModal();break;case'remove-type':removeBrinjalType(btn.dataset.type);break;case'export-json':exportJSON();break;case'import-json':importJSON();break;case'export-csv':exportCSV();break;case'export-xlsx':exportXLSX();break;case'export-pdf':exportPDF();break;case'export-png':exportPNG();break;case'set-theme':state.settings.theme=btn.dataset.value;saveState();render();showToast('Theme updated.');break;case'set-text':state.settings.textSize=btn.dataset.value;saveState();render();showToast('Text size updated.');break;case'reset-demo':if(confirm('Restore the original sample data? Your current records will be replaced.')){const fresh=seedState();state.data=fresh.data;upgradeDataModel();reportMonth='2026-10';saveState();render();showToast('Original sample data restored.');}break;}}
+  function removeBrinjalType(type){
+    const list=state.settings.brinjalTypes||[];if(list.length<=1){showToast('Keep at least one brinjal type available.');return;}
+    if(!confirm('Remove “'+type+'” from the available brinjal types? Existing records will keep this label.'))return;
+    state.settings.brinjalTypes=list.filter(x=>x!==type);saveState();render();showToast('Brinjal type removed.');
+  }
+  document.addEventListener('click',e=>{
+    const p=e.target.closest('[data-product-tab]');if(p){activeProduct=p.dataset.productTab;editingId=null;bagDetailsDraft=[];expenseDetailsDraft=[];activeView='dashboard';render();return;}
+    const month=e.target.closest('[data-month-report]');if(month){reportMonth=month.dataset.month;activeView='reports';render();window.scrollTo({top:0,behavior:'smooth'});return;}
+    const n=e.target.closest('[data-nav]');if(n){navigate(n.dataset.nav);return;}
+    const a=e.target.closest('[data-action]');if(a){handleAction(a);return;}
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#modalRoot')?.innerHTML)closeModal();});
+  $('#quickThemeBtn').addEventListener('click',()=>{state.settings.theme=state.settings.theme==='dark'?'light':'dark';saveState();render();});
+  $('#quickTextBtn').addEventListener('click',()=>{const cycle={small:'medium',medium:'large',large:'small'};state.settings.textSize=cycle[state.settings.textSize||'medium'];saveState();render();showToast('Text size: '+state.settings.textSize+'.');});
+  $('#viewContainer').addEventListener('change',e=>{if(e.target.id==='reportMonth'||e.target.id==='dashboardMonth'){reportMonth=e.target.value||currentMonth();render();}});
+  $('#viewContainer').addEventListener('submit',e=>{
+    if(e.target.id==='typeForm'){e.preventDefault();const fd=new FormData(e.target);const value=String(fd.get('type')||'').trim();if(!value)return;if((state.settings.brinjalTypes||[]).some(t=>t.toLowerCase()===value.toLowerCase())){showToast('That brinjal type already exists.');return;}state.settings.brinjalTypes.push(value);saveState();render();showToast('Brinjal type added to the dropdown.');}
+    if(e.target.id==='profileForm'){e.preventDefault();const fd=new FormData(e.target);state.profile={name:String(fd.get('name')||''),farmName:String(fd.get('farmName')||''),phone:String(fd.get('phone')||''),location:String(fd.get('location')||'')};saveState();render();showToast('Profile saved.');}
+  });
+  // Report month selector is rendered with the same shared month context.
+  const originalReportView=reportView;
+  reportView=function(){const markup=originalReportView();return markup.replace('<div id="reportArea">','<div id="reportArea"><div class="no-print" style="margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><label class="field-label" for="reportMonth">Report month</label><input id="reportMonth" type="month" value="'+escapeHtml(reportMonth)+'" style="max-width:220px"></div>');};
+  // Keep date/month changes live, and default to the month currently selected.
+  render();
+})();
+</script>
+</body>
+</html>

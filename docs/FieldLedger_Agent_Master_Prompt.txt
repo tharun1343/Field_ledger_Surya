@@ -1,0 +1,155 @@
+FIELDLEDGER — AGENT MODE MASTER PROMPT
+Version: 1.0 | Date: 19 October 2026
+
+ROLE AND MISSION
+Act as a senior product engineer, UX designer, and full-stack/mobile application architect. Take ownership of the attached FieldLedger prototype HTML and the requirements below. Your job is to inspect the existing prototype, understand its working interactions and data model, then improve or evolve it into a polished, reliable application for daily farm-business accounting. Do not produce only a static mockup or a design-only response. The resulting experience must have real, testable user interactions, working calculations, persistence, reports, and export/import paths.
+
+START HERE — IMPORTANT
+1. Open and inspect `farm_business_ledger_prototype.html` before changing it. It is the existing prototype and the source of truth for the current visual style and basic workflow. Keep a copy of the original before making significant edits.
+2. If the original source spreadsheet image is attached, use it to validate sample values and table columns. The image depicts two separate business ledgers.
+3. First summarize the existing app structure, what currently works, the gaps/risks found, and your implementation plan. Then execute the work; do not stop after giving a plan unless a genuinely blocking product decision is required.
+4. Reuse and improve the existing UI where sensible. Do not discard functioning flows or replace them with a static dashboard. Avoid an unnecessary rewrite if the current implementation can be made robust.
+5. If the environment supports execution, run the app and test the main workflows. Fix console errors, broken buttons, mobile overflow, and inconsistent calculations before declaring completion.
+6. Where the requirement is explicit, proceed without asking for confirmation. For unspecified technical choices, choose sensible, maintainable defaults and document them. Do not invent cloud integrations, authentication, or backend services that are not configured.
+
+PRODUCT OVERVIEW
+Product name: FieldLedger — Farm Business Tracker.
+Purpose: A simple, mobile-first daily ledger for recording production/sales, labour and operating expenses for two separate farm-related products. The main users need to enter data quickly from an Android phone, review monthly performance, and download/share statements. A responsive desktop web experience must remain useful too.
+
+Two separate workspaces:
+A. Brinjal — கத்திரிக்காய். Use a violet/purple theme. The key unit is bags, each of which has its own weight, brinjal type/category, and size. Rates are entered per kg and can vary by day. Labour is tracked separately for men and women.
+B. Muskmelon — முலாம்பழம். Use a yellow/amber theme. The main quantity is kilograms; income is quantity × rate/kg. The overview/dashboard emphasis must be monthly, not a daily-statistics-first dashboard. Daily transactions and date-wise monthly reporting are still needed. Use a recognizable muskmelon/cantaloupe icon, not a coconut icon. The prototype currently includes a custom SVG melon icon; preserve or improve it.
+
+VISUAL AND INTERACTION DIRECTION
+- Retain the polished dashboard look already established in the prototype and make its hierarchy, spacing, typography, and touch targets even better.
+- Desktop/tablet: keep the current web-dashboard layout, top-level product switch, and appropriate desktop navigation.
+- Mobile: make it feel like a native Android app, with a fixed/sticky bottom navigation bar, compact headers, large touch targets, responsive cards, and full-screen or near-full-screen bottom-sheet/dialog workflows where appropriate. Do not merely scale down the desktop layout.
+- Keep product-specific visual identities consistent: violet for Brinjal; yellow/amber for Muskmelon. Product switching must visually change the active workspace and must not mix one product's totals or entries with the other.
+- Provide Light and Dark modes, persist the preference, and provide text-size options Small, Medium, and Large. Follow `prefers-reduced-motion` and keep animations subtle, functional, and non-blocking.
+- Use clear labels, good contrast, visible focus states, accessible form labels, sensible keyboard behaviour, and helpful validation/toast messages. Modals should support close/cancel, keep actions visible, and scroll properly on short mobile screens.
+- Use polished icons with a coherent style. Avoid emoji as the sole indication of a critical action; pair iconography with labels where needed.
+- Use the existing prototype as a reference, but verify every screen and feature rather than assuming it is correct simply because it renders.
+
+NAVIGATION / SCREENS
+Build or preserve these key areas:
+1. Overview/Home: product switcher, product-specific summary cards, quick actions for Daily Entry, Monthly Report, Records, export/backup, Settings and Profile. Brinjal overview may show recent daily activity and monthly performance. Muskmelon overview should primarily show month-level performance and month navigation.
+2. Daily Entry: create or edit a daily record for the currently selected product. Use a date field and product-specific entry fields. Save/cancel actions must be explicit. For existing entries, allow editing and deleting with confirmation.
+3. Records: list saved daily records for the selected product, newest first; enable view/edit/delete and preferably date/month filtering or searching. Empty states must explain how to add the first record.
+4. Reports: select month and product, see a neatly formatted date-wise monthly statement with totals. Statements must be exportable.
+5. More / Tools: export, import/restore backup, profile, settings, report shortcuts, and restore-sample-data action with clear confirmation.
+6. Settings: appearance preferences, text size, editable brinjal types/categories, and any genuinely app-wide preferences. Remove the old “calculation defaults” panel. Do not reintroduce a bag-weight or labour-wage defaults panel unless product owner explicitly requests it. The current prototype uses 32 kg as a prefill for a new bag based on the sample sheet; if retaining this prefill, keep it editable and do not expose it as a settings “calculation default.”
+7. Profile: editable farm/workspace name, owner name, phone and location. Avoid hard-coding a real person's name into production defaults; use generic defaults such as “My Farm”.
+
+BRINJAL DAILY ENTRY — DETAILED REQUIREMENTS
+Fields/behaviour:
+- Date of record.
+- Number of bags: dropdown/selector. When a user selects N bags, immediately open a bag-details modal containing exactly N numbered bag sections. For example, selecting 5 bags must display Bag 1 through Bag 5, not one aggregate weight field.
+- Every bag section has exactly these inputs: (1) Weight in kg, (2) Brinjal type/category dropdown, (3) Brinjal size dropdown with S, M, L. Type choices must be read from Settings and changes in Settings must appear in new/edit bag modals.
+- Each bag row must be independently editable. If the user reopens “View / edit bag details” before saving the full day, previously entered values must still be present. Save in the modal updates the daily-entry draft but must not prematurely save the full daily record. Cancel/close should not silently destroy already saved-to-draft values; define clear cancel semantics.
+- Changing bag count after details have been entered must not silently lose data. Preserve the first N details when increasing/decreasing the count, show a confirmation before removing bag rows if the count is reduced, and clearly tell the user what will be removed.
+- Total weight = sum of each bag's weight. Bag count should match the number of saved bag-detail rows. Do not allow a count/details mismatch.
+- Rate per kg: editable for each daily record because the market rate can vary each day. Sale/gross value = total weight × rate per kg.
+- All numeric inputs must validate as non-negative numbers; do not allow NaN/undefined values to leak into calculations. Allow decimals for weight and rate where appropriate; currency rounding/formatting must be consistent.
+
+BRINJAL LABOUR
+- Provide separate count dropdowns for Men and Women. Zero must be selectable. Use a sensible range and make it easy to change.
+- Provide a separate editable per-person daily wage input for men and women.
+- Labour salary = (men count × men's wage) + (women count × women's wage).
+- Example acceptance calculation: 5 men × ₹500 + 5 women × ₹400 = ₹4,500 labour salary.
+- Show men's count, men's wage and subtotal, women's count, women's wage and subtotal where appropriate. The combined labour salary must be visible in the daily summary and monthly report.
+- The source sheet only supplies total labour count and total labour salary for historical rows, not a men/women split. Do not pretend the historical split is known. Current prototype seeds historical counts into the men field to retain the aggregate count for sample/demo purposes. Make this limitation clear in code or migration notes, or represent migrated legacy labour as aggregate/unclassified if the architecture allows. Ask the owner before transforming real production data.
+
+BRINJAL EXPENSE MODAL
+- “Add expense details” / “View-edit expense details” opens a modal containing a list of line items.
+- Each expense item has exactly: Date (defaults to today's local date), “What for?” / purpose, Amount in Indian Rupees (₹), and optional Notes.
+- Include an “Add another expense” button that appends another full, independently editable item. Allow removing a line item with a clear affordance.
+- Saving the modal returns to the daily-entry form and displays the aggregate expense amount. Reopening before saving the full day must show the draft line items and their values.
+- Expense total = sum of all line-item amounts. Validate purpose and amount as required; notes are optional.
+- Preserve each expense line's own date. Monthly reporting must apply a clearly defined rule. Preferred accounting rule: expense report totals are grouped by each expense item's own date, while a daily record may show all expense items linked to that record. Document this distinction so monthly totals do not double-count or attribute an expense to an unintended month. If you choose a simpler alternative, state it and make the UI/date semantics consistent.
+- When editing an existing daily record, expense items must load with their date, purpose, amount and notes, and changes must persist on save.
+
+BRINJAL SUMMARY CARDS / CALCULATION RULES
+Keep the key metrics visually separate for quick scanning; do not merge every value into one dense panel. At a minimum show:
+- Total weight (kg) and bag count.
+- Sales / gross value = total bag weight × daily rate/kg.
+- Operating expenses = total expense line-item amounts.
+- Labour salary = men subtotal + women subtotal.
+- Net after recorded costs = gross value − operating expenses − labour salary.
+Use Indian locale number formatting and ₹ currency formatting. Keep formulas consistent in daily view, records, monthly reports and exports. Clearly label gross sales separately from net earnings.
+
+MUSKMELON DAILY ENTRY AND MONTHLY-FIRST OVERVIEW
+- Daily entry fields: date, quantity in kg, rate per kg, and expense line items using the same expense-modal schema (date, purpose, amount ₹, optional notes, multiple line items). No brinjal bags, brinjal type/size or labour fields unless explicitly requested later.
+- Gross income = quantity kg × rate/kg.
+- Net after recorded costs = gross income − operating expenses.
+- The Muskmelon overview should make month-level totals and month selector/navigation the primary interaction; do not present it as a daily production dashboard identical to Brinjal. Still provide daily record entry, records, and date-wise monthly statements.
+- Use independent data and independent month totals for Muskmelon; switching products must never mix business results.
+
+MONTHLY REPORTS AND EXPORTS
+- Month selector and date-wise sorted rows (oldest-to-newest in statement, newest-first in Records list).
+- Brinjal statement should contain date, bag count, total weight, rate/kg, gross sales, operating expenses, men count, women count (or a clearly handled legacy total), labour salary and net after costs. Include monthly totals for weight, bags, gross, expenses, labour salary and net.
+- Muskmelon statement should contain date, quantity (kg), rate/kg, gross income, operating expenses and net after costs, with monthly totals.
+- Keep the source spreadsheet's historical sample values recognizable. The source column called “Profit” for Muskmelon mathematically represents quantity × rate before expenses; label it “Gross Income” in the improved UI and show net after expenses separately.
+- Provide working downloads for: monthly PDF (browser print flow is acceptable for the prototype; show clear instructions to choose Save as PDF), Excel `.xlsx`, CSV, monthly PNG statement, and complete JSON backup. PNG should be a readable, formatted statement and on supporting mobile browsers may use the share sheet for saving to Gallery/Photos.
+- JSON import must validate the file shape, request confirmation before replacing existing data, handle malformed files gracefully, and give success/failure feedback. JSON export should contain products, expense details, settings and profile. Keep a clear recovery path for a user who changes device or browser.
+- Exports must match the selected product and month, include correct totals and currency/units, and use readable filenames (e.g. `fieldledger-brinjal-2026-10.xlsx`). Do not say a file was exported if it was not.
+
+SAMPLE DATA FROM THE ATTACHED REFERENCE
+Use these as demo seed data, not as real verified business records. Dates are in October 2026.
+Brinjal rows (date, bags, weight kg, rate/kg, gross, expenses, aggregate labour count, labour salary):
+- 2026-10-01, 10, 320, ₹15, ₹4,800, ₹1,500, 3, ₹1,500
+- 2026-10-02, 12, 384, ₹15, ₹5,760, ₹1,500, 4, ₹2,000
+- 2026-10-03, 15, 480, ₹15, ₹7,200, ₹1,500, 4, ₹2,000
+- 2026-10-04, 10, 320, ₹15, ₹4,800, ₹1,500, 3, ₹1,500
+- 2026-10-05, 15, 480, ₹15, ₹7,200, ₹1,500, 4, ₹2,000
+- 2026-10-06, 12, 384, ₹15, ₹5,760, ₹1,500, 4, ₹2,000
+- 2026-10-07, 10, 320, ₹15, ₹4,800, ₹1,500, 4, ₹2,000
+- 2026-10-08, 10, 320, ₹15, ₹4,800, ₹1,500, 3, ₹1,500
+Source totals: 94 bags, 3,008 kg, ₹45,120 gross, ₹12,000 operating expenses, 29 labourers (aggregate count), ₹14,500 labour salary.
+
+Muskmelon rows (date, kg, rate/kg, gross income, expenses):
+- 2026-10-02, 3,500, ₹15, ₹52,500, ₹3,000
+- 2026-10-04, 2,000, ₹12, ₹24,000, ₹0
+- 2026-10-10, 1,500, ₹10, ₹15,000, ₹5,000
+- 2026-10-12, 1,200, ₹10, ₹12,000, ₹2,000
+- 2026-10-18, 1,500, ₹10, ₹15,000, ₹0
+- 2026-10-20, 1,200, ₹10, ₹12,000, ₹8,000
+Source totals: 10,900 kg, ₹130,500 gross income, ₹18,000 expenses. Net after expenses (calculated separately) = ₹112,500.
+
+DATA MODEL AND RELIABILITY
+- Keep Brinjal and Muskmelon records isolated in separate collections/tables.
+- Suggested daily record shape: id, date, ratePerKg, bagDetails[] for Brinjal, menCount, womenCount, menWage, womenWage, expenseItems[], createdAt/updatedAt. Muskmelon uses id, date, kg, ratePerKg, expenseItems[], createdAt/updatedAt. Use stable unique IDs; never use display index alone as an ID.
+- Bag object: id (recommended), weightKg, brinjalType, size. Expense object: id, date, purpose, amount, notes.
+- Settings: theme, text size, brinjalTypes[]. Profile: farm/workspace name, owner name, phone, location. Avoid embedding unnecessary personal information in logs or exports.
+- Existing prototype is plain HTML/CSS/vanilla JavaScript and uses browser localStorage (`fieldledger-prototype-v1`) for persistence. It has no configured database, API, authentication, cloud sync or production backend. Treat localStorage persistence as prototype-only unless the owner asks for a production architecture.
+- If migrating to a framework/backend, first state the proposed stack and why, preserve current behaviours, create a migration plan for existing prototype/local data, and do not silently break JSON backups. Do not claim cross-device sync unless implemented and verified.
+- Add input validation, safe output escaping, error handling and storage quota handling. Guard against malformed localStorage/backup values. Confirm destructive operations. Do not lose unsaved draft values on accidental navigation without warning.
+
+QUALITY BAR AND ACCEPTANCE TESTS
+Do not call the task complete until these are manually or automatically verified:
+1. Select 5 bags; exactly 5 bag sections appear with weight, type and S/M/L size inputs.
+2. Enter weights 30, 32, 33, 34, 31 kg; total is 160 kg and bag count is 5.
+3. Add a type in Settings; it appears in the Brinjal bag-type dropdown without reload where practical. Removing a type asks for confirmation and must not silently rewrite the labels in historical records.
+4. Reopen bag modal before saving the day; values remain and can be edited. Save daily record, reload browser, edit record; bag values remain.
+5. Add expenses ₹150 and ₹250; total displays ₹400. Edit/delete one item; aggregate refreshes correctly. Optional notes may be blank. Expense dates are handled according to documented monthly-report semantics.
+6. Choose 5 men at ₹500 and 5 women at ₹400; labour salary shows ₹4,500.
+7. Change that day's rate/kg; gross/net and report totals update consistently.
+8. Verify Brinjal net = gross − expenses − labour. Verify Muskmelon net = gross − expenses.
+9. Switch between products; their data, theming and monthly totals remain separate.
+10. Muskmelon overview is monthly-first and uses a muskmelon-specific icon; no coconut icon.
+11. Monthly report shows the correct month, correctly sorted dates, correct totals and no duplicate/omitted transactions.
+12. Theme and text size survive reload. Respect reduced-motion preference.
+13. On a 360px-wide phone viewport, no page-level horizontal overflow; bottom navigation remains reachable; modals scroll and action buttons remain usable. Also test tablet and desktop widths.
+14. PDF print, XLSX, CSV, PNG and JSON backup downloads work in the supported browser environment and contain selected-product/month data as expected. Test malformed JSON import and cancellation of import.
+15. Console has no uncaught errors; every visible control has a meaningful working action or is explicitly marked unavailable.
+
+DELIVERABLES
+Provide:
+A. Updated runnable application source, not only screenshots/mockups.
+B. Updated prototype HTML if remaining standalone, or complete application source plus clear run/build steps if migrating to another stack.
+C. A concise README with setup/run instructions, features, browser/storage requirements, known limitations and backup/restore steps.
+D. A test summary listing each acceptance scenario, pass/fail, and any known limitations. Do not claim tests that you did not run.
+E. A short summary of material changes and the next recommended phase.
+F. Preserve the original HTML and clearly identify which file is the latest runnable build.
+
+WORKING STYLE
+Be pragmatic and careful with small-business records. Prioritize calculation correctness, easy data entry, persistence, clear recovery/backup, and mobile usability over decorative complexity. Keep the interactions understandable for a non-technical user. State assumptions explicitly. Do not remove requested functionality to simplify the implementation. Do not ask questions for details that can reasonably be handled with a documented default; ask only for decisions that materially affect data integrity, deployment, or production architecture.

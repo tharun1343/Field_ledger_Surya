@@ -1,0 +1,7 @@
+node_modules/
+tests/results/*.csv
+tests/results/*.xlsx
+tests/results/*.json
+!tests/results/results.json
+tests/results/*.pdf
+tests/results/fieldledger-*.png

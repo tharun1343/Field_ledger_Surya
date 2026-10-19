@@ -1,0 +1,13 @@
+{
+  "name": "fieldledger",
+  "version": "2.0.0",
+  "private": true,
+  "description": "FieldLedger — mobile-first daily farm business ledger for Brinjal and Muskmelon (single-file web app).",
+  "scripts": {
+    "start": "npx --yes http-server -c-1 -p 8080 .",
+    "test": "node tests/acceptance.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.1"
+  }
+}
