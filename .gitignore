@@ -6,3 +6,4 @@ tests/results/*.json
 tests/results/*.pdf
 tests/results/fieldledger-*.png
 build/
+dist/release-repo/
