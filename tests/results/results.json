@@ -1,7 +1,7 @@
 {
-  "ranAt": "2026-10-19T19:20:09.883Z",
-  "passed": 112,
-  "total": 112,
+  "ranAt": "2026-10-19T21:30:42.773Z",
+  "passed": 129,
+  "total": 129,
   "results": [
     {
       "group": "11. Monthly report reconciles with the source sheet (sample data)",
@@ -25,13 +25,13 @@
       "group": "11. Monthly report reconciles with the source sheet (sample data)",
       "name": "Muskmelon Oct 2026: 6 rows, 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹1,12,500 net",
       "pass": true,
-      "detail": "{\"records\":6,\"bags\":0,\"kg\":10900,\"gross\":130500,\"expenses\":18000,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":112500,\"avgRate\":11.972477064220184}"
+      "detail": "{\"records\":6,\"bags\":0,\"kg\":10900,\"wastage\":0,\"gross\":130500,\"expenses\":18000,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":112500,\"avgRate\":11.972477064220184}"
     },
     {
       "group": "11. Monthly report reconciles with the source sheet (sample data)",
       "name": "Report screen TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620",
       "pass": true,
-      "detail": "TOTAL 94 3,008 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620"
+      "detail": "TOTAL 94 3,008 0 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620"
     },
     {
       "group": "11. Monthly report reconciles with the source sheet (sample data)",
@@ -43,7 +43,7 @@
       "group": "11. Monthly report reconciles with the source sheet (sample data)",
       "name": "Legacy aggregate labour shown in its own “split unknown” column (not as men)",
       "pass": true,
-      "detail": "DATE BAGS TOTAL WEIGHT (KG) RATE/KG (₹) GROSS SALES (₹) OPERATING EXPENSES (₹) MEN WOMEN WORKERS, SPLIT UNKNOWN (LEGACY) LABOUR SALARY (₹) NET AFTER COSTS (₹) "
+      "detail": "DATE BAGS TOTAL WEIGHT (KG) WASTAGE (KG) RATE/KG (₹) GROSS SALES (₹) OPERATING EXPENSES (₹) MEN WOMEN WORKERS, SPLIT UNKNOWN (LEGACY) LABOUR SALARY (₹) NET AFTER COSTS (₹) "
     },
     {
       "group": "11. Monthly report reconciles with the source sheet (sample data)",
@@ -263,6 +263,12 @@
     },
     {
       "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Wastage 4.5 kg shown in the live summary",
+      "pass": true,
+      "detail": "4.50 kg"
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
       "name": "Gross 160 kg × ₹15 = ₹2,400",
       "pass": true,
       "detail": ""
@@ -284,6 +290,12 @@
       "name": "Daily entry saved → Records view",
       "pass": true,
       "detail": ""
+    },
+    {
+      "group": "8. Brinjal daily net formula (live summary)",
+      "name": "Saved record stores wastageKg 4.5",
+      "pass": true,
+      "detail": "4.5"
     },
     {
       "group": "8. Brinjal daily net formula (live summary)",
@@ -319,7 +331,7 @@
       "group": "5b. Expense-date rule in monthly reports",
       "name": "The 2 Nov item appears in November as an “expenses only” row (₹600), not double-counted",
       "pass": true,
-      "detail": "{\"records\":0,\"bags\":0,\"kg\":0,\"gross\":0,\"expenses\":600,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":-600,\"avgRate\":0}"
+      "detail": "{\"records\":0,\"bags\":0,\"kg\":0,\"wastage\":0,\"gross\":0,\"expenses\":600,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":-600,\"avgRate\":0}"
     },
     {
       "group": "5b. Expense-date rule in monthly reports",
@@ -343,7 +355,7 @@
       "group": "7. Changing a day’s rate updates gross/net and report totals",
       "name": "Report screen totals match (₹48,320 / ₹12,400 / ₹19,000 / ₹16,920)",
       "pass": true,
-      "detail": "TOTAL 99 3,168 — ₹48,320 ₹12,400 5 5 29 ₹19,000 ₹16,920"
+      "detail": "TOTAL 99 3,168 4.50 — ₹48,320 ₹12,400 5 5 29 ₹19,000 ₹16,920"
     },
     {
       "group": "7. Changing a day’s rate updates gross/net and report totals",
@@ -437,15 +449,21 @@
     },
     {
       "group": "8b. Muskmelon daily entry formula",
-      "name": "Gross 1,000 × ₹12 = ₹12,000; net = 12,000 − 500 = ₹11,500",
+      "name": "Gross 1,000 × ₹12 = ₹12,000; net = 12,000 − 500 = ₹11,500 (50 kg wastage not priced)",
       "pass": true,
       "detail": ""
     },
     {
       "group": "8b. Muskmelon daily entry formula",
+      "name": "Muskmelon October wastage total 50 kg",
+      "pass": true,
+      "detail": "50"
+    },
+    {
+      "group": "8b. Muskmelon daily entry formula",
       "name": "Muskmelon October now 11,900 kg / ₹1,42,500 / ₹18,500 / ₹1,24,000 net",
       "pass": true,
-      "detail": "{\"records\":7,\"bags\":0,\"kg\":11900,\"gross\":142500,\"expenses\":18500,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":124000,\"avgRate\":11.974789915966387}"
+      "detail": "{\"records\":7,\"bags\":0,\"kg\":11900,\"wastage\":50,\"gross\":142500,\"expenses\":18500,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":124000,\"avgRate\":11.974789915966387}"
     },
     {
       "group": "8b. Muskmelon daily entry formula",
@@ -463,7 +481,7 @@
       "group": "14. Exports (selected product + month)",
       "name": "CSV has header + 7 rows + TOTAL with correct totals",
       "pass": true,
-      "detail": "TOTAL,11900,,142500,18500,124000"
+      "detail": "TOTAL,11900,50,,142500,18500,124000"
     },
     {
       "group": "14. Exports (selected product + month)",
@@ -473,9 +491,9 @@
     },
     {
       "group": "14. Exports (selected product + month)",
-      "name": "XLSX totals numeric: 11900 kg, 142500 gross, 18500 expenses, 124000 net",
+      "name": "XLSX totals numeric: 11900 kg, 50 kg wastage, 142500 gross, 18500 expenses, 124000 net",
       "pass": true,
-      "detail": "[\"TOTAL\",11900,null,142500,18500,124000]"
+      "detail": "[\"TOTAL\",11900,50,null,142500,18500,124000]"
     },
     {
       "group": "14. Exports (selected product + month)",
@@ -491,15 +509,15 @@
     },
     {
       "group": "14. Exports (selected product + month)",
-      "name": "Brinjal CSV header includes men, women, legacy workers, labour salary and net",
+      "name": "Brinjal CSV header includes wastage, men, women, legacy workers, labour salary and net",
       "pass": true,
-      "detail": "Date,Bags,Total weight (kg),Rate/kg (₹),Gross sales (₹),Operating expenses (₹),Men,Women,\"Workers, split unknown (legacy)\",Labour salary (₹),Net after costs (₹)"
+      "detail": "Date,Bags,Total weight (kg),Wastage (kg),Rate/kg (₹),Gross sales (₹),Operating expenses (₹),Men,Women,\"Workers, split unknown (legacy)\",Labour salary (₹),Net after costs (₹)"
     },
     {
       "group": "14. Exports (selected product + month)",
-      "name": "Brinjal CSV TOTAL row: 99 bags, 3168 kg, 48320, 12400, 5 men, 5 women, 29 legacy, 19000, 16920",
+      "name": "Brinjal CSV TOTAL row: 99 bags, 3168 kg, 4.5 kg wastage, 48320, 12400, 5 men, 5 women, 29 legacy, 19000, 16920",
       "pass": true,
-      "detail": "TOTAL,99,3168,,48320,12400,5,5,29,19000,16920"
+      "detail": "TOTAL,99,3168,4.5,,48320,12400,5,5,29,19000,16920"
     },
     {
       "group": "14. Exports (selected product + month)",
@@ -658,6 +676,84 @@
       "detail": "all screens fit"
     },
     {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "CSV export is handed to the Android shell with the right name and content",
+      "pass": true,
+      "detail": "fieldledger-brinjal-2026-10.csv TOTAL,94,3008,0,,45120,12000,0,0,29,14500,18620"
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "PNG export goes to the shell as image/png (saved to Gallery on the phone)",
+      "pass": true,
+      "detail": "{\"mime\":\"image/png\",\"len\":468884}"
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "PDF uses the Android print dialog with the statement in print mode",
+      "pass": true,
+      "detail": "{\"name\":\"fieldledger-brinjal-2026-10\",\"printing\":true}"
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "Print-finished event restores the normal screen",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "Status bar colour follows the product theme",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "More → App updates shows the installed version",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "“Check for updates” calls the shell and shows its status",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "Android back button closes an open sheet instead of leaving the screen",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "Back on a plain screen is passed to the shell (history back)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (web side, with a simulated native shell)",
+      "name": "No page errors with the native shell",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Published web link (claude.ai host simulated)",
+      "name": "Excel export uses the host downloads capability (fieldledger-brinjal-2026-10.xlsx)",
+      "pass": true,
+      "detail": "{\"filename\":\"fieldledger-brinjal-2026-10.xlsx\",\"size\":14889}"
+    },
+    {
+      "group": "Published web link (claude.ai host simulated)",
+      "name": "PDF button hidden where the print dialog is unavailable",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Published web link (claude.ai host simulated)",
+      "name": "Published variant renders with sample totals and no page errors",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "group": "Android back button / browser history",
       "name": "Back returns to the previous screen (Records)",
       "pass": true,
@@ -668,6 +764,12 @@
       "name": "Every visible button has a wired action",
       "pass": true,
       "detail": ""
+    },
+    {
+      "group": "15. Console errors and dead controls",
+      "name": "No native browser pop-ups used (all confirmations are in-app dialogs)",
+      "pass": true,
+      "detail": "0"
     },
     {
       "group": "15. Console errors and dead controls",

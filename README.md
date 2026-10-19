@@ -7,10 +7,22 @@ A mobile-first daily ledger for two separate farm businesses:
 
 You record production, sales, labour and expenses each day, review month-wise statements, and export them as PDF, Excel, CSV or PNG, plus a full JSON backup.
 
-> **Latest runnable build: [`index.html`](index.html).** It is a single standalone file with no build step and no dependencies.
+> **Latest runnable build: [`index.html`](index.html)** (v2.1.0). It is a single standalone file with no build step and no dependencies.
+> **Android app:** `dist/FieldLedger-2.1.0.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
+> **Web link:** https://claude.ai/artifact/D9nAx8srHFF4tJuNo5epya, the same app published on claude.ai. It is private until shared from its Share menu.
 > The original prototype is kept unchanged at [`original/farm_business_ledger_prototype.html`](original/farm_business_ledger_prototype.html).
 
 ---
+
+## What's new in 2.1
+
+- **Wastage (kg)** in both the Brinjal and Muskmelon daily entry.
+  - It has **no price**: gross sales and net never change because of it.
+  - It appears in the live summary, Records, the record view, monthly statements, the overview notes, and the CSV, XLSX, PNG and PDF exports.
+  - Older records and backups load with wastage 0.
+- **3D look and feel.** Raised cards that tilt toward the mouse on desktop (not on phones, and never with reduce-motion on), pressable buttons, cylinder-style chart bars, a 3D product emblem, a raised product switch, a lifted bottom-nav pill and bottom sheets with a drag handle.
+- **In-app confirmation dialogs** replace browser pop-ups. They work inside the Android app and on the claude.ai web link, where native pop-ups are blocked.
+- **Android app with in-app updates.**
 
 ## Run it
 
@@ -21,6 +33,55 @@ You record production, sales, labour and expenses each day, review month-wise st
 | Phone | Host the file on any static host (GitHub Pages, Netlify and so on), open it in Chrome on Android, then use **⋮ → Add to Home screen**. |
 
 **Browser requirements:** a current Chrome, Edge, Firefox or Safari, with JavaScript and local storage (`localStorage`) enabled. In private/incognito windows or with site data blocked, the app shows a warning banner because changes cannot be saved.
+
+## Android app
+
+`android/` is a small native WebView shell around the same `index.html`. There is no AndroidX and no Gradle; it builds with Ubuntu's packaged Android tools.
+
+| | |
+|---|---|
+| Package | `com.fieldledger.farm` |
+| Requires | Android 7.0 (API 24) or newer; targets Android 14 (API 34) |
+| Permissions | Internet (update checks only) and "install unknown apps" (to install updates) |
+| Data | Stays in the app's own storage and survives updates. The JSON backup works the same as on the web. |
+
+**What the native shell adds:**
+- **PNG** exports go to the Gallery (`Pictures/FieldLedger`). Other exports go to `Download/FieldLedger`. On Android 7–9 a share sheet opens instead.
+- **PDF** opens Android's print dialog; choose "Save as PDF".
+- **Restore from backup** opens the system file picker.
+- The **Back** button closes dialogs and sheets first, then steps back through screens.
+- The **status bar** follows the product colour.
+
+### Install
+1. Copy `FieldLedger-2.1.0.apk` to the phone and open it.
+2. Allow "install unknown apps" for the app you opened it from (Files, Chrome, WhatsApp) when Android asks.
+3. Google Play Protect may warn that the app is from an unknown developer, because it isn't on the Play Store. Choose **Install anyway**.
+
+### In-app updates
+- The app reads a small manifest, `version.json`, from an HTTPS address. It checks automatically at most every 12 hours, and on demand from **More → App updates → Check for updates**.
+- When a newer `versionCode` is listed, the app offers **Download & install** and shows download progress.
+- It then verifies the APK before installing:
+  - the **SHA-256 checksum** matches the manifest;
+  - the file is a **FieldLedger** package;
+  - it is **newer** than the installed version.
+- Android's own installer then asks for confirmation. The first time, Android asks once to allow FieldLedger to install apps.
+- Android only accepts an update **signed with the same key** as the installed app. Your records are kept.
+
+**Manifest location.** It is set in `android/version.properties` and defaults to
+`https://raw.githubusercontent.com/tharun1343/fieldledger-releases/main/version.json`. You can change it in the app under More → App updates → Update source. Any public HTTPS host works: GitHub, Google Drive direct links, your own site.
+
+**Publishing an update:**
+1. Edit `index.html`.
+2. In `android/version.properties`, raise `VERSION_CODE` (e.g. 210 → 211) and `VERSION_NAME`.
+3. Build: `RELEASE_NOTES="What changed" android/build-apk.sh`. This writes `dist/FieldLedger-<version>.apk` and `dist/version.json`.
+4. Upload **both files** to the public release location. Phones pick the update up on their next check.
+
+**Signing key.** The key lives at `android/keystore/fieldledger-release.jks`, with its password in `keystore.properties`.
+- It is committed to this **private** repository so that future updates can be signed.
+- **Back it up.** If it is lost, phones cannot update; FieldLedger has to be uninstalled and reinstalled after exporting a backup.
+- **Never publish it.** Keep it out of any public repository.
+
+**Building the APK** needs: `sudo apt-get install aapt apksigner zipalign dalvik-exchange android-sdk-platform-23` plus a JDK.
 
 ## Run the tests
 
@@ -166,6 +227,9 @@ state = { app:"FieldLedger", schemaVersion:2,
 | Path | What |
 |---|---|
 | `index.html` | **Latest runnable application** (HTML, CSS and vanilla JS in one file) |
+| `android/` | Android WebView shell (Java), icons, manifest, `build-apk.sh`, signing key |
+| `dist/FieldLedger-2.1.0.apk`, `dist/version.json` | Built, signed APK and its update manifest |
+| `dist/web/fieldledger.html`, `scripts/build-web.py` | `index.html` reshaped for publishing on claude.ai |
 | `original/farm_business_ledger_prototype.html` | Original prototype, preserved unchanged |
 | `tests/acceptance.js` | Playwright acceptance suite (112 checks) |
 | `tests/results/` | Latest run: `results.json`, screenshots, sample PNG export |
@@ -177,7 +241,10 @@ state = { app:"FieldLedger", schemaVersion:2,
 ## Known limitations
 
 - **Single device and browser only.** There is no backend, login, cloud sync or automatic backup. Moving data relies on JSON backup and restore.
-- **Not a native Android app.** It is a responsive web app that can be added to the home screen. There is no service worker or offline install manifest yet; opening the file directly works offline.
+- **Android app is a WebView shell.** It runs the same web code with native file saving, printing and updates. It is not on the Play Store, so it is installed by sideloading.
+- **Not tested on a real phone or emulator.** The APK was built, signed and structurally verified, but no emulator was available in the build environment. Test install, save, print and update on a phone before relying on it.
+- **Updates need a public host.** The source repo is private, so phones can't download from it. Until `version.json` and the APK are published somewhere public, "Check for updates" reports that it could not check.
+- **On the claude.ai web link,** exports go through claude.ai's download prompt and PDF printing is unavailable. Records saved there live only in that browser.
 - **PDF goes through the browser print dialog.** The user must pick "Save as PDF". Page layout depends on the browser.
 - **PNG sharing.** Sharing to Gallery depends on the phone browser supporting the Web Share API with files; otherwise the PNG downloads.
 - **Fonts.** On some devices the 🍆 in the PDF/PNG header may render as a plain glyph.

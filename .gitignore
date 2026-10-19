@@ -5,3 +5,4 @@ tests/results/*.json
 !tests/results/results.json
 tests/results/*.pdf
 tests/results/fieldledger-*.png
+build/

@@ -1,9 +1,9 @@
 # FieldLedger — Acceptance Test Report
 
-- **Build tested:** `index.html` (build 2.0)
+- **Build tested:** `index.html` v2.1.0, plus the published-page variant and a simulated Android shell
 - **How:** `npm test` (`tests/acceptance.js`) drives the real app in **headless Chromium 141 (Playwright 1.56)**, served over local HTTP.
 - **Viewports:** 1280×900 desktop, 360×740 phone (touch, DPR 2), 768×1024 tablet and 1440×900.
-- **Result:** **112 / 112 automated checks passed** (run 2026-10-19). The raw results are in `tests/results/results.json`; screenshots and exported files are alongside them.
+- **Result:** **129 / 129 automated checks passed** (run 2026-10-19). The raw results are in `tests/results/results.json`; screenshots and exported files are alongside them.
 
 ## Master-prompt acceptance scenarios
 
@@ -34,6 +34,17 @@
 - **Sample data** reconciles exactly with the source sheet: Brinjal 94 bags / 3,008 kg / ₹45,120 / ₹12,000 / ₹14,500 / 29 workers, net ₹18,620; Muskmelon 10,900 kg / ₹1,30,500 / ₹18,000, net ₹1,12,500.
 - **Migration:** the original prototype was loaded in the same browser profile so it wrote its own v1 storage. The new build then loaded and upgraded that data with identical totals.
 
+## v2.1 additions
+
+| Area | Result | Notes |
+|---|---|---|
+| Wastage (kg) in both forms, summaries, reports, CSV/XLSX/PNG | ✅ Pass | Wastage never changes gross or net |
+| In-app confirmation dialogs (no native pop-ups anywhere) | ✅ Pass | Every confirm flow is exercised through the new dialog |
+| Android bridge, web side: save files, print, theme colour, updates panel, back button | ✅ Pass | Native object simulated in Chromium |
+| Published web link: exports via the host downloads capability, PDF hidden | ✅ Pass | claude.ai host simulated |
+| APK build: manifest, v2/v3 signature, zip alignment, dex contains all classes | ✅ Pass | `aapt dump badging`, `apksigner verify`, `zipalign -c` |
+| APK on a real phone or emulator (install, save, print, in-app update) | ⚠️ Not tested | No emulator in the build environment |
+
 ## All automated checks
 
 ### 11. Monthly report reconciles with the source sheet (sample data)
@@ -43,10 +54,10 @@
 | ✅ Pass | Brinjal Oct 2026: 8 rows sorted by date, no duplicates | 2026-10-01,2026-10-02,2026-10-03,2026-10-04,2026-10-05,2026-10-06,2026-10-07,2026-10-08 |
 | ✅ Pass | Brinjal totals 94 bags / 3,008 kg / ₹45,120 / ₹12,000 / ₹14,500 labour / 29 workers | {"bags":94,"kg":3008,"gross":45120,"exp":12000,"labour":14500,"workers":29} |
 | ✅ Pass | Brinjal net after costs = 45,120 − 12,000 − 14,500 = ₹18,620 | 18620 |
-| ✅ Pass | Muskmelon Oct 2026: 6 rows, 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹1,12,500 net | {"records":6,"bags":0,"kg":10900,"gross":130500,"expenses":18000,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"net":112500,"av |
-| ✅ Pass | Report screen TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620 | TOTAL 94 3,008 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620 |
-| ✅ Pass | Statement dates oldest → newest | 1 Oct\|2 Oct\|3 Oct\|4 Oct\|5 Oct\|6 Oct\|7 Oct\|8 Oct |
-| ✅ Pass | Legacy aggregate labour shown in its own “split unknown” column (not as men) | DATE BAGS TOTAL WEIGHT (KG) RATE/KG (₹) GROSS SALES (₹) OPERATING EXPENSES (₹) MEN WOMEN WORKERS, SPLIT UNKNOWN (LEGACY) LABOUR SALARY (₹) N |
+| ✅ Pass | Muskmelon Oct 2026: 6 rows, 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹1,12,500 net | {"records":6,"bags":0,"kg":10900,"wastage":0,"gross":130500,"expenses":18000,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"net |
+| ✅ Pass | Report screen TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620 | TOTAL 94 3,008 0 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620 |
+| ✅ Pass | Statement dates oldest → newest | 1 Oct/2 Oct/3 Oct/4 Oct/5 Oct/6 Oct/7 Oct/8 Oct |
+| ✅ Pass | Legacy aggregate labour shown in its own “split unknown” column (not as men) | DATE BAGS TOTAL WEIGHT (KG) WASTAGE (KG) RATE/KG (₹) GROSS SALES (₹) OPERATING EXPENSES (₹) MEN WOMEN WORKERS, SPLIT UNKNOWN (LEGACY) LABOUR |
 | ✅ Pass | A month without data shows an empty statement message |  |
 
 ### 9/10. Product switching, theming and Muskmelon monthly-first overview
@@ -56,8 +67,8 @@
 | ✅ Pass | Switching to Muskmelon changes theme to yellow/amber | #b07a06 |
 | ✅ Pass | Muskmelon overview is month-first (month navigator + Monthly performance table) |  |
 | ✅ Pass | Muskmelon uses the melon SVG icon and no coconut icon |  |
-| ✅ Pass | Muskmelon KPIs show its own totals (10,900 kg, ₹1,30,500, ₹18,000, ₹1,12,500) | 10,900 kg \| ₹1,30,500 \| ₹18,000 \| ₹1,12,500 |
-| ✅ Pass | Brinjal KPIs are different (no mixing) | 94 \| 3,008 kg \| ₹45,120 \| ₹12,000 \| ₹14,500 \| ₹18,620 |
+| ✅ Pass | Muskmelon KPIs show its own totals (10,900 kg, ₹1,30,500, ₹18,000, ₹1,12,500) | 10,900 kg / ₹1,30,500 / ₹18,000 / ₹1,12,500 |
+| ✅ Pass | Brinjal KPIs are different (no mixing) | 94 / 3,008 kg / ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620 |
 | ✅ Pass | “Statement” button on a month row opens that month’s report (prototype bug fixed) |  |
 | ✅ Pass | Muskmelon statement labels Gross income and Net after expenses (not “Profit”) |  |
 | ✅ Pass | Muskmelon Records list shows only muskmelon records (6) | 6 |
@@ -123,10 +134,12 @@
 
 | Result | Check | Observed |
 |---|---|---|
+| ✅ Pass | Wastage 4.5 kg shown in the live summary | 4.50 kg |
 | ✅ Pass | Gross 160 kg × ₹15 = ₹2,400 |  |
 | ✅ Pass | Net = 2,400 − 1,000 − 4,500 = −₹3,100 (negative highlighted) | −₹3,100 |
 | ✅ Pass | Negative rate is rejected on save |  |
 | ✅ Pass | Daily entry saved → Records view |  |
+| ✅ Pass | Saved record stores wastageKg 4.5 | 4.5 |
 | ✅ Pass | Saved record has 5 bags, 160 kg, men/women split, 3 expense items with ids | {"bags":5,"men":5} |
 
 ### 4b. Persistence after reload + edit
@@ -142,7 +155,7 @@
 | Result | Check | Observed |
 |---|---|---|
 | ✅ Pass | October counts only expense items dated in October for 15 Oct (₹400) | 400 / total 12400 |
-| ✅ Pass | The 2 Nov item appears in November as an “expenses only” row (₹600), not double-counted | {"records":0,"bags":0,"kg":0,"gross":0,"expenses":600,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"net":-600,"avgRate":0} |
+| ✅ Pass | The 2 Nov item appears in November as an “expenses only” row (₹600), not double-counted | {"records":0,"bags":0,"kg":0,"wastage":0,"gross":0,"expenses":600,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"net":-600,"avg |
 | ✅ Pass | Statement rows add up exactly to the month total |  |
 
 ### 7. Changing a day’s rate updates gross/net and report totals
@@ -151,7 +164,7 @@
 |---|---|---|
 | ✅ Pass | Live gross updates to ₹3,200 |  |
 | ✅ Pass | Report gross = 45,120 + 3,200 = ₹48,320; net = 48,320 − 12,400 − 19,000 = ₹16,920 | {"g":48320,"l":19000,"n":16920} |
-| ✅ Pass | Report screen totals match (₹48,320 / ₹12,400 / ₹19,000 / ₹16,920) | TOTAL 99 3,168 — ₹48,320 ₹12,400 5 5 29 ₹19,000 ₹16,920 |
+| ✅ Pass | Report screen totals match (₹48,320 / ₹12,400 / ₹19,000 / ₹16,920) | TOTAL 99 3,168 4.50 — ₹48,320 ₹12,400 5 5 29 ₹19,000 ₹16,920 |
 | ✅ Pass | 9 dated rows in October (8 sample + 15 Oct), no duplicates | 9 |
 
 ### 3b. Brinjal types: add / remove without rewriting history
@@ -182,8 +195,9 @@
 | Result | Check | Observed |
 |---|---|---|
 | ✅ Pass | Muskmelon form has no bag/labour fields |  |
-| ✅ Pass | Gross 1,000 × ₹12 = ₹12,000; net = 12,000 − 500 = ₹11,500 |  |
-| ✅ Pass | Muskmelon October now 11,900 kg / ₹1,42,500 / ₹18,500 / ₹1,24,000 net | {"records":7,"bags":0,"kg":11900,"gross":142500,"expenses":18500,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"net":124000,"av |
+| ✅ Pass | Gross 1,000 × ₹12 = ₹12,000; net = 12,000 − 500 = ₹11,500 (50 kg wastage not priced) |  |
+| ✅ Pass | Muskmelon October wastage total 50 kg | 50 |
+| ✅ Pass | Muskmelon October now 11,900 kg / ₹1,42,500 / ₹18,500 / ₹1,24,000 net | {"records":7,"bags":0,"kg":11900,"wastage":50,"gross":142500,"expenses":18500,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"ne |
 | ✅ Pass | Brinjal October totals unaffected by the Muskmelon entry |  |
 
 ### 14. Exports (selected product + month)
@@ -191,13 +205,13 @@
 | Result | Check | Observed |
 |---|---|---|
 | ✅ Pass | CSV filename fieldledger-muskmelon-2026-10.csv |  |
-| ✅ Pass | CSV has header + 7 rows + TOTAL with correct totals | TOTAL,11900,,142500,18500,124000 |
+| ✅ Pass | CSV has header + 7 rows + TOTAL with correct totals | TOTAL,11900,50,,142500,18500,124000 |
 | ✅ Pass | XLSX opens in openpyxl with Statement + Expense items sheets | Statement,Expense items |
-| ✅ Pass | XLSX totals numeric: 11900 kg, 142500 gross, 18500 expenses, 124000 net | ["TOTAL",11900,null,142500,18500,124000] |
+| ✅ Pass | XLSX totals numeric: 11900 kg, 50 kg wastage, 142500 gross, 18500 expenses, 124000 net | ["TOTAL",11900,50,null,142500,18500,124000] |
 | ✅ Pass | XLSX title names product and month; 5 expense items listed | Muskmelon monthly statement — October 2026 / 5 |
 | ✅ Pass | PNG is a real PNG image named fieldledger-muskmelon-2026-10.png | {"fmt":"PNG","size":[2200,1208]} |
-| ✅ Pass | Brinjal CSV header includes men, women, legacy workers, labour salary and net | Date,Bags,Total weight (kg),Rate/kg (₹),Gross sales (₹),Operating expenses (₹),Men,Women,"Workers, split unknown (legacy)",Labour salary (₹) |
-| ✅ Pass | Brinjal CSV TOTAL row: 99 bags, 3168 kg, 48320, 12400, 5 men, 5 women, 29 legacy, 19000, 16920 | TOTAL,99,3168,,48320,12400,5,5,29,19000,16920 |
+| ✅ Pass | Brinjal CSV header includes wastage, men, women, legacy workers, labour salary and net | Date,Bags,Total weight (kg),Wastage (kg),Rate/kg (₹),Gross sales (₹),Operating expenses (₹),Men,Women,"Workers, split unknown (legacy)",Labo |
+| ✅ Pass | Brinjal CSV TOTAL row: 99 bags, 3168 kg, 4.5 kg wastage, 48320, 12400, 5 men, 5 women, 29 legacy, 19000, 16920 | TOTAL,99,3168,4.5,,48320,12400,5,5,29,19000,16920 |
 | ✅ Pass | PDF button opens the print dialog in report print mode, titled fieldledger-brinjal-2026-10 | {"calls":1,"cls":true,"title":"fieldledger-brinjal-2026-10"} |
 | ✅ Pass | Printed PDF contains the statement title and totals, not the app chrome | 🍆 Brinjal — October 2026 / M Y FA R M · M O N T H LY S TAT E M E N T /  |
 | ✅ Pass | JSON backup has both products, expense details, settings and profile | 9 brinjal / 7 muskmelon |
@@ -245,6 +259,29 @@
 | ✅ Pass | No horizontal overflow at 768px (tablet) | all screens fit |
 | ✅ Pass | No horizontal overflow at 1440px (desktop) | all screens fit |
 
+### Android app bridge (web side, with a simulated native shell)
+
+| Result | Check | Observed |
+|---|---|---|
+| ✅ Pass | CSV export is handed to the Android shell with the right name and content | fieldledger-brinjal-2026-10.csv TOTAL,94,3008,0,,45120,12000,0,0,29,14500,18620 |
+| ✅ Pass | PNG export goes to the shell as image/png (saved to Gallery on the phone) | {"mime":"image/png","len":468884} |
+| ✅ Pass | PDF uses the Android print dialog with the statement in print mode | {"name":"fieldledger-brinjal-2026-10","printing":true} |
+| ✅ Pass | Print-finished event restores the normal screen |  |
+| ✅ Pass | Status bar colour follows the product theme |  |
+| ✅ Pass | More → App updates shows the installed version |  |
+| ✅ Pass | “Check for updates” calls the shell and shows its status |  |
+| ✅ Pass | Android back button closes an open sheet instead of leaving the screen |  |
+| ✅ Pass | Back on a plain screen is passed to the shell (history back) |  |
+| ✅ Pass | No page errors with the native shell |  |
+
+### Published web link (claude.ai host simulated)
+
+| Result | Check | Observed |
+|---|---|---|
+| ✅ Pass | Excel export uses the host downloads capability (fieldledger-brinjal-2026-10.xlsx) | {"filename":"fieldledger-brinjal-2026-10.xlsx","size":14889} |
+| ✅ Pass | PDF button hidden where the print dialog is unavailable |  |
+| ✅ Pass | Published variant renders with sample totals and no page errors |  |
+
 ### Android back button / browser history
 
 | Result | Check | Observed |
@@ -256,4 +293,5 @@
 | Result | Check | Observed |
 |---|---|---|
 | ✅ Pass | Every visible button has a wired action |  |
+| ✅ Pass | No native browser pop-ups used (all confirmations are in-app dialogs) | 0 |
 | ✅ Pass | No uncaught errors / console errors during the whole run |  |

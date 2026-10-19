@@ -1,0 +1,1779 @@
+<title>FieldLedger Farm Ledger</title>
+<meta name="theme-color" content="#6d45d9">
+<style>
+  :root {
+    --bg: #f5f5fb; --surface: #ffffff; --surface-2: #f8f7fc; --text: #201d2b; --muted: #6c6880;
+    --line: #e8e5ef; --primary: #7248df; --primary-2: #a18af4; --primary-soft: #f0eaff; --on-primary: #ffffff;
+    --positive: #13804f; --negative: #c93f3f; --labour: #8b50c7; --warn-bg: #fff6df; --warn-line: #f0d48a; --warn-text: #7a5600;
+    --shadow: 0 12px 36px rgba(35, 24, 76, .08);
+    --radius: 22px; --fs: 1;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size:calc(14px * var(--fs)); line-height: 1.45; transition: background .2s, color .2s; overflow-x: hidden; }
+  body[data-product="muskmelon"] { --primary: #b07a06; --primary-2: #f1c24f; --primary-soft: #fff3cf; }
+  body[data-theme="dark"] { --bg: #111018; --surface: #1c1a26; --surface-2: #242130; --text: #f2effb; --muted: #aaa5bb; --line: #353142; --primary: #a68bff; --primary-2: #7a5ae6; --primary-soft: #302745; --positive: #4fd39a; --negative: #ff7b7b; --labour: #c79bff; --warn-bg: #3a3020; --warn-line: #6b5426; --warn-text: #f4d58d; --shadow: 0 12px 36px rgba(0,0,0,.22); }
+  body[data-theme="dark"][data-product="muskmelon"] { --primary: #f3c044; --primary-2: #c48c10; --primary-soft: #3a2f17; }
+  body.text-small { --fs: .9; font-size:calc(12.6px * var(--fs)); } body.text-large { --fs: 1.15; font-size:calc(16px * var(--fs)); }
+  body.modal-open { overflow: hidden; }
+  button, input, select, textarea { font: inherit; } button { cursor: pointer; }
+  :focus-visible { outline: 3px solid color-mix(in srgb, var(--primary) 60%, transparent); outline-offset: 2px; }
+  .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .ico { width:1.2em; height:1.2em; flex:none; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-.22em; }
+  .app-shell { max-width: 1440px; margin: auto; padding: 18px clamp(12px, 2.5vw, 34px) 38px; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:18px; }
+  .brand { display:flex; align-items:center; gap:12px; min-width:0; }
+  .brand-mark { width:48px; height:48px; border-radius:17px; display:grid; place-items:center; font-size:calc(25px * var(--fs)); background:linear-gradient(145deg,var(--primary-2),var(--primary)); box-shadow:inset 0 2px 2px #ffffff99, 0 7px 13px color-mix(in srgb, var(--primary) 25%, transparent); transform:rotate(-3deg); flex:none; }
+  .brand-title { font-size:calc(18px * var(--fs)); font-weight:850; letter-spacing:-.5px; line-height:1.15; }
+  .brand-sub { color:var(--muted); font-size:calc(12px * var(--fs)); margin-top:4px; }
+  .top-actions { display:flex; align-items:center; gap:8px; }
+  .icon-btn, .profile-chip { border:1px solid var(--line); color:var(--text); background:var(--surface); border-radius:14px; min-height:44px; padding:0 12px; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 3px 9px rgba(25,20,50,.025); }
+  .icon-btn { width:44px; font-size:calc(16px * var(--fs)); padding:0; font-weight:800; flex:none; }
+  .profile-chip { font-weight:700; max-width:220px; }
+  .profile-chip .profile-name { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .avatar { width:25px; height:25px; display:grid; place-items:center; border-radius:9px; color:white; background:linear-gradient(145deg,var(--primary-2),var(--primary)); font-size:calc(12px * var(--fs)); flex:none; }
+  .product-switch { display:flex; align-items:center; gap:8px; padding:6px; width:max-content; max-width:100%; border-radius:18px; background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow); margin-bottom:16px; }
+  .product-tab { display:flex; align-items:center; gap:9px; border:0; color:var(--muted); background:transparent; padding:10px 17px; min-height:48px; border-radius:13px; font-weight:800; white-space:nowrap; }
+  .product-tab .mini-icon { width:30px; height:30px; display:grid; place-items:center; font-size:calc(17px * var(--fs)); border-radius:10px; background:var(--surface-2); box-shadow:inset 0 1px #ffffff66; }
+  .product-tab.active { color:var(--primary); background:var(--primary-soft); box-shadow:inset 0 1px 0 #ffffff8c; }
+  .product-tab .tamil { color:var(--muted); font-weight:600; }
+  .context-row { display:flex; justify-content:space-between; align-items:end; gap:12px; margin:16px 2px 18px; }
+  .eyebrow { color:var(--primary); text-transform:uppercase; font-weight:850; letter-spacing:1.5px; font-size:calc(10px * var(--fs)); }
+  h1 { margin:3px 0 0; font-size:clamp(25px,3.3vw,34px); letter-spacing:-1.1px; line-height:1.12; }
+  h2 { margin:0; font-size:calc(17px * var(--fs)); letter-spacing:-.35px; } h3 { margin:0; font-size:calc(14px * var(--fs)); }
+  p { margin:0; } .muted { color:var(--muted); } .small { font-size:calc(12px * var(--fs)); } .mono { font-variant-numeric:tabular-nums; }
+  .context-actions { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { border:1px solid var(--line); color:var(--text); background:var(--surface); border-radius:13px; padding:10px 14px; min-height:44px; font-weight:750; display:inline-flex; align-items:center; justify-content:center; gap:7px; transition:transform .15s, box-shadow .15s, background .15s; }
+  .btn:hover { transform:translateY(-1px); box-shadow:0 7px 18px rgba(30,20,60,.08); }
+  .btn.primary { background:linear-gradient(135deg,var(--primary-2),var(--primary)); color:var(--on-primary); border-color:transparent; box-shadow:0 6px 14px color-mix(in srgb, var(--primary) 23%, transparent), inset 0 1px 0 #ffffff75; }
+  body[data-product="muskmelon"] .btn.primary { color:#2b1d00; }
+  body[data-theme="dark"] .btn.primary { color:#140f22; }
+  .btn.soft { color:var(--primary); background:var(--primary-soft); border-color:transparent; }
+  .btn.danger { color:var(--negative); background:color-mix(in srgb, var(--negative) 8%, var(--surface)); }
+  .btn.small-btn { padding:7px 10px; min-height:36px; border-radius:10px; font-size:calc(12px * var(--fs)); }
+  .btn-row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .nav { display:flex; gap:5px; border-bottom:1px solid var(--line); overflow-x:auto; scrollbar-width:none; margin:0 0 20px; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav-btn { border:0; background:transparent; color:var(--muted); border-bottom:3px solid transparent; padding:12px 15px 13px; white-space:nowrap; font-weight:750; display:flex; align-items:center; gap:8px; }
+  .nav-btn.active { border-bottom-color:var(--primary); color:var(--primary); }
+  .view { min-height:330px; }
+  .grid { display:grid; gap:15px; } .grid.kpis { grid-template-columns:repeat(4,minmax(0,1fr)); } .grid.kpis.six { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .grid.two { grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr); }
+  .grid.equal { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .card { min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
+  .card-head { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:15px; flex-wrap:wrap; }
+  .kpi { position:relative; overflow:hidden; padding:17px; }
+  .kpi::after { content:""; position:absolute; width:95px; height:95px; border-radius:50%; right:-40px; bottom:-45px; background:var(--primary-soft); opacity:.9; }
+  .kpi-top { display:flex; align-items:center; justify-content:space-between; gap:8px; color:var(--muted); font-weight:700; font-size:calc(12px * var(--fs)); position:relative; z-index:1; }
+  .kpi-icon { width:36px; height:36px; border-radius:13px; display:grid; place-items:center; flex:none; font-size:calc(18px * var(--fs)); color:var(--primary); background:var(--primary-soft); box-shadow:inset 0 1px 1px #ffffff8c, 0 4px 8px color-mix(in srgb, var(--primary) 10%, transparent); }
+  .kpi-value { font-size:clamp(20px,2.1vw,28px); font-weight:850; letter-spacing:-.8px; margin-top:15px; position:relative; z-index:1; overflow-wrap:anywhere; }
+  .kpi-note { margin-top:3px; color:var(--muted); font-size:calc(11px * var(--fs)); position:relative; z-index:1; }
+  .kpi.sale .kpi-value { color:var(--positive); } .kpi.expense .kpi-value { color:var(--negative); } .kpi.labour .kpi-value { color:var(--labour); }
+  .section-gap { margin-top:16px; }
+  .quick-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+  .quick-grid.cols-2 { grid-template-columns:repeat(2,minmax(0,1fr)); } .quick-grid.cols-1 { grid-template-columns:1fr; }
+  .quick-card { text-align:left; display:flex; align-items:center; gap:11px; min-height:72px; padding:14px; border:1px solid var(--line); border-radius:17px; background:var(--surface-2); color:var(--text); min-width:0; transition:transform .15s, border-color .15s; }
+  .quick-card:hover { border-color:var(--primary-2); transform:translateY(-1px); }
+  .quick-icon { flex-shrink:0; height:42px; width:42px; display:grid; place-items:center; border-radius:14px; font-size:calc(19px * var(--fs)); color:var(--primary); background:linear-gradient(145deg,var(--primary-soft),var(--surface)); box-shadow:inset 0 1px #ffffffa6, 0 5px 10px rgba(25,20,50,.05); }
+  .quick-card strong { display:block; font-size:calc(12px * var(--fs)); } .quick-card span > span { color:var(--muted); font-size:calc(11px * var(--fs)); display:block; margin-top:3px; }
+  .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:14px; max-width:100%; }
+  table { width:100%; border-collapse:separate; border-spacing:0; min-width:650px; font-size:calc(12px * var(--fs)); }
+  thead th { background:var(--surface-2); color:var(--muted); text-align:left; text-transform:uppercase; letter-spacing:.65px; font-size:calc(10px * var(--fs)); padding:12px 13px; white-space:nowrap; border-bottom:1px solid var(--line); }
+  tbody td { padding:12px 13px; border-bottom:1px solid var(--line); white-space:nowrap; } tbody tr:last-child td { border-bottom:0; }
+  tbody tr:hover { background:color-mix(in srgb,var(--primary-soft) 34%,transparent); }
+  tfoot td { background:var(--surface-2); padding:12px 13px; font-weight:850; border-top:1px solid var(--line); white-space:nowrap; }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  .tag { display:inline-flex; align-items:center; gap:5px; color:var(--primary); background:var(--primary-soft); border-radius:8px; padding:5px 8px; font-size:calc(10px * var(--fs)); font-weight:850; white-space:nowrap; }
+  .tag.warn { color:var(--warn-text); background:var(--warn-bg); }
+  .positive { color:var(--positive); font-weight:800; } .negative { color:var(--negative); font-weight:800; }
+  .chart { height:190px; display:flex; align-items:end; gap:6px; padding:18px 4px 0; border-bottom:1px solid var(--line); }
+  .bar-col { flex:1; height:100%; display:flex; flex-direction:column; justify-content:end; align-items:center; min-width:0; gap:6px; }
+  .bar { width:min(100%,40px); min-height:4px; border-radius:10px 10px 3px 3px; background:linear-gradient(180deg,var(--primary-2),var(--primary)); box-shadow:inset 0 1px #ffffff85; }
+  .bar-label { font-size:calc(10px * var(--fs)); color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; }
+  .bar-value { font-size:calc(9px * var(--fs)); color:var(--muted); white-space:nowrap; }
+  .chart .empty { flex:1; align-self:center; }
+  .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; }
+  .form-grid.three { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .field { display:flex; flex-direction:column; gap:7px; min-width:0; }
+  .field.full { grid-column:1/-1; }
+  .field label, .field-label { color:var(--muted); font-size:calc(12px * var(--fs)); font-weight:750; }
+  input, select, textarea { width:100%; color:var(--text); background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:11px 13px; outline:none; min-height:46px; }
+  input:focus, select:focus, textarea:focus { border-color:var(--primary); box-shadow:0 0 0 3px color-mix(in srgb,var(--primary) 18%,transparent); }
+  input[aria-invalid="true"], select[aria-invalid="true"] { border-color:var(--negative); box-shadow:0 0 0 3px color-mix(in srgb,var(--negative) 15%,transparent); }
+  .field-hint { color:var(--muted); font-size:calc(11px * var(--fs)); margin-top:-2px; }
+  .form-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:18px; padding-top:17px; border-top:1px solid var(--line); }
+  .calc-strip { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:10px; margin-top:18px; }
+  .calc-strip.three-col { grid-template-columns:repeat(3,minmax(0,1fr)); } .calc-strip.four-col { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .calc-strip.six { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .calc-item.wastage strong { color:var(--muted); }
+  .calc-item { min-width:0; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 5px 16px rgba(35,24,76,.045); }
+  .calc-item span { display:block; color:var(--muted); font-size:calc(11px * var(--fs)); font-weight:750; }
+  .calc-item strong { font-size:clamp(16px,1.7vw,21px); display:block; margin-top:6px; color:var(--primary); overflow-wrap:anywhere; }
+  .calc-item small { display:block; color:var(--muted); font-size:calc(10px * var(--fs)); margin-top:3px; }
+  .calc-item.sale strong { color:var(--positive); } .calc-item.expense strong { color:var(--negative); } .calc-item.labour strong { color:var(--labour); } .calc-item.net strong.negative { color:var(--negative); }
+  .detail-edit { width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 14px; min-height:56px; color:var(--text); background:var(--surface-2); border:1px solid var(--line); border-radius:13px; transition:border-color .2s,transform .2s; }
+  .detail-edit:hover { border-color:var(--primary-2); transform:translateY(-1px); }
+  .detail-edit strong { color:var(--primary); }
+  .bag-preview { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .bag-chip { display:inline-flex; align-items:center; gap:5px; padding:5px 8px; border:1px solid var(--line); border-radius:9px; color:var(--muted); background:var(--surface); font-size:calc(11px * var(--fs)); }
+  .form-section { padding-top:18px; margin-top:18px; border-top:1px dashed var(--line); }
+  .form-section:first-of-type { border-top:0; margin-top:0; padding-top:0; }
+  .section-title { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .section-title h3 { display:flex; align-items:center; gap:8px; }
+  .labour-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  .labour-card { border:1px solid var(--line); border-radius:16px; padding:13px; background:var(--surface-2); display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .labour-card .labour-title { grid-column:1/-1; font-weight:850; display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+  .labour-card .subtotal { color:var(--labour); font-weight:800; }
+  .legacy-box { margin-top:12px; border:1px solid var(--warn-line); background:var(--warn-bg); color:var(--warn-text); border-radius:14px; padding:12px 14px; font-size:calc(12px * var(--fs)); display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; }
+  .modal-layer { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(17,14,28,.56); backdrop-filter:blur(8px); animation:fadeIn .18s ease both; }
+  .modal-panel { width:min(760px,100%); max-height:min(90dvh,920px); display:flex; flex-direction:column; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:24px; box-shadow:0 28px 90px rgba(0,0,0,.28); animation:modalIn .24s cubic-bezier(.2,.8,.2,1) both; overflow:hidden; }
+  .modal-head { flex:none; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:18px 20px; background:var(--surface); border-bottom:1px solid var(--line); }
+  .modal-body { flex:1 1 auto; min-height:0; overflow:auto; overscroll-behavior:contain; padding:18px 20px; }
+  .modal-foot { flex:none; display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 20px; background:var(--surface); border-top:1px solid var(--line); flex-wrap:wrap; }
+  .bag-entry-card, .expense-entry-card { padding:14px; margin-bottom:11px; border:1px solid var(--line); border-radius:17px; background:var(--surface-2); }
+  .entry-card-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; }
+  .entry-card-title { display:flex; align-items:center; gap:9px; font-weight:850; }
+  .entry-card-number { display:grid; place-items:center; width:30px; height:30px; border-radius:10px; color:var(--primary); background:var(--primary-soft); box-shadow:inset 0 1px #ffffff90; }
+  .melon-svg { display:inline-block; width:1.3em; height:1.3em; vertical-align:-.25em; flex:none; }
+  .type-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .type-pill { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); border-radius:12px; padding:4px 4px 4px 11px; background:var(--surface-2); }
+  .type-pill button { border:0; background:transparent; color:var(--negative); min-width:36px; min-height:36px; border-radius:9px; display:grid; place-items:center; }
+  .type-pill button:hover { background:color-mix(in srgb,var(--negative) 10%,transparent); }
+  .month-nav { display:flex; align-items:center; gap:6px; }
+  .month-nav input { width:auto; min-width:0; max-width:190px; text-align:center; font-weight:750; }
+  .month-hero { display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; }
+  .month-hero .big { font-size:clamp(28px,4vw,40px); font-weight:850; letter-spacing:-1.2px; margin-top:4px; }
+  @keyframes fadeIn { from {opacity:0} to {opacity:1} }
+  @keyframes modalIn { from {opacity:0; transform:translateY(14px) scale(.985)} to {opacity:1; transform:translateY(0) scale(1)} }
+  @keyframes viewEnter { from {opacity:0; transform:translateY(6px)} to {opacity:1; transform:translateY(0)} }
+  .view > * { animation:viewEnter .22s ease both; }
+  @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; } }
+  .filter-row { display:grid; grid-template-columns:200px minmax(0,1fr) auto; align-items:end; gap:10px; margin-bottom:14px; }
+  .report-summary { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:16px; }
+  .report-tile { padding:13px 14px; border-radius:15px; background:var(--surface-2); border:1px solid var(--line); min-width:0; }
+  .report-tile span { display:block; color:var(--muted); font-size:calc(11px * var(--fs)); font-weight:700; } .report-tile strong { display:block; font-size:calc(18px * var(--fs)); margin-top:5px; letter-spacing:-.5px; overflow-wrap:anywhere; }
+  .notice { border-radius:14px; padding:12px 14px; color:var(--muted); background:var(--surface-2); border:1px solid var(--line); font-size:calc(12px * var(--fs)); }
+  .notice strong { color:var(--text); }
+  .notice.warn { background:var(--warn-bg); border-color:var(--warn-line); color:var(--warn-text); }
+  .notice.warn strong { color:inherit; }
+  .settings-layout { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+  .setting-choice { display:flex; flex-wrap:wrap; gap:8px; }
+  .choice { border:1px solid var(--line); border-radius:12px; padding:10px 14px; min-height:44px; color:var(--muted); font-weight:750; background:var(--surface-2); display:inline-flex; align-items:center; gap:7px; }
+  .choice.active { background:var(--primary-soft); color:var(--primary); border-color:color-mix(in srgb,var(--primary) 30%,var(--line)); }
+  .profile-hero { display:flex; align-items:center; gap:15px; margin-bottom:18px; }
+  .profile-big { width:68px; height:68px; border-radius:23px; display:grid; place-items:center; font-size:calc(28px * var(--fs)); font-weight:850; color:#fff; background:linear-gradient(145deg,var(--primary-2),var(--primary)); box-shadow:inset 0 2px #ffffff8a, 0 10px 20px color-mix(in srgb,var(--primary) 18%,transparent); flex:none; }
+  .empty { text-align:center; padding:30px 16px; color:var(--muted); white-space:normal; }
+  .empty .empty-icon { font-size:calc(30px * var(--fs)); margin-bottom:8px; color:var(--primary); }
+  .empty .btn { margin-top:12px; }
+  .toast { position:fixed; left:50%; bottom:22px; transform:translate(-50%,20px); background:#24202f; color:#fff; border-radius:13px; padding:12px 17px; box-shadow:0 12px 35px #0003; z-index:300; opacity:0; pointer-events:none; transition:.22s; max-width:min(520px, calc(100vw - 28px)); text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%,0); }
+  .toast.error { background:#8f2020; }
+  .banner { margin-bottom:14px; }
+  .footer { display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; padding:20px 3px 0; margin-top:22px; border-top:1px solid var(--line); color:var(--muted); font-size:calc(11px * var(--fs)); }
+  .record-cards { display:none; }
+  .record-card { border:1px solid var(--line); border-radius:16px; padding:13px; background:var(--surface-2); margin-bottom:10px; }
+  .record-card-head { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
+  .record-card dl { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px 12px; margin:0 0 10px; }
+  .record-card dt { color:var(--muted); font-size:calc(10px * var(--fs)); font-weight:750; text-transform:uppercase; letter-spacing:.5px; }
+  .record-card dd { margin:0; font-weight:750; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+  .detail-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+
+  /* ===================== 3D depth layer (v2.1) ===================== */
+  :root { --hl: rgba(255,255,255,.85); --ink-shadow: 30, 20, 70; --tilt-x: 0deg; --tilt-y: 0deg; }
+  body[data-theme="dark"] { --hl: rgba(255,255,255,.10); --ink-shadow: 0, 0, 0; }
+  body { background:
+      radial-gradient(1100px 620px at 8% -12%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 62%),
+      radial-gradient(900px 520px at 108% 4%, color-mix(in srgb, var(--primary-2) 18%, transparent), transparent 60%),
+      radial-gradient(700px 500px at 50% 115%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 70%),
+      var(--bg);
+    background-attachment: fixed; }
+  .card { border-color: color-mix(in srgb, var(--line) 75%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, var(--primary-soft)) 0%, var(--surface) 38%);
+    box-shadow: inset 0 1px 0 var(--hl), 0 1px 2px rgba(var(--ink-shadow), .05), 0 6px 14px rgba(var(--ink-shadow), .06), 0 22px 44px -12px rgba(var(--ink-shadow), .16); }
+  .tilt { transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(var(--lift, 0)); transform-style: preserve-3d; transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; will-change: transform; }
+  .tilt.tilting { transition: transform .08s linear, box-shadow .35s; --lift: -3px; box-shadow: inset 0 1px 0 var(--hl), 0 2px 4px rgba(var(--ink-shadow), .06), 0 18px 30px rgba(var(--ink-shadow), .12), 0 34px 60px -18px color-mix(in srgb, var(--primary) 38%, transparent); }
+  .tilt .kpi-value, .tilt .quick-icon, .tilt .kpi-icon { transform: translateZ(26px); }
+  .kpi::after { background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--primary-2) 45%, var(--primary-soft)), var(--primary-soft) 70%); opacity: .75; }
+  .kpi-icon, .quick-icon, .entry-card-number, .avatar {
+    background: radial-gradient(circle at 30% 22%, var(--hl) 0, color-mix(in srgb, var(--primary-soft) 80%, white) 32%, color-mix(in srgb, var(--primary) 30%, var(--primary-soft)) 100%);
+    box-shadow: inset 0 -3px 6px color-mix(in srgb, var(--primary) 22%, transparent), inset 0 2px 2px var(--hl), 0 6px 12px -2px color-mix(in srgb, var(--primary) 30%, transparent); }
+  .avatar { color:#fff; background: radial-gradient(circle at 30% 22%, rgba(255,255,255,.55), var(--primary-2) 35%, var(--primary) 100%); }
+  .brand-mark { box-shadow: inset 0 2px 2px rgba(255,255,255,.6), inset 0 -4px 8px rgba(0,0,0,.18), 0 3px 0 color-mix(in srgb, var(--primary) 70%, black), 0 12px 22px color-mix(in srgb, var(--primary) 35%, transparent); }
+  /* Raised, pressable buttons */
+  .btn { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 90%, rgba(var(--ink-shadow), .25)), 0 6px 14px -6px rgba(var(--ink-shadow), .18); transition: transform .12s, box-shadow .12s, background .15s; }
+  .btn:active, .quick-card:active, .choice:active, .product-tab:active, .detail-edit:active { transform: translateY(2px) !important; }
+  .btn:active { box-shadow: inset 0 1px 0 var(--hl), 0 1px 0 color-mix(in srgb, var(--line) 90%, rgba(var(--ink-shadow), .25)); }
+  .btn.primary { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.12), 0 4px 0 color-mix(in srgb, var(--primary) 62%, black), 0 12px 22px -6px color-mix(in srgb, var(--primary) 55%, transparent); }
+  .btn.primary:active { box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 1px 0 color-mix(in srgb, var(--primary) 62%, black), 0 4px 10px -4px color-mix(in srgb, var(--primary) 45%, transparent); }
+  .btn.danger-solid { color:#fff; border-color:transparent; background: linear-gradient(135deg, #e25b5b, #c13a3a); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 0 #8f2626, 0 12px 22px -6px rgba(193,58,58,.5); }
+  .btn.danger-solid:active { box-shadow: 0 1px 0 #8f2626; }
+  .icon-btn, .profile-chip { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 90%, rgba(var(--ink-shadow), .25)), 0 8px 16px -8px rgba(var(--ink-shadow), .25); }
+  .icon-btn:active, .profile-chip:active { transform: translateY(2px); box-shadow: inset 0 1px 0 var(--hl), 0 1px 0 var(--line); }
+  .quick-card { background: linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%); box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 85%, transparent), 0 10px 20px -12px rgba(var(--ink-shadow), .3); }
+  /* Segmented product switch with a raised active pill */
+  .product-switch { background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); box-shadow: inset 0 2px 5px rgba(var(--ink-shadow), .08), inset 0 -1px 0 var(--hl), 0 10px 26px -14px rgba(var(--ink-shadow), .35); }
+  .product-tab.active { background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--primary-soft) 70%, var(--surface))); box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--primary) 30%, var(--line)), 0 10px 18px -8px color-mix(in srgb, var(--primary) 45%, transparent); }
+  .product-tab .mini-icon { box-shadow: inset 0 1px 1px var(--hl), 0 3px 6px -2px rgba(var(--ink-shadow), .25); background: radial-gradient(circle at 30% 25%, var(--hl), var(--surface-2) 60%); }
+  /* Inputs sit "into" the surface */
+  input, select, textarea { box-shadow: inset 0 2px 4px rgba(var(--ink-shadow), .06); }
+  /* 3D bars: lit front + shaded side + top cap */
+  .bar { position: relative; border-radius: 6px 6px 3px 3px; background: linear-gradient(90deg, var(--primary-2) 0%, color-mix(in srgb, var(--primary-2) 55%, var(--primary)) 62%, color-mix(in srgb, var(--primary) 78%, black) 100%); box-shadow: 0 8px 14px -6px color-mix(in srgb, var(--primary) 55%, transparent); }
+  .bar::before { content: ""; position: absolute; left: 0; right: 0; top: -5px; height: 10px; border-radius: 50%; background: radial-gradient(ellipse at 40% 40%, color-mix(in srgb, var(--primary-2) 50%, white), var(--primary-2)); }
+  /* Summary tiles and calc items */
+  .calc-item, .report-tile { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 80%, transparent), 0 12px 22px -14px rgba(var(--ink-shadow), .35); }
+  .calc-item.net { background: linear-gradient(160deg, var(--surface), var(--primary-soft)); }
+  .detail-edit { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 85%, transparent); }
+  .labour-card, .bag-entry-card, .expense-entry-card, .record-card { box-shadow: inset 0 1px 0 var(--hl), 0 8px 18px -14px rgba(var(--ink-shadow), .35); }
+  /* 3D product emblem beside the page title */
+  .title-wrap { display:flex; align-items:center; gap:14px; }
+  .emblem { width:54px; height:54px; flex:none; perspective:400px; }
+  .emblem-coin { width:100%; height:100%; border-radius:18px; display:grid; place-items:center; font-size:28px; transform-style:preserve-3d; transform: rotateY(-14deg) rotateX(8deg);
+    background: radial-gradient(circle at 30% 22%, rgba(255,255,255,.9), var(--primary-soft) 38%, color-mix(in srgb, var(--primary) 40%, var(--primary-soft)) 100%);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,.8), inset 0 -5px 10px color-mix(in srgb, var(--primary) 30%, transparent), 4px 6px 0 color-mix(in srgb, var(--primary) 45%, var(--line)), 0 16px 24px -8px color-mix(in srgb, var(--primary) 50%, transparent);
+    animation: emblemIn .9s cubic-bezier(.2,.8,.2,1) both; }
+  .emblem-coin .melon-svg { width:34px; height:34px; }
+  @keyframes emblemIn { from { transform: rotateY(-200deg) rotateX(8deg) scale(.7); opacity:0 } to { transform: rotateY(-14deg) rotateX(8deg) scale(1); opacity:1 } }
+  /* Floating bottom nav active pill (mobile) and sheet handle */
+  .nav-btn.active .ico { filter: drop-shadow(0 3px 4px color-mix(in srgb, var(--primary) 45%, transparent)); }
+  /* In-app confirm dialog */
+  .ask-layer { position:fixed; inset:0; z-index:400; display:grid; place-items:center; padding:20px; background:rgba(17,14,28,.5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); animation:fadeIn .15s ease both; }
+  .ask-panel { width:min(440px,100%); background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:24px; padding:22px; text-align:center; box-shadow: inset 0 1px 0 var(--hl), 0 30px 80px rgba(0,0,0,.35); animation:askIn .22s cubic-bezier(.2,.8,.2,1) both; }
+  .ask-panel h2 { font-size:calc(18px * var(--fs)); margin:12px 0 6px; }
+  .ask-panel p { color:var(--muted); white-space:pre-line; margin:0 0 18px; font-size:calc(13px * var(--fs)); }
+  .ask-emblem { width:56px; height:56px; margin:0 auto; border-radius:18px; display:grid; place-items:center; font-size:26px; color:var(--primary); background: radial-gradient(circle at 30% 22%, var(--hl), var(--primary-soft) 45%, color-mix(in srgb, var(--primary) 30%, var(--primary-soft))); box-shadow: inset 0 -3px 6px color-mix(in srgb, var(--primary) 25%, transparent), 0 10px 18px -6px color-mix(in srgb, var(--primary) 45%, transparent); }
+  .ask-panel.danger .ask-emblem { color:#c13a3a; background: radial-gradient(circle at 30% 22%, var(--hl), #ffe3e3 45%, #f6b4b4); box-shadow: inset 0 -3px 6px rgba(193,58,58,.25), 0 10px 18px -6px rgba(193,58,58,.4); }
+  .ask-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @keyframes askIn { from { opacity:0; transform: perspective(700px) rotateX(-14deg) translateY(16px) scale(.96) } to { opacity:1; transform:none } }
+  body.ask-open { overflow:hidden; }
+  details summary { cursor:pointer; }
+  body.hosted [data-action="export-pdf"] { display:none !important; }
+  body[data-theme="dark"] { color-scheme: dark; } body[data-theme="light"] { color-scheme: light; }
+  .hidden { display:none !important; }
+  @media(max-width:960px) { .grid.kpis, .grid.kpis.six { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calc-strip { grid-template-columns:repeat(3,minmax(0,1fr)); } .report-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media(max-width:640px) {
+    .app-shell { padding:10px 11px calc(96px + env(safe-area-inset-bottom)); }
+    .footer { padding-bottom:0; }
+    .topbar { margin-bottom:12px; } .brand-sub { display:none; } .brand-title { font-size:calc(17px * var(--fs)); } .brand-mark { width:40px; height:40px; border-radius:14px; font-size:calc(21px * var(--fs)); }
+    .nav { position:fixed; z-index:100; left:8px; right:8px; bottom:calc(8px + env(safe-area-inset-bottom)); display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:2px; margin:0; padding:6px 5px; border:1px solid color-mix(in srgb,var(--line) 80%,transparent); border-radius:22px; background:color-mix(in srgb,var(--surface) 94%,transparent); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 14px 45px rgba(18,12,38,.22); overflow:visible; }
+    .nav-btn { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:3px; min-width:0; min-height:54px; padding:5px 2px; border:0; border-radius:15px; color:var(--muted); font-size:calc(10.5px * var(--fs)); white-space:normal; line-height:1.1; text-align:center; transition:background .2s,color .2s,transform .2s; }
+    .nav-btn .ico { width:22px; height:22px; }
+    .nav-btn.active { background:var(--primary-soft); color:var(--primary); }
+    .nav-btn:active { transform:scale(.96); }
+    .toast { bottom:calc(96px + env(safe-area-inset-bottom)); }
+    .calc-strip,.calc-strip.three-col,.calc-strip.four-col,.calc-strip.six { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .calc-strip.three-col .calc-item:first-child { grid-column:1/-1; }
+    .calc-item { padding:12px; }
+    .calc-item strong { font-size:calc(18px * var(--fs)); }
+    .modal-layer { align-items:flex-end; padding:0; }
+    .modal-panel { width:100%; max-height:94dvh; border-radius:24px 24px 0 0; border-bottom:0; }
+    .modal-head { padding:16px; }
+    .modal-body { padding:14px 16px; }
+    .modal-foot { padding:12px 16px calc(12px + env(safe-area-inset-bottom)); }
+    .modal-foot .btn { flex:1; }
+    .profile-chip { padding:0 9px; } .profile-chip .profile-name, .profile-chip .chev { display:none; }
+    .product-switch { width:100%; margin-bottom:10px; } .product-tab { min-width:0; flex:1 1 0; justify-content:center; flex-wrap:wrap; padding:7px 5px; font-size:calc(12px * var(--fs)); line-height:1.2; gap:5px; white-space:normal; overflow-wrap:anywhere; } .product-tab .mini-icon { width:26px; height:26px; } .product-tab .tamil { max-width:100%; font-size:calc(10.5px * var(--fs)); white-space:normal; overflow-wrap:anywhere; }
+    .context-row { align-items:stretch; flex-direction:column; margin:10px 2px 14px; } .context-actions { width:100%; } .context-actions .btn { flex:1; }
+    .card { padding:15px; border-radius:18px; } .kpi { padding:14px; } .kpi-icon { width:30px; height:30px; border-radius:11px; } .kpi-value { font-size:calc(20px * var(--fs)); margin-top:10px; }
+    .form-grid, .form-grid.three, .settings-layout, .labour-grid, .grid.equal { grid-template-columns:1fr; } .report-summary, .detail-list { grid-template-columns:repeat(2,minmax(0,1fr)); } .quick-card { padding:11px; min-height:68px; gap:8px; } .quick-icon { width:36px; height:36px; font-size:calc(17px * var(--fs)); }
+    .filter-row { grid-template-columns:1fr; } .form-actions .btn { flex:1; } .form-actions .btn-row { width:100%; }
+    .records-table { display:none; } .record-cards { display:block; }
+    .month-nav { width:100%; } .month-nav input { flex:1; max-width:none; }
+    .report-tile strong { font-size:calc(16px * var(--fs)); }
+    .nav-btn.active { background: linear-gradient(180deg, var(--surface), var(--primary-soft)); box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--primary) 28%, var(--line)), 0 8px 16px -8px color-mix(in srgb, var(--primary) 50%, transparent); transform: translateY(-3px); }
+    .modal-head { position:relative; padding-top:22px; }
+    .modal-head::before { content:""; position:absolute; top:8px; left:50%; width:42px; height:5px; margin-left:-21px; border-radius:5px; background:var(--line); }
+    .emblem { width:44px; height:44px; } .emblem-coin { font-size:22px; border-radius:15px; } .emblem-coin .melon-svg { width:28px; height:28px; }
+    .ask-layer { align-items:end; padding:12px 12px calc(12px + env(safe-area-inset-bottom)); }
+  }
+  @media(max-width:380px) { .grid.kpis, .grid.kpis.six { gap:10px; } .kpi-value { font-size:calc(18px * var(--fs)); } .quick-grid.cols-2, .quick-grid { grid-template-columns:1fr; } }
+  @media print {
+    body { background:white !important; color:#111 !important; font-size:10px !important; }
+    body.printing-report * { visibility:hidden !important; }
+    body.printing-report #printArea, body.printing-report #printArea * { visibility:visible !important; }
+    body.printing-report #printArea { position:absolute !important; left:0 !important; top:0 !important; width:100% !important; background:white !important; color:#111 !important; padding:0 !important; margin:0 !important; border:0 !important; box-shadow:none !important; animation:none !important; }
+    body.printing-report #printArea .no-print, body.printing-report .nav, body.printing-report .toast { display:none !important; }
+    body.printing-report #printArea .table-wrap { overflow:visible !important; border-color:#ddd !important; }
+    body.printing-report #printArea table { min-width:0 !important; font-size:8.5px !important; }
+    body.printing-report #printArea th, body.printing-report #printArea td { padding:5px 4px !important; color:#111 !important; border-color:#ddd !important; white-space:normal !important; background:white !important; }
+    body.printing-report #printArea .report-tile { background:#fafafa !important; border-color:#ddd !important; }
+    body.printing-report #printArea .report-tile strong { font-size:12px !important; color:#111 !important; }
+    body.printing-report #printArea .eyebrow { color:#555 !important; }
+    body.printing-report #printArea .notice { background:#fafafa !important; color:#333 !important; border-color:#ddd !important; }
+    body.printing-report #printArea .tag { color:#222 !important; background:#eee !important; }
+    @page { size:landscape; margin:12mm; }
+  }
+</style>
+<a href="#viewContainer" class="sr-only">Skip to content</a>
+<div class="app-shell" id="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">🌱</div>
+      <div><div class="brand-title">FieldLedger</div><div class="brand-sub">Your farm business, in one place</div></div>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="quickThemeBtn" type="button" aria-label="Switch to dark mode" title="Switch light / dark mode"></button>
+      <button class="icon-btn" id="quickTextBtn" type="button" aria-label="Change text size (currently Medium)" title="Change text size">Aa</button>
+      <button class="profile-chip" type="button" data-nav="profile" aria-label="Open farm profile"><span class="avatar" id="avatarInitial" aria-hidden="true">M</span><span class="profile-name" id="profileChipName">My Farm</span><span class="chev" aria-hidden="true">⌄</span></button>
+    </div>
+  </header>
+
+  <div class="product-switch" role="tablist" aria-label="Choose business">
+    <button class="product-tab active" type="button" data-product-tab="brinjal" role="tab" aria-selected="true"><span class="mini-icon" aria-hidden="true">🍆</span> Brinjal <span class="tamil" lang="ta">/ கத்திரிக்காய்</span></button>
+    <button class="product-tab" type="button" data-product-tab="muskmelon" role="tab" aria-selected="false"><span class="mini-icon melon-tab-icon" aria-hidden="true" id="melonTabIcon"></span> Muskmelon <span class="tamil" lang="ta">/ முலாம்பழம்</span></button>
+  </div>
+
+  <div id="bannerArea"></div>
+
+  <div class="context-row">
+    <div class="title-wrap"><div class="emblem" aria-hidden="true"><div class="emblem-coin" id="emblemCoin">🍆</div></div><div><div class="eyebrow" id="pageEyebrow">Overview</div><h1 id="pageTitle">Brinjal business</h1></div></div>
+    <div class="context-actions" id="contextActions"></div>
+  </div>
+
+  <nav class="nav" aria-label="Main navigation" id="mainNav"></nav>
+
+  <main id="viewContainer" class="view" tabindex="-1"></main>
+  <footer class="footer"><span>FieldLedger · Data is saved only in this browser on this device — export a backup regularly.</span><span id="buildLabel">Web app</span></footer>
+</div>
+<input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-hidden="true" tabindex="-1" />
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div id="modalRoot"></div>
+<div id="dialogRoot"></div>
+<script>
+(() => {
+  'use strict';
+
+  /* ------------------------------------------------------------------
+   * Constants
+   * ------------------------------------------------------------------ */
+  const STORAGE_KEY = 'fieldledger-v2';
+  const LEGACY_KEY = 'fieldledger-prototype-v1'; // original prototype key; read once for migration, never written
+  const UI_KEY = 'fieldledger-ui';
+  const SCHEMA_VERSION = 2;
+  const PRODUCTS = ['brinjal', 'muskmelon'];
+  const VIEWS = ['dashboard', 'entry', 'records', 'reports', 'tools', 'settings', 'profile'];
+  const DEFAULT_TYPES = ['Local', 'Hybrid', 'Long', 'Round'];
+  const SIZES = { S: 'Small', M: 'Medium', L: 'Large' };
+  // Prefill for a newly added bag, taken from the sample sheet (320 kg / 10 bags).
+  // It is only a starting value in the bag form and is always editable; it is not a setting.
+  const NEW_BAG_KG = 32;
+  const MAX_BAGS = 60;
+  const MAX_WORKERS = 50;
+  const APP_VERSION = '2.1.0';
+  // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
+  const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
+  // Running as a published claude.ai page: downloads go through the host's "downloads" capability
+  // (the frame blocks plain <a download>), and the print dialog is unavailable there.
+  const HOSTED = () => !!(window.claude && typeof window.claude.use === 'function');
+  let hostDownloads;
+  const getHostDownloads = async () => { if (hostDownloads === undefined) { try { hostDownloads = HOSTED() ? await window.claude.use('downloads') : null; } catch (_) { hostDownloads = null; } } return hostDownloads; };
+  const nativeInfo = () => { try { return NATIVE ? JSON.parse(NATIVE.getAppInfo()) : null; } catch (_) { return null; } };
+
+  /* ------------------------------------------------------------------
+   * Small helpers
+   * ------------------------------------------------------------------ */
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const clone = obj => (obj == null ? obj : JSON.parse(JSON.stringify(obj)));
+  const r2 = n => { n = Number(n) || 0; return (Math.sign(n) * Math.round(Math.abs(n) * 100 + 1e-9) / 100) || 0; };
+  /** Non-negative finite number, otherwise 0 (never NaN/undefined in calculations). */
+  const num = v => { const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : 0; };
+  const int = v => Math.floor(num(v));
+  /** Strict parse used by validation: returns null for blank, NaN, negative or non-finite input. */
+  const parseNonNeg = v => { if (v === '' || v == null) return null; const n = Number(v); return Number.isFinite(n) && n >= 0 ? n : null; };
+  const sum = (arr, fn) => (arr || []).reduce((t, x) => t + fn(x), 0);
+  const nfInt = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
+  const nf2 = new Intl.NumberFormat('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = n => { const v = r2(n); return Number.isInteger(v) ? nfInt.format(v) : nf2.format(v); };
+  const money = n => { const v = r2(n); return (v < 0 ? '−₹' : '₹') + fmt(Math.abs(v)); };
+  const pad = n => String(n).padStart(2, '0');
+  const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  const currentMonth = () => todayISO().slice(0, 7);
+  const isISODate = s => { if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false; const [y, m, d] = s.split('-').map(Number); const dt = new Date(y, m - 1, d); return dt.getFullYear() === y && dt.getMonth() === m - 1 && dt.getDate() === d; };
+  const isMonth = s => typeof s === 'string' && /^\d{4}-(0[1-9]|1[0-2])$/.test(s);
+  const monthLabel = ym => { const [y, m] = String(ym).split('-').map(Number); return new Date(y, (m || 1) - 1, 1).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }); };
+  const dateLabel = iso => { if (!isISODate(iso)) return '—'; const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }); };
+  const dateLong = iso => { if (!isISODate(iso)) return '—'; const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); };
+  const addMonths = (ym, delta) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + delta, 1); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}`; };
+  const uid = prefix => prefix + '-' + ((window.crypto && crypto.randomUUID) ? crypto.randomUUID().slice(0, 13) : Date.now().toString(36) + Math.random().toString(36).slice(2, 8));
+  const nowISO = () => new Date().toISOString();
+  const prefersReducedMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const scrollTop = () => window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+
+  /* ------------------------------------------------------------------
+   * Icons (single coherent stroke style)
+   * ------------------------------------------------------------------ */
+  const ICONS = {
+    home: '<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M10 21v-6h4v6"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    list: '<path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/>',
+    report: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 17v-3M12 17v-6M16 17v-2"/>',
+    more: '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+    download: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>',
+    upload: '<path d="M12 21V9M7 14l5-5 5 5M5 3h14"/>',
+    file: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/>',
+    table: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/>',
+    image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+    settings: '<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>',
+    trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m13.5 6.5 4 4"/>',
+    eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    chevL: '<path d="M15 6l-6 6 6 6"/>',
+    chevR: '<path d="M9 6l6 6-6 6"/>',
+    x: '<path d="M6 6l12 12M18 6 6 18"/>',
+    check: '<path d="M5 12.5 10 17 19 7"/>',
+    scale: '<path d="M12 4v16M7 20h10M5 8h14"/><path d="M5 8 2.5 14h5zM19 8l-2.5 6h5z"/>',
+    wallet: '<rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2"/>',
+    users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/>',
+    receipt: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/>',
+    bag: '<path d="M6 8h12l-1 13H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/>',
+    trend: '<path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/>',
+    sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17l.7 1.8 1.8.7-1.8.7L19 22l-.7-1.8-1.8-.7 1.8-.7z"/>',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+    database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+    restore: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/>',
+    alert: '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
+    rupee: '<path d="M6 4h12M6 9h12M14 4c3 0 4 2.5 4 2.5S17 9 14 9H6l9 11"/>',
+    copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>'
+  };
+  const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name] || ''}</svg>`;
+  // Cantaloupe/muskmelon: netted tan rind with an orange flesh wedge (flat fills, no ids so it can repeat safely).
+  const melonSvg = '<svg class="melon-svg" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><circle cx="18" cy="21" r="14" fill="#e3c97a" stroke="#9a7a2c" stroke-width="1.4"/><path d="M8 13q10 6 20 0M5 21q13 6 26 0M7 29q11 5 22 0M12 9q-4 12 2 25M18 7q-3 14 0 28M24 9q4 12-2 25" fill="none" stroke="#fbf0c8" stroke-width="1.1" opacity=".95"/><path d="M22 23 37 19a15 15 0 0 1-8 16z" fill="#f7913b" stroke="#b9621b" stroke-width="1.2" stroke-linejoin="round"/><path d="M24.5 24.5 34.5 22a11 11 0 0 1-5.5 10.5z" fill="#ffb066"/><circle cx="28" cy="26" r=".9" fill="#fff3d6"/><circle cx="30.5" cy="28.5" r=".9" fill="#fff3d6"/><circle cx="27.5" cy="29.5" r=".9" fill="#fff3d6"/><path d="M17 7q-1-4 3-5" fill="none" stroke="#5b8b35" stroke-width="2" stroke-linecap="round"/><path d="M19 5q5-3 7 1-4 2-7-1z" fill="#78ab43"/></svg>';
+  const productIcon = p => (p === 'brinjal' ? '<span aria-hidden="true">🍆</span>' : melonSvg);
+  const CFG = {
+    brinjal: { name: 'Brinjal', tamil: 'கத்திரிக்காய்', themeColor: '#6d45d9' },
+    muskmelon: { name: 'Muskmelon', tamil: 'முலாம்பழம்', themeColor: '#d49b17' }
+  };
+
+  /* ------------------------------------------------------------------
+   * Data model, seed and normalisation
+   * ------------------------------------------------------------------
+   * Brinjal record: { id, date, ratePerKg, bagDetails[{id, weightKg, brinjalType, size}],
+   *   menCount, womenCount, menWage, womenWage, wastageKg, legacyLabour|null, expenseItems[], createdAt, updatedAt }
+   * Muskmelon record: { id, date, kg, ratePerKg, wastageKg, expenseItems[], createdAt, updatedAt }
+ * wastageKg (both businesses) is produce that was not sold. It has no price and never changes
+ * gross/net; it is recorded and reported in kg only.
+   * Expense item: { id, date, purpose, amount, notes }
+   *
+   * legacyLabour = { workers, salary } holds an aggregate labour figure whose men/women split is
+   * unknown (the source sheet only has "No. labour" and "Labour salary"). It is included in labour
+   * salary totals but never presented as men or women.
+   */
+  function seedState() {
+    const stamp = '2026-10-19T00:00:00.000Z';
+    const brinjal = [
+      ['2026-10-01', 10, 15, 1500, 3, 1500], ['2026-10-02', 12, 15, 1500, 4, 2000], ['2026-10-03', 15, 15, 1500, 4, 2000],
+      ['2026-10-04', 10, 15, 1500, 3, 1500], ['2026-10-05', 15, 15, 1500, 4, 2000], ['2026-10-06', 12, 15, 1500, 4, 2000],
+      ['2026-10-07', 10, 15, 1500, 4, 2000], ['2026-10-08', 10, 15, 1500, 3, 1500]
+    ].map(([date, bags, rate, exp, workers, salary], i) => ({
+      id: `sample-b${i + 1}`, date, ratePerKg: rate,
+      // Source sheet weights are all 32 kg per bag (e.g. 320 kg / 10 bags). Type/size are demo values.
+      bagDetails: Array.from({ length: bags }, (_, j) => ({ id: `sample-b${i + 1}-bag${j + 1}`, weightKg: 32, brinjalType: 'Local', size: 'M' })),
+      menCount: 0, womenCount: 0, menWage: 500, womenWage: 400, wastageKg: 0,
+      legacyLabour: { workers, salary },
+      expenseItems: [{ id: `sample-b${i + 1}-exp1`, date, purpose: 'Daily operating expenses (source sheet total)', amount: exp, notes: '' }],
+      sample: true, createdAt: stamp, updatedAt: stamp
+    }));
+    const muskmelon = [
+      ['2026-10-02', 3500, 15, 3000], ['2026-10-04', 2000, 12, 0], ['2026-10-10', 1500, 10, 5000],
+      ['2026-10-12', 1200, 10, 2000], ['2026-10-18', 1500, 10, 0], ['2026-10-20', 1200, 10, 8000]
+    ].map(([date, kg, rate, exp], i) => ({
+      id: `sample-m${i + 1}`, date, kg, ratePerKg: rate, wastageKg: 0,
+      expenseItems: exp ? [{ id: `sample-m${i + 1}-exp1`, date, purpose: 'Operating expenses (source sheet total)', amount: exp, notes: '' }] : [],
+      sample: true, createdAt: stamp, updatedAt: stamp
+    }));
+    return {
+      app: 'FieldLedger', schemaVersion: SCHEMA_VERSION,
+      settings: { theme: 'light', textSize: 'medium', brinjalTypes: DEFAULT_TYPES.slice() },
+      profile: { farmName: 'My Farm', ownerName: '', phone: '', location: '' },
+      data: { brinjal, muskmelon }
+    };
+  }
+
+  const str = (v, max = 200) => String(v ?? '').trim().slice(0, max);
+
+  function normSettings(s) {
+    s = (s && typeof s === 'object') ? s : {};
+    const seen = new Set();
+    const types = (Array.isArray(s.brinjalTypes) ? s.brinjalTypes : []).map(t => str(t, 50)).filter(t => t && !seen.has(t.toLowerCase()) && seen.add(t.toLowerCase()));
+    return {
+      theme: s.theme === 'dark' ? 'dark' : 'light',
+      textSize: ['small', 'medium', 'large'].includes(s.textSize) ? s.textSize : 'medium',
+      brinjalTypes: types.length ? types : DEFAULT_TYPES.slice()
+    };
+  }
+  function normProfile(p) {
+    p = (p && typeof p === 'object') ? p : {};
+    return { farmName: str(p.farmName, 80) || 'My Farm', ownerName: str(p.ownerName ?? p.name, 80), phone: str(p.phone, 30), location: str(p.location, 120) };
+  }
+  /** Returns { value } or { error }. Accepts both schema v2 and the original prototype (v1) field names. */
+  function normExpense(x, fallbackDate) {
+    if (!x || typeof x !== 'object') return { error: 'expense item is not an object' };
+    const date = x.date == null || x.date === '' ? fallbackDate : x.date;
+    if (!isISODate(date)) return { error: `expense date "${str(x.date, 20)}" is not a valid YYYY-MM-DD date` };
+    const amount = parseNonNeg(x.amount);
+    if (amount === null) return { error: `expense amount "${str(x.amount, 20)}" is not a non-negative number` };
+    return { value: { id: str(x.id, 60) || uid('exp'), date, purpose: str(x.purpose, 120) || 'Expense', amount, notes: str(x.notes, 300) } };
+  }
+  function normRecord(product, r, types) {
+    if (!r || typeof r !== 'object' || Array.isArray(r)) return { error: 'not a record object' };
+    if (!isISODate(r.date)) return { error: `date "${str(r.date, 20)}" is not a valid YYYY-MM-DD date` };
+    const rate = parseNonNeg(r.ratePerKg ?? r.rate ?? 0);
+    if (rate === null) return { error: 'rate per kg must be a non-negative number' };
+    const wastage = parseNonNeg(r.wastageKg ?? 0);
+    if (wastage === null) return { error: 'wastage (kg) must be a non-negative number' };
+    const items = [];
+    if (Array.isArray(r.expenseItems)) {
+      for (const x of r.expenseItems) { const res = normExpense(x, r.date); if (res.error) return res; items.push(res.value); }
+    } else if (num(r.expenses) > 0) {
+      items.push({ id: uid('exp'), date: r.date, purpose: 'Daily farm expenses', amount: num(r.expenses), notes: '' });
+    }
+    const base = { id: str(r.id, 60) || uid(product === 'brinjal' ? 'b' : 'm'), date: r.date, ratePerKg: rate, wastageKg: wastage, expenseItems: items, createdAt: str(r.createdAt, 40) || nowISO(), updatedAt: str(r.updatedAt, 40) || nowISO() };
+    if (r.sample === true) base.sample = true;
+    if (product === 'muskmelon') {
+      const kg = parseNonNeg(r.kg ?? 0);
+      if (kg === null) return { error: 'quantity (kg) must be a non-negative number' };
+      return { value: { ...base, kg } };
+    }
+    let bags;
+    if (Array.isArray(r.bagDetails)) {
+      bags = [];
+      for (const b of r.bagDetails) {
+        if (!b || typeof b !== 'object') return { error: 'bag detail is not an object' };
+        const w = parseNonNeg(b.weightKg ?? b.weight);
+        if (w === null) return { error: `bag weight "${str(b.weightKg ?? b.weight, 20)}" is not a non-negative number` };
+        bags.push({ id: str(b.id, 60) || uid('bag'), weightKg: w, brinjalType: str(b.brinjalType ?? b.type, 50) || types[0], size: SIZES[b.size] ? b.size : 'M' });
+      }
+    } else {
+      // Very old rows had only an aggregate bag count + weight: spread the weight evenly.
+      const count = Math.min(int(r.bags), 500); const each = count ? num(r.kg) / count : 0;
+      bags = Array.from({ length: count }, () => ({ id: uid('bag'), weightKg: r2(each), brinjalType: types[0], size: 'M' }));
+    }
+    let legacy = null;
+    if (r.legacyLabour && typeof r.legacyLabour === 'object' && (num(r.legacyLabour.workers) > 0 || num(r.legacyLabour.salary) > 0)) {
+      legacy = { workers: int(r.legacyLabour.workers), salary: num(r.legacyLabour.salary) };
+    }
+    return { value: { ...base, bagDetails: bags, menCount: Math.min(int(r.menCount ?? r.men), 999), womenCount: Math.min(int(r.womenCount ?? r.women), 999), menWage: num(r.menWage ?? r.maleWage), womenWage: num(r.womenWage ?? r.femaleWage), legacyLabour: legacy } };
+  }
+  /**
+   * Validate + normalise a state/backup object.
+   * strict=true (imports): any invalid record rejects the whole file.
+   * strict=false (local storage): invalid records are dropped and reported.
+   */
+  function normalizeState(raw, strict) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return { state: null, problems: ['The file does not contain a FieldLedger data object.'] };
+    const src = raw.data ? raw : (raw.state && raw.state.data ? raw.state : null);
+    if (!src || typeof src.data !== 'object') return { state: null, problems: ['Missing the "data" section with Brinjal and Muskmelon records.'] };
+    if (!Array.isArray(src.data.brinjal) || !Array.isArray(src.data.muskmelon)) return { state: null, problems: ['Both data.brinjal and data.muskmelon must be lists of records.'] };
+    const settings = normSettings(src.settings);
+    const out = { app: 'FieldLedger', schemaVersion: SCHEMA_VERSION, settings, profile: normProfile(src.profile), data: { brinjal: [], muskmelon: [] } };
+    const problems = [];
+    for (const p of PRODUCTS) {
+      const ids = new Set();
+      src.data[p].forEach((r, i) => {
+        const res = normRecord(p, r, settings.brinjalTypes);
+        if (res.error) { problems.push(`${CFG[p].name} record ${i + 1}: ${res.error}.`); return; }
+        if (ids.has(res.value.id)) res.value.id = uid(p === 'brinjal' ? 'b' : 'm');
+        ids.add(res.value.id);
+        out.data[p].push(res.value);
+      });
+    }
+    if (strict && problems.length) return { state: null, problems };
+    return { state: out, problems };
+  }
+
+  /* ------------------------------------------------------------------
+   * Persistence
+   * ------------------------------------------------------------------ */
+  let storageOK = true;
+  let startupNotice = '';
+  function lsGet(key) { try { return localStorage.getItem(key); } catch (_) { storageOK = false; return null; } }
+  function lsSet(key, value) { localStorage.setItem(key, value); }
+  function loadState() {
+    const text = lsGet(STORAGE_KEY);
+    if (text) {
+      try {
+        const res = normalizeState(JSON.parse(text), false);
+        if (res.state) {
+          if (res.problems.length) { startupNotice = `${res.problems.length} damaged record(s) could not be loaded and were skipped. A raw copy was kept in browser storage.`; keepRawCopy(text); console.warn('FieldLedger: skipped records', res.problems); }
+          return res.state;
+        }
+      } catch (_) { /* fall through */ }
+      keepRawCopy(text);
+      startupNotice = 'Saved data could not be read, so sample data was loaded. A raw copy of the unreadable data was kept in browser storage — restore a JSON backup if you have one.';
+      return seedState();
+    }
+    const legacyText = lsGet(LEGACY_KEY);
+    if (legacyText) {
+      try {
+        const res = normalizeState(JSON.parse(legacyText), false);
+        if (res.state) { startupNotice = 'Your data from the earlier FieldLedger prototype was upgraded. The original copy is kept unchanged in browser storage.'; return res.state; }
+      } catch (_) { /* ignore */ }
+    }
+    return seedState();
+  }
+  function keepRawCopy(text) { try { lsSet('fieldledger-unreadable-' + Date.now(), text); } catch (_) { /* best effort */ } }
+  let state = loadState();
+  function saveState() {
+    try { lsSet(STORAGE_KEY, JSON.stringify(state)); storageOK = true; return true; }
+    catch (e) {
+      storageOK = false;
+      const quota = e && (e.name === 'QuotaExceededError' || e.code === 22);
+      showToast(quota ? 'Browser storage is full — changes are NOT saved. Export a backup now.' : 'Browser storage is unavailable — changes are NOT saved. Export a backup.', true);
+      renderBanner();
+      return false;
+    }
+  }
+
+  /* ------------------------------------------------------------------
+   * Calculations (pure, shared by every screen and export)
+   * ------------------------------------------------------------------ */
+  const calc = {
+    bagKg: bags => sum(bags, b => num(b.weightKg)),
+    expenseTotal: items => sum(items, x => num(x.amount)),
+    menSubtotal: r => int(r.menCount) * num(r.menWage),
+    womenSubtotal: r => int(r.womenCount) * num(r.womenWage),
+    legacySalary: r => num(r.legacyLabour && r.legacyLabour.salary),
+    labour: r => calc.menSubtotal(r) + calc.womenSubtotal(r) + calc.legacySalary(r),
+    workers: r => int(r.menCount) + int(r.womenCount) + int(r.legacyLabour && r.legacyLabour.workers),
+    kg: (p, r) => (p === 'brinjal' ? calc.bagKg(r.bagDetails) : num(r.kg)),
+    wastage: r => num(r.wastageKg),
+    gross: (p, r) => calc.kg(p, r) * num(r.ratePerKg),
+    /** Net for a single daily record using the expense items attached to that record. */
+    recordNet: (p, r) => calc.gross(p, r) - calc.expenseTotal(r.expenseItems) - (p === 'brinjal' ? calc.labour(r) : 0)
+  };
+
+  /**
+   * Monthly statement — the single source for report screen, CSV, XLSX, PNG and PDF.
+   * Expense rule: every expense item is reported on ITS OWN date. A date that has expense items but
+   * no daily record appears as an "expenses only" row, so rows always add up to the totals and an
+   * expense is never counted twice or attributed to an unintended month.
+   */
+  function buildStatement(product, month) {
+    const records = (state.data[product] || []);
+    const monthRecords = records.filter(r => r.date.startsWith(month)).sort((a, b) => a.date.localeCompare(b.date) || String(a.createdAt).localeCompare(String(b.createdAt)));
+    const expByDate = new Map(); const expenseItems = []; let crossDated = 0;
+    records.forEach(r => (r.expenseItems || []).forEach(x => {
+      if (!x.date.startsWith(month)) return;
+      expByDate.set(x.date, (expByDate.get(x.date) || 0) + num(x.amount));
+      expenseItems.push({ ...x, recordDate: r.date });
+      if (x.date !== r.date) crossDated++;
+    }));
+    expenseItems.sort((a, b) => a.date.localeCompare(b.date));
+    const dates = Array.from(new Set([...monthRecords.map(r => r.date), ...expByDate.keys()])).sort();
+    const rows = [];
+    dates.forEach(date => {
+      const recs = monthRecords.filter(r => r.date === date);
+      const exp = expByDate.get(date) || 0;
+      if (!recs.length) {
+        rows.push({ date, kind: 'expense-only', recordId: null, bags: null, kg: null, wastage: null, rate: null, gross: 0, expenses: exp, men: null, women: null, legacyWorkers: null, workers: 0, labour: 0, net: -exp });
+        return;
+      }
+      recs.forEach((r, i) => {
+        const e = i === 0 ? exp : 0; const gross = calc.gross(product, r);
+        const labour = product === 'brinjal' ? calc.labour(r) : 0;
+        rows.push({
+          date, kind: 'record', recordId: r.id, bags: product === 'brinjal' ? r.bagDetails.length : null, kg: calc.kg(product, r), wastage: calc.wastage(r), rate: num(r.ratePerKg), gross, expenses: e,
+          men: product === 'brinjal' ? int(r.menCount) : null, women: product === 'brinjal' ? int(r.womenCount) : null,
+          legacyWorkers: product === 'brinjal' && r.legacyLabour ? int(r.legacyLabour.workers) : null,
+          workers: product === 'brinjal' ? calc.workers(r) : 0, labour, net: gross - e - labour
+        });
+      });
+    });
+    const t = { records: monthRecords.length, bags: 0, kg: 0, wastage: 0, gross: 0, expenses: 0, men: 0, women: 0, legacyWorkers: 0, workers: 0, labour: 0, net: 0 };
+    rows.forEach(r => { t.bags += r.bags || 0; t.kg += r.kg || 0; t.wastage += r.wastage || 0; t.gross += r.gross; t.expenses += r.expenses; t.men += r.men || 0; t.women += r.women || 0; t.legacyWorkers += r.legacyWorkers || 0; t.workers += r.workers || 0; t.labour += r.labour; });
+    t.net = t.gross - t.expenses - t.labour;
+    t.avgRate = t.kg ? t.gross / t.kg : 0;
+    return { product, month, rows, totals: t, expenseItems, crossDated, hasLegacy: rows.some(r => r.legacyWorkers), hasExpenseOnly: rows.some(r => r.kind === 'expense-only') };
+  }
+  function statementColumns(st) {
+    if (st.product === 'brinjal') {
+      return [
+        { key: 'date', label: 'Date', type: 'date' },
+        { key: 'bags', label: 'Bags', type: 'int', total: true },
+        { key: 'kg', label: 'Total weight (kg)', type: 'num', total: true },
+        { key: 'wastage', label: 'Wastage (kg)', type: 'num', total: true },
+        { key: 'rate', label: 'Rate/kg (₹)', type: 'money' },
+        { key: 'gross', label: 'Gross sales (₹)', type: 'money', total: true },
+        { key: 'expenses', label: 'Operating expenses (₹)', type: 'money', total: true },
+        { key: 'men', label: 'Men', type: 'int', total: true },
+        { key: 'women', label: 'Women', type: 'int', total: true },
+        ...(st.hasLegacy ? [{ key: 'legacyWorkers', label: 'Workers, split unknown (legacy)', type: 'int', total: true }] : []),
+        { key: 'labour', label: 'Labour salary (₹)', type: 'money', total: true },
+        { key: 'net', label: 'Net after costs (₹)', type: 'money', total: true }
+      ];
+    }
+    return [
+      { key: 'date', label: 'Date', type: 'date' },
+      { key: 'kg', label: 'Quantity (kg)', type: 'num', total: true },
+      { key: 'wastage', label: 'Wastage (kg)', type: 'num', total: true },
+      { key: 'rate', label: 'Rate/kg (₹)', type: 'money' },
+      { key: 'gross', label: 'Gross income (₹)', type: 'money', total: true },
+      { key: 'expenses', label: 'Operating expenses (₹)', type: 'money', total: true },
+      { key: 'net', label: 'Net after expenses (₹)', type: 'money', total: true }
+    ];
+  }
+  const cellText = (col, v) => (v == null ? '—' : col.type === 'date' ? dateLabel(v) : col.type === 'money' ? money(v) : fmt(v));
+  const fileBase = (product, month) => `fieldledger-${product}-${month}`;
+
+  /* ------------------------------------------------------------------
+   * UI state
+   * ------------------------------------------------------------------ */
+  let activeProduct = 'brinjal';
+  let activeView = 'dashboard';
+  let month = currentMonth();
+  let recordsFilter = { month: '', q: '' };
+  let draft = null;        // daily-entry draft (not saved until "Save daily entry")
+  let draftDirty = false;
+  let modalCtx = null;     // { isDirty(), onCancel() }
+  let lastFocus = null;
+  let toastTimer;
+  let importStatus = '';
+  try { const ui = JSON.parse(lsGet(UI_KEY) || '{}'); if (PRODUCTS.includes(ui.product)) activeProduct = ui.product; } catch (_) { /* ignore */ }
+  const saveUI = () => { try { lsSet(UI_KEY, JSON.stringify({ product: activeProduct })); } catch (_) { /* ignore */ } };
+  const dataset = (p = activeProduct) => state.data[p] || (state.data[p] = []);
+  const sortedDesc = (p = activeProduct) => dataset(p).slice().sort((a, b) => b.date.localeCompare(a.date) || String(b.updatedAt).localeCompare(String(a.updatedAt)));
+
+  function showToast(msg, isError = false) {
+    const t = $('#toast'); t.textContent = msg; t.classList.toggle('error', !!isError); t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), isError ? 5200 : 2900);
+  }
+
+  /* ------------------------------------------------------------------
+   * Shell
+   * ------------------------------------------------------------------ */
+  const NAV = [['dashboard', 'home', 'Overview'], ['entry', 'plus', 'Daily entry'], ['records', 'list', 'Records'], ['reports', 'report', 'Reports'], ['tools', 'more', 'More']];
+  function renderShell() {
+    const b = document.body;
+    b.dataset.theme = state.settings.theme; b.dataset.product = activeProduct;
+    b.classList.remove('text-small', 'text-medium', 'text-large'); b.classList.add('text-' + state.settings.textSize);
+    const themeColor = state.settings.theme === 'dark' ? '#111018' : CFG[activeProduct].themeColor;
+    const metaTheme = $('meta[name="theme-color"]'); if (metaTheme) metaTheme.setAttribute('content', themeColor);
+    if (NATIVE && typeof NATIVE.setThemeColor === 'function') { try { NATIVE.setThemeColor(themeColor, state.settings.theme === 'dark'); } catch (_) { /* older shell */ } }
+    const ni = nativeInfo(); $('#buildLabel').textContent = ni ? `Android app v${ni.versionName}` : `Web app v${APP_VERSION}`;
+    const dark = state.settings.theme === 'dark';
+    const tb = $('#quickThemeBtn'); tb.innerHTML = icon(dark ? 'sun' : 'moon'); tb.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    $('#quickTextBtn').setAttribute('aria-label', `Change text size (currently ${state.settings.textSize})`);
+    const p = state.profile; const initial = (p.farmName || p.ownerName || 'F').trim().charAt(0).toUpperCase() || 'F';
+    $('#avatarInitial').textContent = initial; $('#profileChipName').textContent = p.farmName || 'My Farm';
+    $('#melonTabIcon').innerHTML = melonSvg;
+    const coin = $('#emblemCoin'); if (coin.dataset.p !== activeProduct) { coin.dataset.p = activeProduct; coin.innerHTML = activeProduct === 'brinjal' ? '🍆' : melonSvg; coin.style.animation = 'none'; void coin.offsetWidth; coin.style.animation = ''; }
+    $$('.product-tab').forEach(t => { const on = t.dataset.productTab === activeProduct; t.classList.toggle('active', on); t.setAttribute('aria-selected', String(on)); });
+    const navActive = ['settings', 'profile'].includes(activeView) ? 'tools' : activeView;
+    $('#mainNav').innerHTML = NAV.map(([v, ic, label]) => `<button class="nav-btn ${navActive === v ? 'active' : ''}" type="button" data-nav="${v}" ${navActive === v ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`).join('');
+    const name = CFG[activeProduct].name;
+    const titles = {
+      dashboard: [`${name} · ${monthLabel(month)}`, `${name} business`],
+      entry: [`${name} · daily record`, draft && draft.id ? 'Edit daily entry' : 'Add daily entry'],
+      records: [`${name} · saved days`, 'Daily records'],
+      reports: [`${name} · ${monthLabel(month)}`, 'Monthly statement'],
+      tools: ['Exports, backup & tools', 'More'],
+      settings: ['Make it work your way', 'Settings'],
+      profile: ['Your workspace', 'Farm profile']
+    };
+    const [eyebrow, title] = titles[activeView] || titles.dashboard;
+    $('#pageEyebrow').textContent = eyebrow; $('#pageTitle').textContent = title;
+    document.title = `${title} · FieldLedger`;
+    const ca = $('#contextActions');
+    ca.innerHTML = ['dashboard', 'records'].includes(activeView)
+      ? `<button class="btn" type="button" data-nav="entry">${icon('plus')} Daily entry</button><button class="btn primary" type="button" data-nav="reports">${icon('report')} Monthly statement</button>`
+      : activeView === 'reports' ? `<button class="btn" type="button" data-nav="entry">${icon('plus')} Daily entry</button>` : '';
+    renderBanner();
+  }
+  function renderBanner() {
+    const msgs = [];
+    if (!storageOK) msgs.push('<strong>Storage unavailable.</strong> This browser is not saving your changes (private mode, blocked storage or full storage). Export a JSON backup before closing.');
+    if (startupNotice) msgs.push(esc(startupNotice));
+    $('#bannerArea').innerHTML = msgs.map(m => `<div class="notice warn banner" role="alert">${icon('alert')} ${m}</div>`).join('');
+  }
+
+  /* ------------------------------------------------------------------
+   * Shared view parts
+   * ------------------------------------------------------------------ */
+  function kpi(label, value, ic, note = '', cls = '') {
+    return `<div class="card kpi tilt ${cls}"><div class="kpi-top"><span>${label}</span><span class="kpi-icon">${ic.startsWith('<') ? ic : icon(ic)}</span></div><div class="kpi-value mono">${value}</div><div class="kpi-note">${note}</div></div>`;
+  }
+  function monthNav(id, label = 'Month') {
+    return `<div class="month-nav" role="group" aria-label="${esc(label)}"><button class="icon-btn" type="button" data-action="month-prev" aria-label="Previous month">${icon('chevL')}</button><label class="sr-only" for="${id}">${esc(label)}</label><input id="${id}" class="month-input" type="month" value="${esc(month)}"><button class="icon-btn" type="button" data-action="month-next" aria-label="Next month">${icon('chevR')}</button></div>`;
+  }
+  const quick = (attr, ic, title, sub) => `<button class="quick-card tilt" type="button" ${attr}><span class="quick-icon">${ic.startsWith('<') ? ic : icon(ic)}</span><span><strong>${title}</strong><span>${sub}</span></span></button>`;
+  function quickActions() {
+    return `<div class="quick-grid cols-2">
+      ${quick('data-nav="entry"', 'plus', 'New daily entry', "Add today's numbers")}
+      ${quick('data-nav="reports"', 'report', 'Monthly report', 'Date-wise statement')}
+      ${quick('data-nav="records"', 'list', 'Records', 'View, edit, delete')}
+      ${quick('data-nav="tools"', 'download', 'Export & backup', 'PDF, Excel, CSV, PNG, JSON')}
+      ${quick('data-nav="settings"', 'settings', 'Settings', 'Theme, text, brinjal types')}
+      ${quick('data-nav="profile"', 'user', 'Profile', 'Farm details')}
+    </div>`;
+  }
+  const netCls = n => (r2(n) < 0 ? 'negative' : 'positive');
+  function fmtShort(n) { n = Number(n || 0); return n >= 100000 ? (n / 100000).toFixed(1).replace(/\.0$/, '') + 'L' : n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : fmt(n); }
+  function barChart(points, emptyText) {
+    if (!points.length) return `<div class="chart"><div class="empty">${emptyText}</div></div>`;
+    const max = Math.max(1, ...points.map(p => p.value));
+    return `<div class="chart" role="img" aria-label="${esc(points.map(p => `${p.label}: ${money(p.value)}`).join(', '))}">${points.map(p => `<div class="bar-col"><div class="bar-value">${fmtShort(p.value)}</div><div class="bar" style="height:${Math.max(4, Math.round(p.value / max * 120))}px"></div><div class="bar-label">${esc(p.label)}</div></div>`).join('')}</div>`;
+  }
+
+  /* ------------------------------------------------------------------
+   * Overview
+   * ------------------------------------------------------------------ */
+  function dashboardView() {
+    return activeProduct === 'brinjal' ? brinjalDashboard() : muskmelonDashboard();
+  }
+  function brinjalDashboard() {
+    const st = buildStatement('brinjal', month); const t = st.totals;
+    const recent = sortedDesc('brinjal').slice(0, 5);
+    const ml = monthLabel(month);
+    const recentRows = recent.length ? recent.map(r => `<tr><td><strong>${esc(dateLabel(r.date))}</strong></td><td class="num">${fmt(r.bagDetails.length)}</td><td class="num">${fmt(calc.kg('brinjal', r))} kg</td><td class="num">${money(calc.gross('brinjal', r))}</td><td class="num">${money(calc.labour(r))}</td><td class="num ${netCls(calc.recordNet('brinjal', r))}">${money(calc.recordNet('brinjal', r))}</td><td><div class="btn-row"><button class="btn small-btn" type="button" data-action="view-record" data-id="${esc(r.id)}">${icon('eye')} View</button><button class="btn small-btn" type="button" data-action="edit-record" data-id="${esc(r.id)}">${icon('edit')} Edit</button></div></td></tr>`).join('')
+      : `<tr><td colspan="7">${emptyState('No brinjal entries yet.', 'Add your first daily record to see totals here.')}</td></tr>`;
+    return `<div class="card-head" style="margin-bottom:12px"><div class="muted small">Monthly totals for <strong>${esc(ml)}</strong> · ${t.records} daily record${t.records === 1 ? '' : 's'}</div>${monthNav('dashMonth', 'Overview month')}</div>
+      <div class="grid kpis six">
+        ${kpi('Total bags', fmt(t.bags), 'bag', 'Bags recorded this month')}
+        ${kpi('Total weight', fmt(t.kg) + ' kg', 'scale', `Sold weight · wastage ${fmt(t.wastage)} kg (not priced)`)}
+        ${kpi('Gross sales', money(t.gross), 'trend', 'Total weight × daily rate/kg', 'sale')}
+        ${kpi('Operating expenses', money(t.expenses), 'receipt', 'Expense items dated this month', 'expense')}
+        ${kpi('Labour salary', money(t.labour), 'users', `${fmt(t.workers)} worker-days · men + women wages`, 'labour')}
+        ${kpi('Net after costs', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross − expenses − labour')}
+      </div>
+      <div class="grid two section-gap">
+        <section class="card"><div class="card-head"><div><h2>Sales activity</h2><div class="muted small">Daily gross sales · ${esc(ml)}</div></div><span class="tag">${t.records} entries</span></div>${barChart(st.rows.filter(r => r.kind === 'record').map(r => ({ label: dateLabel(r.date), value: r.gross })), `No brinjal records in ${esc(ml)}.`)}<div class="small muted" style="margin-top:12px">Bars show gross sales by date, before expenses and labour.</div></section>
+        <section class="card"><div class="card-head"><div><h2>Quick actions</h2><div class="muted small">Everything you need for today</div></div><span class="kpi-icon">${icon('sparkle')}</span></div>${quickActions()}</section>
+      </div>
+      <section class="card section-gap"><div class="card-head"><div><h2>Recent entries</h2><div class="muted small">Latest saved days for Brinjal (all months)</div></div><button class="btn small-btn" type="button" data-nav="records">View all ${icon('chevR')}</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Date</th><th class="num">Bags</th><th class="num">Weight</th><th class="num">Gross sales</th><th class="num">Labour</th><th class="num">Net (this day)</th><th>Actions</th></tr></thead><tbody>${recentRows}</tbody></table></div></section>`;
+  }
+  function monthsWithData(product) {
+    const set = new Set();
+    dataset(product).forEach(r => { set.add(r.date.slice(0, 7)); (r.expenseItems || []).forEach(x => set.add(x.date.slice(0, 7))); });
+    return Array.from(set).sort().reverse();
+  }
+  function muskmelonDashboard() {
+    const st = buildStatement('muskmelon', month); const t = st.totals;
+    const months = monthsWithData('muskmelon');
+    const monthRows = months.length ? months.map(m => {
+      const mt = buildStatement('muskmelon', m).totals;
+      return `<tr class="${m === month ? 'selected' : ''}"><td><strong>${esc(monthLabel(m))}</strong>${m === month ? ' <span class="tag">Selected</span>' : ''}<div class="muted small">${mt.records} daily record${mt.records === 1 ? '' : 's'}</div></td><td class="num">${fmt(mt.kg)} kg</td><td class="num positive">${money(mt.gross)}</td><td class="num negative">${money(mt.expenses)}</td><td class="num ${netCls(mt.net)}">${money(mt.net)}</td><td><button class="btn small-btn" type="button" data-month-report="${esc(m)}">Statement ${icon('chevR')}</button></td></tr>`;
+    }).join('') : `<tr><td colspan="6">${emptyState('No monthly totals yet.', 'Add muskmelon daily records to build monthly performance.', melonSvg)}</td></tr>`;
+    const trend = months.slice(0, 6).reverse().map(m => ({ label: monthLabel(m).replace(/ (\d{4})$/, " '$1").replace(/'(\d\d)(\d\d)/, "'$2"), value: buildStatement('muskmelon', m).totals.gross }));
+    return `<section class="card"><div class="month-hero"><div><div class="eyebrow">Monthly focus</div><h2 style="font-size:22px;margin-top:4px">${esc(monthLabel(month))}</h2><div class="big ${netCls(t.net)} mono">${money(t.net)}</div><div class="muted small">Net after expenses · ${t.records} daily record${t.records === 1 ? '' : 's'}${t.kg ? ` · average rate ${money(t.avgRate)}/kg` : ''}</div></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:min(100%,300px)">${monthNav('dashMonth', 'Focus month')}<button class="btn primary" type="button" data-month-report="${esc(month)}">${icon('report')} Open ${esc(monthLabel(month))} statement</button></div></div></section>
+      <div class="grid kpis section-gap">
+        ${kpi('Quantity this month', fmt(t.kg) + ' kg', 'scale', `Wastage ${fmt(t.wastage)} kg (not priced)`)}
+        ${kpi('Gross income', money(t.gross), melonSvg, 'Quantity × daily rate/kg', 'sale')}
+        ${kpi('Operating expenses', money(t.expenses), 'receipt', 'Expense items dated this month', 'expense')}
+        ${kpi('Net after expenses', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross income − expenses')}
+      </div>
+      <div class="grid two section-gap">
+        <section class="card"><div class="card-head"><div><h2>Monthly performance</h2><div class="muted small">Every month with muskmelon activity, newest first</div></div><span class="kpi-icon">${melonSvg}</span></div>
+          <div class="table-wrap"><table style="min-width:600px"><thead><tr><th>Month</th><th class="num">Quantity</th><th class="num">Gross income</th><th class="num">Expenses</th><th class="num">Net after expenses</th><th>Daily statement</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+          <div class="small muted" style="margin-top:10px">Muskmelon is summarised month by month. Daily records are still available in Records and in each month's statement.</div></section>
+        <section class="card"><div class="card-head"><div><h2>Gross income by month</h2><div class="muted small">Last ${Math.min(6, months.length) || 0} active month(s)</div></div></div>${barChart(trend, 'No months with data yet.')}<div style="height:14px"></div>${quickActions()}</section>
+      </div>`;
+  }
+  function emptyState(title, text, ic = icon('list')) {
+    return `<div class="empty"><div class="empty-icon">${ic}</div><strong>${title}</strong><div class="small">${text}</div><button class="btn primary" type="button" data-nav="entry">${icon('plus')} Add daily entry</button></div>`;
+  }
+
+  /* ------------------------------------------------------------------
+   * Daily entry (draft-based)
+   * ------------------------------------------------------------------ */
+  function makeDraft(product, rec) {
+    const latest = sortedDesc(product)[0];
+    const base = { product, id: rec ? rec.id : null, date: rec ? rec.date : todayISO(), ratePerKg: rec ? String(rec.ratePerKg) : (latest ? String(latest.ratePerKg) : ''), wastageKg: rec && rec.wastageKg ? String(rec.wastageKg) : '', expenseItems: clone(rec ? rec.expenseItems : []), createdAt: rec ? rec.createdAt : null, sample: rec ? !!rec.sample : false };
+    if (product === 'muskmelon') return { ...base, kg: rec ? String(rec.kg) : '' };
+    return {
+      ...base, bagDetails: clone(rec ? rec.bagDetails : []),
+      menCount: rec ? rec.menCount : 0, womenCount: rec ? rec.womenCount : 0,
+      menWage: String(rec ? rec.menWage : (latest ? latest.menWage : 500)), womenWage: String(rec ? rec.womenWage : (latest ? latest.womenWage : 400)),
+      legacyLabour: clone(rec ? rec.legacyLabour : null)
+    };
+  }
+  const ensureDraft = () => { if (!draft || draft.product !== activeProduct) { draft = makeDraft(activeProduct, null); draftDirty = false; } };
+  function bagSummary(items) {
+    if (!items.length) return '<span class="muted small">No bags yet. Choose the number of bags — a form opens with one section per bag.</span>';
+    const mix = {}; items.forEach(b => { const k = `${b.brinjalType || 'Type not set'} · ${b.size || '—'}`; mix[k] = (mix[k] || 0) + 1; });
+    return `<div class="small"><strong>${items.length} bag${items.length === 1 ? '' : 's'} · ${fmt(calc.bagKg(items))} kg total</strong></div><div class="bag-preview">${Object.entries(mix).map(([k, c]) => `<span class="bag-chip">${esc(k)} × ${c}</span>`).join('')}</div>`;
+  }
+  function expenseSummary(items) {
+    if (!items.length) return '<span class="muted small">No expense items added.</span>';
+    return `<div class="small"><strong>${items.length} expense item${items.length === 1 ? '' : 's'} · ${money(calc.expenseTotal(items))}</strong></div><div class="muted small">${items.slice(0, 3).map(x => `${esc(x.purpose)} · ${money(x.amount)}${x.date !== draft.date ? ` (${esc(dateLabel(x.date))})` : ''}`).join(' · ')}${items.length > 3 ? ` · +${items.length - 3} more` : ''}</div>`;
+  }
+  function entryView() {
+    ensureDraft();
+    const d = draft; const isB = d.product === 'brinjal'; const editing = !!d.id;
+    const head = `<div class="card-head"><div><h2>${editing ? 'Edit' : 'Add'} ${isB ? 'brinjal' : 'muskmelon'} daily entry</h2><div class="muted small">${isB ? 'Record each bag separately — total weight is the sum of the bags.' : 'Enter the day’s quantity and market rate.'}</div></div>${editing ? `<span class="tag">${icon('edit')} Editing ${esc(dateLabel(d.date))}</span>` : `<span class="kpi-icon">${productIcon(d.product)}</span>`}</div>`;
+    const dateRate = `<div class="form-grid${isB ? ' three' : ''}">
+        <div class="field"><label for="entryDate">Date</label><input id="entryDate" type="date" data-field="date" required value="${esc(d.date)}"></div>
+        ${isB ? '' : `<div class="field"><label for="entryKg">Quantity (kg)</label><input id="entryKg" type="number" inputmode="decimal" min="0" step="0.01" data-field="kg" required placeholder="e.g. 1500" value="${esc(d.kg)}"></div>`}
+        <div class="field"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's market rate" value="${esc(d.ratePerKg)}"><div class="field-hint">Market rate can change every day.</div></div>
+        <div class="field"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Unsold / spoiled produce. No price — not added to sales.</div></div>
+      </div>`;
+    const expenses = `<div class="form-section"><div class="section-title"><h3>${icon('receipt')} Operating expenses</h3><span class="muted small">Date · purpose · amount · notes</span></div>
+        <button class="detail-edit" type="button" data-action="open-expenses"><span><strong>${d.expenseItems.length ? 'View / edit expense details' : 'Add expense details'}</strong><span class="muted small" style="display:block;margin-top:3px">Each expense keeps its own date</span></span>${icon(d.expenseItems.length ? 'edit' : 'plus')}</button>
+        <div id="expenseSummary" style="margin-top:8px">${expenseSummary(d.expenseItems)}</div></div>`;
+    let body;
+    if (isB) {
+      const count = d.bagDetails.length;
+      const maxOpt = Math.max(MAX_BAGS, count);
+      const bagOptions = Array.from({ length: maxOpt }, (_, i) => i + 1).map(n => `<option value="${n}" ${count === n ? 'selected' : ''}>${n} bag${n === 1 ? '' : 's'}</option>`).join('');
+      const opts = (sel, max) => Array.from({ length: Math.max(max, sel) + 1 }, (_, i) => `<option value="${i}" ${sel === i ? 'selected' : ''}>${i}</option>`).join('');
+      const legacy = d.legacyLabour ? `<div class="legacy-box" id="legacyBox"><span>${icon('alert')} <strong>Historical labour (split unknown):</strong> ${fmt(d.legacyLabour.workers)} workers · ${money(d.legacyLabour.salary)}. The source sheet did not record men/women separately, so this amount is kept as-is and added to labour salary.</span><button class="btn small-btn" type="button" data-action="legacy-remove">Replace with men/women split</button></div>`
+        : (d.removedLegacy ? `<div class="legacy-box"><span>Historical labour amount will be removed when you save. Enter the men/women split above.</span><button class="btn small-btn" type="button" data-action="legacy-undo">Undo</button></div>` : '');
+      body = `${dateRate}
+        <div class="form-section"><div class="section-title"><h3>${icon('bag')} Bags</h3><span class="muted small">Weight · type · size for every bag</span></div>
+          <div class="form-grid"><div class="field"><label for="bagCount">Number of bags</label><select id="bagCount" required><option value="" ${count ? '' : 'selected'}>Choose bag count</option>${bagOptions}</select><div class="field-hint">Choosing a count opens one numbered section per bag.</div></div>
+          <div class="field"><span class="field-label">Individual bag details</span><button class="detail-edit" type="button" data-action="open-bags"><span><strong>${count ? 'View / edit bag details' : 'Enter bag details'}</strong><span class="muted small" style="display:block;margin-top:3px">Weight (kg) · Brinjal type · Size S / M / L</span></span>${icon('edit')}</button></div></div>
+          <div id="bagSummary" style="margin-top:10px">${bagSummary(d.bagDetails)}</div></div>
+        <div class="form-section"><div class="section-title"><h3>${icon('users')} Labour</h3><span class="muted small">Salary = men × men's wage + women × women's wage</span></div>
+          <div class="labour-grid">
+            <div class="labour-card"><div class="labour-title"><span>Men</span><span class="subtotal" id="menSubtotal"></span></div><div class="field"><label for="menCount">Number of men</label><select id="menCount" data-field="menCount" data-int="1">${opts(int(d.menCount), MAX_WORKERS)}</select></div><div class="field"><label for="menWage">Wage per man (₹/day)</label><input id="menWage" type="number" inputmode="decimal" min="0" step="1" data-field="menWage" value="${esc(d.menWage)}"></div></div>
+            <div class="labour-card"><div class="labour-title"><span>Women</span><span class="subtotal" id="womenSubtotal"></span></div><div class="field"><label for="womenCount">Number of women</label><select id="womenCount" data-field="womenCount" data-int="1">${opts(int(d.womenCount), MAX_WORKERS)}</select></div><div class="field"><label for="womenWage">Wage per woman (₹/day)</label><input id="womenWage" type="number" inputmode="decimal" min="0" step="1" data-field="womenWage" value="${esc(d.womenWage)}"></div></div>
+          </div>${legacy}</div>
+        ${expenses}
+        <div class="calc-strip six" aria-live="polite">
+          <div class="calc-item"><span>Total weight</span><strong id="calcKg">0 kg</strong><small id="calcBags">0 bags</small></div>
+          <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
+          <div class="calc-item sale"><span>Gross sales</span><strong id="calcGross">₹0</strong><small>Weight × rate/kg</small></div>
+          <div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong><small>Sum of expense items</small></div>
+          <div class="calc-item labour"><span>Labour salary</span><strong id="calcLabour">₹0</strong><small>Men + women</small></div>
+          <div class="calc-item net"><span>Net after costs</span><strong id="calcNet">₹0</strong><small>Gross − expenses − labour</small></div>
+        </div>`;
+    } else {
+      body = `${dateRate}${expenses}
+        <div class="calc-strip four-col" aria-live="polite">
+          <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
+          <div class="calc-item sale"><span>Gross income</span><strong id="calcGross">₹0</strong><small>Quantity × rate/kg</small></div>
+          <div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong><small>Sum of expense items</small></div>
+          <div class="calc-item net"><span>Net after expenses</span><strong id="calcNet">₹0</strong><small>Gross − expenses</small></div>
+        </div>`;
+    }
+    return `<section class="card">${head}<form id="entryForm" novalidate>${body}
+      <div class="form-actions"><span class="muted small">${isB ? 'Bag and expense details' : 'Expense details'} stay in this draft until you save the daily entry.</span>
+        <div class="btn-row">${editing ? `<button type="button" class="btn danger" data-action="entry-delete">${icon('trash')} Delete</button>` : ''}<button type="button" class="btn" data-action="entry-cancel">${editing ? 'Cancel' : 'Clear'}</button><button class="btn primary" type="submit">${icon('check')} ${editing ? 'Save changes' : 'Save daily entry'}</button></div></div>
+      </form></section>
+      <div class="notice section-gap"><strong>How it is calculated:</strong> ${isB ? 'Total weight = sum of bag weights. Gross sales = total weight × rate/kg. Labour salary = men × men’s wage + women × women’s wage. Net after costs = gross − operating expenses − labour salary.' : 'Gross income = quantity × rate/kg. Net after expenses = gross income − operating expenses.'} In monthly statements each expense item is counted on its own date.</div>`;
+  }
+  function recalcEntry() {
+    if (!draft || activeView !== 'entry') return;
+    const d = draft; const isB = d.product === 'brinjal';
+    const kg = isB ? calc.bagKg(d.bagDetails) : num(d.kg);
+    const gross = kg * num(d.ratePerKg); const exp = calc.expenseTotal(d.expenseItems);
+    let labour = 0;
+    if (isB) {
+      const men = calc.menSubtotal(d), women = calc.womenSubtotal(d);
+      labour = men + women + calc.legacySalary(d);
+      $('#menSubtotal').textContent = `${int(d.menCount)} × ${money(num(d.menWage))} = ${money(men)}`;
+      $('#womenSubtotal').textContent = `${int(d.womenCount)} × ${money(num(d.womenWage))} = ${money(women)}`;
+      $('#calcKg').textContent = fmt(kg) + ' kg';
+      $('#calcBags').textContent = `${d.bagDetails.length} bag${d.bagDetails.length === 1 ? '' : 's'}`;
+      $('#calcLabour').textContent = money(labour);
+    }
+    const net = gross - exp - labour;
+    $('#calcGross').textContent = money(gross); $('#calcExpenses').textContent = money(exp);
+    $('#calcWastage').textContent = fmt(num(d.wastageKg)) + ' kg';
+    const n = $('#calcNet'); n.textContent = money(net); n.classList.toggle('negative', r2(net) < 0);
+  }
+  function wireEntry() {
+    const form = $('#entryForm'); if (!form) return;
+    form.addEventListener('input', e => {
+      const f = e.target.dataset && e.target.dataset.field; if (!f) return;
+      draft[f] = e.target.dataset.int ? int(e.target.value) : e.target.value;
+      e.target.removeAttribute('aria-invalid');
+      draftDirty = true; recalcEntry();
+    });
+    form.addEventListener('change', e => {
+      if (e.target.id === 'bagCount') { onBagCountChange(e.target); return; }
+      const f = e.target.dataset && e.target.dataset.field; if (!f) return;
+      draft[f] = e.target.dataset.int ? int(e.target.value) : e.target.value; draftDirty = true; recalcEntry();
+    });
+    form.addEventListener('submit', e => { e.preventDefault(); saveEntry(); });
+    recalcEntry();
+  }
+  function markInvalid(el, msg) {
+    if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); }
+    showToast(msg, true);
+  }
+  async function saveEntry() {
+    const d = draft; const isB = d.product === 'brinjal';
+    if (!isISODate(d.date)) return markInvalid($('#entryDate'), 'Please choose a valid date.');
+    if (isB && !d.bagDetails.length) { showToast('Choose the number of bags and enter each bag’s details.', true); $('#bagCount').setAttribute('aria-invalid', 'true'); $('#bagCount').focus(); return; }
+    if (!isB && parseNonNeg(d.kg) === null) return markInvalid($('#entryKg'), 'Quantity must be a number of kg (0 or more).');
+    if (parseNonNeg(d.ratePerKg) === null) return markInvalid($('#entryRate'), 'Rate per kg must be a number (0 or more).');
+    if (String(d.wastageKg ?? '').trim() !== '' && parseNonNeg(d.wastageKg) === null) return markInvalid($('#entryWastage'), 'Wastage must be a number of kg (0 or more), or left blank.');
+    if (isB) {
+      if (parseNonNeg(d.menWage) === null) return markInvalid($('#menWage'), "Men's wage must be a number (0 or more).");
+      if (parseNonNeg(d.womenWage) === null) return markInvalid($('#womenWage'), "Women's wage must be a number (0 or more).");
+    }
+    const arr = dataset(d.product);
+    const clash = arr.find(r => r.date === d.date && r.id !== d.id);
+    if (clash && !(await ask(`A ${CFG[d.product].name} entry for ${dateLong(d.date)} already exists.\n\nReplace that entry with this one? (The other entry will be deleted.)`))) return;
+    const now = nowISO();
+    let rec = { id: d.id || uid(d.product === 'brinjal' ? 'b' : 'm'), date: d.date, ratePerKg: num(d.ratePerKg), wastageKg: num(d.wastageKg), expenseItems: clone(d.expenseItems), createdAt: d.createdAt || now, updatedAt: now };
+    if (isB) rec = { ...rec, bagDetails: clone(d.bagDetails), menCount: int(d.menCount), womenCount: int(d.womenCount), menWage: num(d.menWage), womenWage: num(d.womenWage), legacyLabour: d.legacyLabour ? clone(d.legacyLabour) : null };
+    else rec.kg = num(d.kg);
+    const prev = clone(state.data[d.product]);
+    let next = arr.filter(r => !(clash && r.id === clash.id));
+    const idx = next.findIndex(r => r.id === rec.id);
+    if (idx >= 0) next[idx] = rec; else next.push(rec);
+    state.data[d.product] = next;
+    if (!saveState()) { state.data[d.product] = prev; return; }
+    draft = null; draftDirty = false; month = rec.date.slice(0, 7);
+    showToast(d.id ? 'Changes saved.' : 'Daily entry saved.');
+    go('records', { force: true });
+  }
+
+  /* --------------------------- Bag modal ---------------------------- */
+  async function onBagCountChange(sel) {
+    const n = int(sel.value); const cur = draft.bagDetails.length;
+    sel.removeAttribute('aria-invalid');
+    if (!n) {
+      if (cur && (await ask(`Remove all ${cur} bags (${fmt(calc.bagKg(draft.bagDetails))} kg) from this draft?`))) { draft.bagDetails = []; draftDirty = true; refreshEntry(); }
+      else sel.value = cur ? String(cur) : '';
+      return;
+    }
+    if (n < cur) {
+      const removed = draft.bagDetails.slice(n);
+      const ok = (await ask(`Reduce from ${cur} to ${n} bags?\n\n${removed.length === 1 ? `Bag ${n + 1}` : `Bags ${n + 1}–${cur}`} (${fmt(calc.bagKg(removed))} kg) will be removed when you save the bag details. Bags 1–${n} keep their values.`));
+      if (!ok) { sel.value = String(cur); return; }
+    }
+    openBagModal(n);
+  }
+  function resizeBags(items, n) {
+    const out = clone(items).slice(0, n);
+    const last = out[out.length - 1];
+    while (out.length < n) out.push({ id: uid('bag'), weightKg: NEW_BAG_KG, brinjalType: last ? last.brinjalType : state.settings.brinjalTypes[0], size: last ? last.size : 'M' });
+    return out.map(b => ({ ...b, weightKg: String(b.weightKg) }));
+  }
+  function openBagModal(n) {
+    const target = n || draft.bagDetails.length;
+    if (!target) { showToast('Choose the number of bags first.'); $('#bagCount') && $('#bagCount').focus(); return; }
+    const items = resizeBags(draft.bagDetails, target);
+    const original = JSON.stringify(resizeBags(draft.bagDetails, draft.bagDetails.length));
+    modalCtx = { kind: 'bags', items, isDirty: () => JSON.stringify(modalCtx.items) !== original, onCancel: () => { const s = $('#bagCount'); if (s) s.value = draft.bagDetails.length ? String(draft.bagDetails.length) : ''; } };
+    renderBagModal();
+  }
+  function typeOptions(selected) {
+    const types = state.settings.brinjalTypes.slice();
+    // Keep a historical label selectable even if it was removed from Settings, so editing never silently rewrites it.
+    const extra = selected && !types.includes(selected) ? `<option value="${esc(selected)}" selected>${esc(selected)} (removed from list)</option>` : '';
+    return extra + types.map(t => `<option value="${esc(t)}" ${t === selected ? 'selected' : ''}>${esc(t)}</option>`).join('');
+  }
+  function renderBagModal(focusSel) {
+    const items = modalCtx.items;
+    const cards = items.map((b, i) => `<section class="bag-entry-card" aria-labelledby="bagTitle${i}"><div class="entry-card-head"><div class="entry-card-title" id="bagTitle${i}"><span class="entry-card-number">${i + 1}</span>Bag ${i + 1}</div><button type="button" class="btn small-btn danger" data-bag-remove="${i}" aria-label="Remove bag ${i + 1}">${icon('trash')} Remove</button></div>
+      <div class="form-grid three"><div class="field"><label for="bagWeight${i}">Weight (kg)</label><input id="bagWeight${i}" type="number" inputmode="decimal" min="0" step="0.01" data-bag="${i}" data-key="weightKg" value="${esc(b.weightKg)}" required></div>
+      <div class="field"><label for="bagType${i}">Brinjal type / category</label><select id="bagType${i}" data-bag="${i}" data-key="brinjalType">${typeOptions(b.brinjalType)}</select></div>
+      <div class="field"><label for="bagSize${i}">Size</label><select id="bagSize${i}" data-bag="${i}" data-key="size">${Object.entries(SIZES).map(([k, v]) => `<option value="${k}" ${b.size === k ? 'selected' : ''}>${k} · ${v}</option>`).join('')}</select></div></div></section>`).join('');
+    openModal(`<section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="bagModalTitle">
+      <div class="modal-head"><div><div class="eyebrow">Brinjal · bag-by-bag record</div><h2 id="bagModalTitle" style="margin-top:4px">Enter details for ${items.length} bag${items.length === 1 ? '' : 's'}</h2><div class="muted small" style="margin-top:5px">Weight, type and size for every bag. New bags start at ${NEW_BAG_KG} kg — change it as needed.</div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
+      <div class="modal-body">${items.length > 1 ? `<div class="btn-row" style="margin-bottom:12px"><button type="button" class="btn small-btn soft" data-bag-copy>${icon('copy')} Use Bag 1 type & size for all bags</button></div>` : ''}${cards || '<div class="empty">No bags. Add one below.</div>'}
+        <button type="button" class="btn soft" data-bag-add>${icon('plus')} Add another bag</button>
+        <div class="notice" style="margin-top:14px"><strong>Total: <span id="modalBagTotal">${fmt(calc.bagKg(items))} kg</span> · ${items.length} bag${items.length === 1 ? '' : 's'}</strong><br><span class="small">Saving updates the daily-entry draft only. The day is saved when you press “Save daily entry”.</span></div></div>
+      <div class="modal-foot"><button type="button" class="btn" data-modal-close>Cancel</button><button type="button" class="btn primary" id="saveBagModal">${icon('check')} Save bag details</button></div></section>`, focusSel || '#bagWeight0');
+    const root = $('#modalRoot');
+    root.addEventListener('input', bagModalInput);
+    root.addEventListener('change', bagModalInput);
+  }
+  function bagModalInput(e) {
+    if (!modalCtx || modalCtx.kind !== 'bags') return;
+    const el = e.target; if (el.dataset.bag == null) return;
+    modalCtx.items[Number(el.dataset.bag)][el.dataset.key] = el.value; el.removeAttribute('aria-invalid');
+    const t = $('#modalBagTotal'); if (t) t.textContent = fmt(calc.bagKg(modalCtx.items)) + ' kg';
+  }
+  function saveBagModal() {
+    const items = modalCtx.items;
+    for (let i = 0; i < items.length; i++) {
+      const w = parseNonNeg(items[i].weightKg);
+      if (w === null || w <= 0) { const el = $('#bagWeight' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Bag ${i + 1}: enter a weight greater than 0 kg.`, true); return; }
+      if (!str(items[i].brinjalType)) { const el = $('#bagType' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Bag ${i + 1}: choose a brinjal type.`, true); return; }
+      if (!SIZES[items[i].size]) { $('#bagSize' + i).focus(); showToast(`Bag ${i + 1}: choose a size.`, true); return; }
+    }
+    draft.bagDetails = items.map(b => ({ id: b.id || uid('bag'), weightKg: num(b.weightKg), brinjalType: str(b.brinjalType, 50), size: b.size }));
+    draftDirty = true; closeModal(); refreshEntry();
+    showToast(`${draft.bagDetails.length} bag${draft.bagDetails.length === 1 ? '' : 's'} saved to this draft · ${fmt(calc.bagKg(draft.bagDetails))} kg.`);
+  }
+
+  /* ------------------------- Expense modal -------------------------- */
+  const blankExpense = () => ({ id: uid('exp'), date: todayISO(), purpose: '', amount: '', notes: '' });
+  function openExpenseModal() {
+    const items = draft.expenseItems.length ? clone(draft.expenseItems).map(x => ({ ...x, amount: String(x.amount) })) : [blankExpense()];
+    const original = JSON.stringify(items);
+    modalCtx = { kind: 'expenses', items, isDirty: () => JSON.stringify(modalCtx.items) !== original, onCancel: () => {} };
+    renderExpenseModal('#expensePurpose0');
+  }
+  function renderExpenseModal(focusSel) {
+    const items = modalCtx.items;
+    const cards = items.map((x, i) => `<section class="expense-entry-card" aria-labelledby="expTitle${i}"><div class="entry-card-head"><div class="entry-card-title" id="expTitle${i}"><span class="entry-card-number">${i + 1}</span>Expense ${i + 1}</div><button type="button" class="btn small-btn danger" data-exp-remove="${i}" aria-label="Remove expense ${i + 1}">${icon('trash')} Remove</button></div>
+      <div class="form-grid"><div class="field"><label for="expenseDate${i}">Date</label><input id="expenseDate${i}" type="date" data-exp="${i}" data-key="date" value="${esc(x.date)}" required></div>
+      <div class="field"><label for="expensePurpose${i}">What for?</label><input id="expensePurpose${i}" data-exp="${i}" data-key="purpose" maxlength="120" value="${esc(x.purpose)}" placeholder="e.g. Transport, packing, fertiliser" required></div>
+      <div class="field"><label for="expenseAmount${i}">Amount (₹)</label><input id="expenseAmount${i}" type="number" inputmode="decimal" min="0" step="0.01" data-exp="${i}" data-key="amount" value="${esc(x.amount)}" placeholder="Amount in rupees" required></div>
+      <div class="field"><label for="expenseNotes${i}">Notes (optional)</label><input id="expenseNotes${i}" data-exp="${i}" data-key="notes" maxlength="300" value="${esc(x.notes)}" placeholder="Any extra details"></div></div></section>`).join('');
+    openModal(`<section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="expenseModalTitle">
+      <div class="modal-head"><div><div class="eyebrow">${esc(CFG[draft.product].name)} · expense register</div><h2 id="expenseModalTitle" style="margin-top:4px">Expense details</h2><div class="muted small" style="margin-top:5px">Add each operating cost separately. Dates default to today; monthly reports use each expense’s own date.</div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
+      <div class="modal-body">${cards || '<div class="empty"><strong>No expense items.</strong><div class="small">Saving now will leave this day without expenses.</div></div>'}
+        <button type="button" class="btn soft" data-exp-add>${icon('plus')} Add another expense</button>
+        <div class="calc-strip three-col" style="margin-top:14px"><div class="calc-item expense"><span>Total expenses</span><strong id="modalExpenseTotal">${money(calc.expenseTotal(items))}</strong></div><div class="calc-item"><span>Items</span><strong id="modalExpenseCount">${items.length}</strong></div><div class="calc-item"><span>Daily record date</span><strong style="font-size:14px">${esc(dateLabel(draft.date))}</strong></div></div></div>
+      <div class="modal-foot"><button type="button" class="btn" data-modal-close>Cancel</button><button type="button" class="btn primary" id="saveExpenseModal">${icon('check')} Save expenses</button></div></section>`, focusSel);
+    const root = $('#modalRoot');
+    root.addEventListener('input', expenseModalInput);
+    root.addEventListener('change', expenseModalInput);
+  }
+  function expenseModalInput(e) {
+    if (!modalCtx || modalCtx.kind !== 'expenses') return;
+    const el = e.target; if (el.dataset.exp == null) return;
+    modalCtx.items[Number(el.dataset.exp)][el.dataset.key] = el.value; el.removeAttribute('aria-invalid');
+    $('#modalExpenseTotal').textContent = money(calc.expenseTotal(modalCtx.items));
+  }
+  function saveExpenseModal() {
+    const items = modalCtx.items;
+    const kept = [];
+    for (let i = 0; i < items.length; i++) {
+      const x = items[i];
+      const blank = !str(x.purpose) && String(x.amount ?? '').trim() === '' && !str(x.notes);
+      if (blank) continue; // completely empty rows are ignored
+      if (!isISODate(x.date)) { const el = $('#expenseDate' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Expense ${i + 1}: choose a valid date.`, true); return; }
+      if (!str(x.purpose)) { const el = $('#expensePurpose' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Expense ${i + 1}: enter what the expense was for.`, true); return; }
+      const amt = parseNonNeg(x.amount);
+      if (amt === null || amt <= 0) { const el = $('#expenseAmount' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Expense ${i + 1}: enter an amount greater than ₹0.`, true); return; }
+      kept.push({ id: x.id || uid('exp'), date: x.date, purpose: str(x.purpose, 120), amount: amt, notes: str(x.notes, 300) });
+    }
+    draft.expenseItems = kept; draftDirty = true; closeModal(); refreshEntry();
+    const other = kept.filter(x => x.date.slice(0, 7) !== draft.date.slice(0, 7)).length;
+    showToast(`${kept.length} expense item${kept.length === 1 ? '' : 's'} saved to this draft · ${money(calc.expenseTotal(kept))}.${other ? ` ${other} dated in another month will be reported in that month.` : ''}`);
+  }
+  function refreshEntry() { const y = window.scrollY; render(); window.scrollTo(0, y); }
+
+  /* ---------------------- In-app confirm dialog ----------------------
+   * Replaces window.confirm(): native dialogs are blocked in sandboxed pages and look out of
+   * place in the Android app. Returns a Promise<boolean>. The first paragraph is the title.
+   */
+  let askState = null;
+  const askOpen = () => !!askState;
+  function ask(message, opts = {}) {
+    if (askState) askState.finish(false);
+    return new Promise(resolve => {
+      const [first, ...rest] = String(message).split('\n\n');
+      const verb = opts.ok || (/^Delete/.test(first) ? 'Delete' : /^Remove/.test(first) ? 'Remove' : /^Restore/.test(first) ? 'Restore' : /^(Discard|You have unsaved|Clear)/.test(first) ? 'Discard' : /already exists/.test(first) ? 'Replace' : /^Reduce/.test(first) ? 'Reduce' : 'OK');
+      const danger = opts.danger ?? ['Delete', 'Remove', 'Restore', 'Discard', 'Replace'].includes(verb);
+      const prevFocus = document.activeElement;
+      const root = $('#dialogRoot');
+      root.innerHTML = `<div class="ask-layer" data-ask-backdrop><section class="ask-panel ${danger ? 'danger' : ''}" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askBody">
+        <div class="ask-emblem" aria-hidden="true">${icon(danger ? 'alert' : 'check')}</div>
+        <h2 id="askTitle">${esc(first)}</h2>${rest.length ? `<p id="askBody">${esc(rest.join('\n\n'))}</p>` : '<p id="askBody"></p>'}
+        <div class="ask-actions"><button type="button" class="btn" id="askCancel">${esc(opts.cancel || 'Cancel')}</button><button type="button" class="btn ${danger ? 'danger-solid' : 'primary'}" id="askOk">${esc(verb)}</button></div></section></div>`;
+      document.body.classList.add('ask-open');
+      const finish = val => {
+        if (!askState) return;
+        askState = null; root.innerHTML = ''; document.body.classList.remove('ask-open');
+        if (prevFocus && document.body.contains(prevFocus)) prevFocus.focus({ preventScroll: true });
+        resolve(val);
+      };
+      askState = { finish };
+      $('#askOk').addEventListener('click', () => finish(true));
+      $('#askCancel').addEventListener('click', () => finish(false));
+      $('[data-ask-backdrop]').addEventListener('click', e => { if (e.target === e.currentTarget) finish(false); });
+      (danger ? $('#askCancel') : $('#askOk')).focus({ preventScroll: true });
+      window.dispatchEvent(new CustomEvent('fl-ask', { detail: { message: String(message) } }));
+    });
+  }
+
+  /* -------------------------- Modal core ---------------------------- */
+  function openModal(panelHtml, focusSel) {
+    const root = $('#modalRoot');
+    if (!root.firstChild) lastFocus = document.activeElement;
+    // Replace the root node so old listeners are dropped on re-render.
+    const fresh = root.cloneNode(false); root.replaceWith(fresh);
+    fresh.innerHTML = `<div class="modal-layer" data-modal-backdrop>${panelHtml}</div>`;
+    document.body.classList.add('modal-open');
+    const target = (focusSel && $(focusSel, fresh)) || $('.modal-body input, .modal-body select, .modal-body button, .modal-foot button', fresh);
+    if (target) target.focus({ preventScroll: true });
+  }
+  function closeModal() {
+    const root = $('#modalRoot'); const fresh = root.cloneNode(false); root.replaceWith(fresh);
+    document.body.classList.remove('modal-open'); modalCtx = null;
+    if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); lastFocus = null;
+  }
+  async function requestCloseModal() {
+    if (!modalCtx) { closeModal(); return; }
+    if (modalCtx.isDirty && modalCtx.isDirty() && !(await ask('Discard the changes made in this window?\n\nValues already saved to the draft stay as they were.'))) return;
+    if (modalCtx.onCancel) modalCtx.onCancel();
+    closeModal();
+  }
+  const modalOpen = () => !!$('#modalRoot').firstChild;
+
+  /* ------------------------------------------------------------------
+   * Records
+   * ------------------------------------------------------------------ */
+  function recordsView() {
+    return `<section class="card"><div class="card-head"><div><h2>${CFG[activeProduct].name} records</h2><div class="muted small">Every saved day, newest first. View, edit or delete.</div></div><button class="btn primary" type="button" data-nav="entry">${icon('plus')} Add entry</button></div>
+      <div class="filter-row"><div class="field"><label for="recordsMonth">Month</label><input id="recordsMonth" type="month" value="${esc(recordsFilter.month)}"></div><div class="field"><label for="recordsSearch">Search</label><input id="recordsSearch" type="search" value="${esc(recordsFilter.q)}" placeholder="Date, brinjal type, expense purpose or notes"></div><button class="btn" type="button" data-action="records-clear">${icon('x')} Clear filters</button></div>
+      <div id="recordsList">${recordsList()}</div></section>
+      <div class="notice section-gap">The “Expenses” column shows the expense items attached to each daily record. Monthly statements group expenses by each item’s own date.</div>`;
+  }
+  function recordMatches(r, q) {
+    if (!q) return true;
+    const hay = [r.date, dateLabel(r.date), dateLong(r.date), ...(r.bagDetails || []).map(b => b.brinjalType + ' ' + b.size), ...(r.expenseItems || []).map(x => `${x.purpose} ${x.notes}`)].join(' ').toLowerCase();
+    return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+  }
+  function recordsList() {
+    const all = sortedDesc();
+    const rows = all.filter(r => (!recordsFilter.month || r.date.startsWith(recordsFilter.month)) && recordMatches(r, recordsFilter.q));
+    if (!all.length) return emptyState(`No ${CFG[activeProduct].name.toLowerCase()} records yet.`, 'Use “Add entry” to record your first day.', activeProduct === 'brinjal' ? icon('bag') : melonSvg);
+    if (!rows.length) return `<div class="empty"><div class="empty-icon">${icon('list')}</div><strong>No records match these filters.</strong><div class="small">Try another month or clear the search.</div><button class="btn" type="button" data-action="records-clear">Clear filters</button></div>`;
+    const isB = activeProduct === 'brinjal';
+    const actions = r => `<div class="btn-row"><button class="btn small-btn" type="button" data-action="view-record" data-id="${esc(r.id)}" aria-label="View ${esc(dateLabel(r.date))}">${icon('eye')} View</button><button class="btn small-btn" type="button" data-action="edit-record" data-id="${esc(r.id)}" aria-label="Edit ${esc(dateLabel(r.date))}">${icon('edit')} Edit</button><button class="btn small-btn danger" type="button" data-action="delete-record" data-id="${esc(r.id)}" aria-label="Delete ${esc(dateLabel(r.date))}">${icon('trash')}</button></div>`;
+    const table = `<div class="table-wrap records-table"><table><thead><tr><th>Date</th>${isB ? '<th class="num">Bags</th>' : ''}<th class="num">${isB ? 'Weight' : 'Quantity'} (kg)</th><th class="num">Wastage (kg)</th><th class="num">Rate/kg</th><th class="num">${isB ? 'Gross sales' : 'Gross income'}</th><th class="num">Expenses</th>${isB ? '<th class="num">Men</th><th class="num">Women</th><th class="num">Labour salary</th>' : ''}<th class="num">Net</th><th>Actions</th></tr></thead><tbody>${rows.map(r => {
+      const net = calc.recordNet(activeProduct, r);
+      return `<tr data-record-row="${esc(r.id)}"><td><strong>${esc(dateLabel(r.date))}</strong> <span class="muted small">${esc(r.date.slice(0, 4))}</span>${r.sample ? ' <span class="tag">sample</span>' : ''}</td>${isB ? `<td class="num">${fmt(r.bagDetails.length)}</td>` : ''}<td class="num">${fmt(calc.kg(activeProduct, r))}</td><td class="num">${fmt(calc.wastage(r))}</td><td class="num">${money(r.ratePerKg)}</td><td class="num positive">${money(calc.gross(activeProduct, r))}</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td>${isB ? `<td class="num">${fmt(r.menCount)}</td><td class="num">${fmt(r.womenCount)}${r.legacyLabour ? ` <span class="tag warn" title="Historical aggregate: men/women split unknown">+${fmt(r.legacyLabour.workers)} legacy</span>` : ''}</td><td class="num">${money(calc.labour(r))}</td>` : ''}<td class="num ${netCls(net)}">${money(net)}</td><td>${actions(r)}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+    const cards = `<div class="record-cards">${rows.map(r => {
+      const net = calc.recordNet(activeProduct, r);
+      return `<article class="record-card"><div class="record-card-head"><strong>${esc(dateLong(r.date))}</strong>${r.sample ? '<span class="tag">sample</span>' : ''}</div><dl>
+        ${isB ? `<div><dt>Bags · weight</dt><dd>${fmt(r.bagDetails.length)} · ${fmt(calc.kg('brinjal', r))} kg</dd></div>` : `<div><dt>Quantity</dt><dd>${fmt(r.kg)} kg</dd></div>`}
+        <div><dt>Wastage</dt><dd>${fmt(calc.wastage(r))} kg</dd></div><div><dt>Rate/kg</dt><dd>${money(r.ratePerKg)}</dd></div><div><dt>${isB ? 'Gross sales' : 'Gross income'}</dt><dd class="positive">${money(calc.gross(activeProduct, r))}</dd></div><div><dt>Expenses</dt><dd>${money(calc.expenseTotal(r.expenseItems))}</dd></div>
+        ${isB ? `<div><dt>Labour</dt><dd>${money(calc.labour(r))}</dd></div>` : ''}<div><dt>Net</dt><dd class="${netCls(net)}">${money(net)}</dd></div></dl>${actions(r)}</article>`;
+    }).join('')}</div>`;
+    return `<div class="muted small" style="margin-bottom:8px">Showing ${rows.length} of ${all.length} record${all.length === 1 ? '' : 's'}</div>${table}${cards}`;
+  }
+  function viewRecord(id) {
+    const r = dataset().find(x => x.id === id); if (!r) return;
+    const isB = activeProduct === 'brinjal';
+    const tile = (l, v, cls = '') => `<div class="report-tile"><span>${l}</span><strong class="${cls}">${v}</strong></div>`;
+    const net = calc.recordNet(activeProduct, r);
+    const bags = isB ? `<h3 style="margin:16px 0 8px">Bags (${r.bagDetails.length})</h3><div class="table-wrap"><table style="min-width:0"><thead><tr><th>#</th><th class="num">Weight (kg)</th><th>Type</th><th>Size</th></tr></thead><tbody>${r.bagDetails.map((b, i) => `<tr><td>${i + 1}</td><td class="num">${fmt(b.weightKg)}</td><td>${esc(b.brinjalType)}</td><td>${esc(b.size)} · ${SIZES[b.size] || ''}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(calc.bagKg(r.bagDetails))}</td><td colspan="2"></td></tr></tfoot></table></div>
+      <h3 style="margin:16px 0 8px">Labour</h3><div class="notice">Men: ${fmt(r.menCount)} × ${money(r.menWage)} = <strong>${money(calc.menSubtotal(r))}</strong><br>Women: ${fmt(r.womenCount)} × ${money(r.womenWage)} = <strong>${money(calc.womenSubtotal(r))}</strong>${r.legacyLabour ? `<br>Historical aggregate (split unknown): ${fmt(r.legacyLabour.workers)} workers = <strong>${money(r.legacyLabour.salary)}</strong>` : ''}<br>Total labour salary: <strong>${money(calc.labour(r))}</strong></div>` : '';
+    const exps = `<h3 style="margin:16px 0 8px">Expense items (${r.expenseItems.length})</h3>${r.expenseItems.length ? `<div class="table-wrap"><table style="min-width:0"><thead><tr><th>Date</th><th>What for?</th><th class="num">Amount</th><th>Notes</th></tr></thead><tbody>${r.expenseItems.map(x => `<tr><td>${esc(dateLabel(x.date))}</td><td style="white-space:normal">${esc(x.purpose)}</td><td class="num">${money(x.amount)}</td><td style="white-space:normal">${esc(x.notes) || '—'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td><td></td></tr></tfoot></table></div>` : '<div class="muted small">No expenses recorded for this day.</div>'}`;
+    modalCtx = { kind: 'view', isDirty: () => false };
+    openModal(`<section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="viewTitle"><div class="modal-head"><div><div class="eyebrow">${CFG[activeProduct].name} · daily record</div><h2 id="viewTitle" style="margin-top:4px">${esc(dateLong(r.date))}</h2></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
+      <div class="modal-body"><div class="detail-list">${isB ? tile('Bags', fmt(r.bagDetails.length)) : ''}${tile(isB ? 'Total weight' : 'Quantity', fmt(calc.kg(activeProduct, r)) + ' kg')}${tile('Wastage (not priced)', fmt(calc.wastage(r)) + ' kg')}${tile('Rate/kg', money(r.ratePerKg))}${tile(isB ? 'Gross sales' : 'Gross income', money(calc.gross(activeProduct, r)), 'positive')}${tile('Expenses', money(calc.expenseTotal(r.expenseItems)), 'negative')}${isB ? tile('Labour salary', money(calc.labour(r))) : ''}${tile('Net', money(net), netCls(net))}</div>${bags}${exps}</div>
+      <div class="modal-foot"><button type="button" class="btn danger" data-action="delete-record" data-id="${esc(r.id)}">${icon('trash')} Delete</button><div class="btn-row"><button type="button" class="btn" data-modal-close>Close</button><button type="button" class="btn primary" data-action="edit-record" data-id="${esc(r.id)}">${icon('edit')} Edit</button></div></div></section>`, '[data-modal-close]');
+  }
+  async function startEdit(id) {
+    const r = dataset().find(x => x.id === id); if (!r) return;
+    if (!(await guardLeaveEntry())) return;
+    if (modalOpen()) closeModal();
+    draft = makeDraft(activeProduct, r); draftDirty = false;
+    activeView = 'entry'; render(); pushHash(); scrollTop();
+  }
+  async function deleteRecord(id) {
+    const r = dataset().find(x => x.id === id); if (!r) return;
+    if (!(await ask(`Delete the ${CFG[activeProduct].name} entry for ${dateLong(r.date)}?\n\nThis cannot be undone unless you have a backup.`))) return;
+    const prev = state.data[activeProduct];
+    state.data[activeProduct] = prev.filter(x => x.id !== id);
+    if (!saveState()) { state.data[activeProduct] = prev; return; }
+    if (modalOpen()) closeModal();
+    if (draft && draft.id === id) { draft = null; draftDirty = false; if (activeView === 'entry') activeView = 'records'; }
+    render(); pushHash(); showToast('Entry deleted.');
+  }
+
+  /* ------------------------------------------------------------------
+   * Monthly report
+   * ------------------------------------------------------------------ */
+  function reportView() {
+    const st = buildStatement(activeProduct, month); const t = st.totals; const cols = statementColumns(st);
+    const isB = activeProduct === 'brinjal';
+    const tile = (l, v, cls = '') => `<div class="report-tile"><span>${l}</span><strong class="${cls}">${v}</strong></div>`;
+    const tiles = isB
+      ? tile('Total bags', fmt(t.bags)) + tile('Total weight', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross sales', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Labour salary', money(t.labour)) + tile('Workers (worker-days)', fmt(t.workers)) + tile('Average rate', t.kg ? money(t.avgRate) + '/kg' : '—') + tile('Net after costs', money(t.net), netCls(t.net))
+      : tile('Total quantity', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross income', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Net after expenses', money(t.net), netCls(t.net));
+    const body = st.rows.map(r => `<tr${r.kind === 'expense-only' ? ' class="muted"' : ''}>${cols.map(c => c.key === 'date' ? `<td><strong>${esc(dateLabel(r.date))}</strong>${r.kind === 'expense-only' ? ' <span class="tag warn">expenses only</span>' : ''}</td>` : `<td class="num ${c.key === 'net' ? netCls(r.net) : c.key === 'gross' && r.gross ? 'positive' : ''}">${cellText(c, r[c.key])}</td>`).join('')}</tr>`).join('');
+    const foot = st.rows.length ? `<tfoot><tr>${cols.map(c => c.key === 'date' ? '<td>TOTAL</td>' : `<td class="num">${c.total ? cellText(c, t[c.key]) : '—'}</td>`).join('')}</tr></tfoot>` : '';
+    const notes = [];
+    if (isB && st.hasLegacy) notes.push('<strong>Legacy labour:</strong> some days come from the original sheet, which recorded only the total number of workers and total labour salary. Those workers are shown in a separate “split unknown” column and are not counted as men or women.');
+    if (st.crossDated || st.hasExpenseOnly) notes.push(`<strong>Expense dates:</strong> expenses are counted on their own date. ${st.crossDated} expense item(s) in this month belong to a daily record dated differently${st.hasExpenseOnly ? '; dates marked “expenses only” have no sales record that day' : ''}.`);
+    notes.push('<strong>Wastage:</strong> recorded in kg only. It has no price and is not included in gross sales or net.');
+    if (!isB) notes.push('<strong>Gross vs net:</strong> the original sheet’s “Profit” column is quantity × rate, i.e. gross income before expenses. Net after expenses is shown separately.');
+    const expTable = st.expenseItems.length ? `<h3 style="margin:18px 0 8px">Expense items · ${esc(monthLabel(month))}</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>What for?</th><th class="num">Amount</th><th>Notes</th><th>Daily record</th></tr></thead><tbody>${st.expenseItems.map(x => `<tr><td>${esc(dateLabel(x.date))}</td><td style="white-space:normal">${esc(x.purpose)}</td><td class="num">${money(x.amount)}</td><td style="white-space:normal">${esc(x.notes) || '—'}</td><td>${esc(dateLabel(x.recordDate))}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="num">${money(t.expenses)}</td><td colspan="2"></td></tr></tfoot></table></div>` : '';
+    const p = state.profile;
+    return `<div class="card-head no-print" style="margin-bottom:12px">${monthNav('reportMonth', 'Report month')}<div class="btn-row">${exportButtons(true)}</div></div>
+      <section class="card" id="printArea"><div class="card-head"><div><div class="eyebrow">${esc(p.farmName || 'My Farm')} · monthly statement</div><h2 style="font-size:22px;margin:4px 0">${productIcon(activeProduct)} ${CFG[activeProduct].name} — ${esc(monthLabel(month))}</h2><div class="muted small">Prepared ${esc(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))}${p.ownerName ? ' · ' + esc(p.ownerName) : ''}${p.location ? ' · ' + esc(p.location) : ''} · ${t.records} daily record${t.records === 1 ? '' : 's'}</div></div></div>
+        <div class="report-summary">${tiles}</div>
+        <div class="table-wrap"><table id="reportTable"><thead><tr>${cols.map(c => `<th class="${c.key === 'date' ? '' : 'num'}">${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td colspan="${cols.length}"><div class="empty"><div class="empty-icon">${icon('calendar')}</div><strong>No entries for ${esc(monthLabel(month))}.</strong><div class="small">Choose another month or add a daily entry.</div></div></td></tr>`}</tbody>${foot}</table></div>
+        ${expTable}
+        ${notes.map(n => `<div class="notice" style="margin-top:12px">${n}</div>`).join('')}
+      </section>
+      <section class="card section-gap no-print"><div class="card-head"><div><h2>Download this statement</h2><div class="muted small">${CFG[activeProduct].name} · ${esc(monthLabel(month))} · files are named ${esc(fileBase(activeProduct, month))}.*</div></div></div>
+        <div class="quick-grid">${quick('data-action="export-pdf"', 'file', 'PDF', 'Print → “Save as PDF”')}${quick('data-action="export-xlsx"', 'table', 'Excel (.xlsx)', 'Statement + expense items')}${quick('data-action="export-png"', 'image', 'PNG image', 'Download or share to Gallery')}${quick('data-action="export-csv"', 'list', 'CSV', 'Plain data file')}</div>
+        <div class="muted small" style="margin-top:10px">PDF uses your browser’s print dialog — choose “Save as PDF” as the destination. On phones that support it, PNG opens the share sheet so you can save to Photos/Gallery; otherwise it downloads.</div></section>`;
+  }
+  const exportButtons = compact => `<button class="btn small-btn" type="button" data-action="export-pdf">${icon('file')} PDF</button><button class="btn small-btn" type="button" data-action="export-xlsx">${icon('table')} Excel</button><button class="btn small-btn" type="button" data-action="export-png">${icon('image')} PNG</button>${compact ? `<button class="btn small-btn" type="button" data-action="export-csv">${icon('list')} CSV</button>` : ''}`;
+
+  /* ------------------------------------------------------------------
+   * More / tools, settings, profile
+   * ------------------------------------------------------------------ */
+  function toolsView() {
+    const nb = dataset('brinjal').length, nm = dataset('muskmelon').length;
+    return `<div class="grid equal">
+      <section class="card"><div class="card-head"><div><h2>Monthly exports</h2><div class="muted small">For the selected business and month</div></div><span class="kpi-icon">${icon('download')}</span></div>
+        <div class="field" style="margin-bottom:12px"><span class="field-label">${CFG[activeProduct].name} statement month</span>${monthNav('toolsMonth', 'Export month')}</div>
+        <div class="quick-grid cols-2">${quick('data-action="export-pdf"', 'file', 'PDF statement', 'Print → Save as PDF')}${quick('data-action="export-xlsx"', 'table', 'Excel (.xlsx)', esc(fileBase(activeProduct, month)) + '.xlsx')}${quick('data-action="export-csv"', 'list', 'CSV', 'Plain data file')}${quick('data-action="export-png"', 'image', 'PNG image', 'Share or save to Gallery')}</div>
+        <div style="height:14px"></div><div class="quick-grid cols-2">${quick('data-nav="reports"', 'report', 'Open monthly report', 'Preview before exporting')}${quick('data-nav="settings"', 'settings', 'Settings', 'Theme, text, brinjal types')}${quick('data-nav="profile"', 'user', 'Farm profile', 'Name, owner, phone, location')}${quick('data-nav="records"', 'list', 'Records', 'All saved days')}</div></section>
+      <section class="card"><div class="card-head"><div><h2>Backup &amp; restore</h2><div class="muted small">Move data between phones or browsers</div></div><span class="kpi-icon">${icon('database')}</span></div>
+        <div class="notice">Entries live only in this browser. To change device or browser: <strong>1.</strong> Export a complete backup here. <strong>2.</strong> Copy the .json file to the new device. <strong>3.</strong> Open FieldLedger there → More → Restore from backup.</div>
+        <div class="btn-row" style="margin-top:14px"><button class="btn primary" type="button" data-action="export-json">${icon('download')} Export complete backup (JSON)</button><button class="btn" type="button" data-action="import-json">${icon('upload')} Restore from backup…</button></div>
+        <div id="importStatus" class="small" role="status" style="margin-top:10px">${importStatus}</div>
+        <div class="report-summary" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:14px"><div class="report-tile"><span>Brinjal records</span><strong>${fmt(nb)}</strong></div><div class="report-tile"><span>Muskmelon records</span><strong>${fmt(nm)}</strong></div></div>
+        <div class="form-section"><h3>Sample data</h3><p class="muted small" style="margin:7px 0 12px">Replaces both businesses' records with the October 2026 demo figures from the original sheet. Settings and profile are kept. Export a backup first if you have real data.</p><button class="btn danger" type="button" data-action="reset-demo">${icon('restore')} Restore sample data</button></div></section></div>
+      ${updatesCard()}
+      <div class="notice section-gap"><strong>Privacy:</strong> your records stay on this device. Nothing is uploaded; there is no account, server or cloud sync.</div>`;
+  }
+  function updatesCard() {
+    const ni = nativeInfo();
+    if (!ni) {
+      return `<section class="card section-gap"><div class="card-head"><div><h2>App version</h2><div class="muted small">Web app v${APP_VERSION}</div></div><span class="kpi-icon">${icon('restore')}</span></div><div class="notice">The web version always opens the latest published build — reload the page to get updates. On Android, install the FieldLedger APK; it checks for new versions and installs them from inside the app (More → App updates).</div></section>`;
+    }
+    return `<section class="card section-gap" id="updatesCard"><div class="card-head"><div><h2>App updates</h2><div class="muted small">Installed: v${esc(ni.versionName)} (build ${esc(ni.versionCode)})${ni.lastCheck ? ' · last checked ' + esc(ni.lastCheck) : ''}</div></div><span class="kpi-icon">${icon('restore')}</span></div>
+      <div class="btn-row"><button class="btn primary" type="button" data-action="check-updates">${icon('download')} Check for updates</button></div>
+      <div id="updateStatus" class="small" role="status" style="margin-top:10px">${esc(updateStatus)}</div>
+      <details style="margin-top:12px"><summary class="muted small">Update source (advanced)</summary><form id="updateUrlForm" novalidate style="margin-top:10px"><div class="field"><label for="updateUrl">Update manifest URL</label><input id="updateUrl" type="url" inputmode="url" value="${esc(ni.updateUrl)}" placeholder="https://…/version.json"></div><div class="form-actions"><span class="muted small">The app downloads updates only from this address (HTTPS) and installs them only if they are signed with the same key.</span><button class="btn" type="submit">${icon('check')} Save source</button></div></form></details></section>`;
+  }
+  let updateStatus = '';
+  // Events from the Android shell (update progress, print finished).
+  window.FieldLedgerNativeEvent = (name, data) => {
+    if (name === 'update-status') { updateStatus = String(data || ''); const el = $('#updateStatus'); if (el) el.textContent = updateStatus; }
+    if (name === 'print-finished') document.body.classList.remove('printing-report');
+  };
+  // Android back button: close dialogs/modals first, otherwise let the shell go back in history.
+  window.FieldLedgerBack = () => {
+    if (askOpen()) { askState.finish(false); return true; }
+    if (modalOpen()) { requestCloseModal(); return true; }
+    return false;
+  };
+
+  function settingsView() {
+    const s = state.settings;
+    const usage = {}; dataset('brinjal').forEach(r => r.bagDetails.forEach(b => { usage[b.brinjalType] = (usage[b.brinjalType] || 0) + 1; }));
+    const types = s.brinjalTypes.map(t => `<span class="type-pill"><span>${esc(t)}</span><span class="muted small">${usage[t] ? usage[t] + ' bags' : ''}</span><button type="button" title="Remove ${esc(t)}" aria-label="Remove brinjal type ${esc(t)}" data-action="remove-type" data-type="${esc(t)}">${icon('x')}</button></span>`).join('');
+    const orphan = Object.keys(usage).filter(t => !s.brinjalTypes.includes(t));
+    return `<div class="settings-layout"><section class="card"><div class="card-head"><div><h2>Appearance</h2><div class="muted small">Saved on this device</div></div><span class="kpi-icon">${icon('sun')}</span></div>
+        <div class="field" style="margin-bottom:18px"><span class="field-label" id="themeLbl">Theme</span><div class="setting-choice" role="group" aria-labelledby="themeLbl"><button class="choice ${s.theme === 'light' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'light'}" data-action="set-theme" data-value="light">${icon('sun')} Light</button><button class="choice ${s.theme === 'dark' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'dark'}" data-action="set-theme" data-value="dark">${icon('moon')} Dark</button></div></div>
+        <div class="field"><span class="field-label" id="textLbl">Text size</span><div class="setting-choice" role="group" aria-labelledby="textLbl">${['small', 'medium', 'large'].map(v => `<button class="choice ${s.textSize === v ? 'active' : ''}" type="button" aria-pressed="${s.textSize === v}" data-action="set-text" data-value="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}</div></div>
+        <div class="notice" style="margin-top:18px">Brinjal uses a violet accent; Muskmelon uses yellow/amber. Animations are reduced automatically when your device’s “reduce motion” setting is on${prefersReducedMotion() ? ' (currently on)' : ''}.</div></section>
+      <section class="card"><div class="card-head"><div><h2>Brinjal types / categories</h2><div class="muted small">Choices offered for each bag in Daily entry</div></div><span class="kpi-icon">🍆</span></div>
+        <form id="typeForm" novalidate><div class="field"><label for="newBrinjalType">Add a brinjal type</label><input id="newBrinjalType" name="type" maxlength="50" placeholder="e.g. Green long" autocomplete="off"></div><div class="form-actions"><span class="muted small">To rename, add the new name and remove the old one.</span><button class="btn primary" type="submit">${icon('plus')} Add type</button></div></form>
+        <div class="type-list">${types}</div>
+        <div class="notice" style="margin-top:15px">Removing a type only removes it from the dropdown. Saved bags keep their original label${orphan.length ? ` — currently in use but removed: ${orphan.map(esc).join(', ')}` : ''}.</div></section></div>`;
+  }
+  function profileView() {
+    const p = state.profile;
+    return `<section class="card"><div class="profile-hero"><div class="profile-big" aria-hidden="true">${esc((p.farmName || 'F').charAt(0).toUpperCase())}</div><div><h2>${esc(p.farmName || 'My Farm')}</h2><div class="muted small">${p.ownerName ? esc(p.ownerName) + ' · ' : ''}FieldLedger workspace on this device</div></div></div>
+      <form id="profileForm" novalidate><div class="form-grid"><div class="field"><label for="farmName">Farm / business name</label><input id="farmName" name="farmName" maxlength="80" value="${esc(p.farmName)}" placeholder="My Farm" required></div><div class="field"><label for="ownerName">Owner name (optional)</label><input id="ownerName" name="ownerName" maxlength="80" value="${esc(p.ownerName)}" placeholder="Your name"></div><div class="field"><label for="phone">Phone (optional)</label><input id="phone" name="phone" type="tel" maxlength="30" value="${esc(p.phone)}" placeholder="Contact number"></div><div class="field"><label for="location">Location (optional)</label><input id="location" name="location" maxlength="120" value="${esc(p.location)}" placeholder="Village / district"></div></div>
+      <div class="form-actions"><span class="muted small">Farm name, owner and location appear on statement headers. Phone is stored only in this browser and in your backups.</span><button class="btn primary" type="submit">${icon('check')} Save profile</button></div></form></section>`;
+  }
+
+  /* ------------------------------------------------------------------
+   * Exports
+   * ------------------------------------------------------------------ */
+  function downloadBlob(blob, filename) {
+    if (NATIVE) {
+      // WebView cannot follow blob: downloads, so hand the bytes to the Android shell.
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { const msg = NATIVE.saveFile(filename, blob.type || 'application/octet-stream', String(reader.result).split(',')[1] || ''); showToast(msg || `Saved ${filename}.`, /^Could not/.test(msg || '')); }
+        catch (e) { showToast(`Could not save ${filename}.`, true); }
+      };
+      reader.onerror = () => showToast(`Could not read ${filename}.`, true);
+      reader.readAsDataURL(blob);
+      return;
+    }
+    if (HOSTED()) {
+      getHostDownloads().then(dl => {
+        if (!dl) { showToast('Downloads are not available in this view. Open FieldLedger in a browser or the Android app to export.', true); return; }
+        dl.save({ filename, data: blob }).then(() => showToast(`${filename} saved.`)).catch(err => {
+          const code = err && err.code;
+          if (code === 'declined') showToast('Download cancelled.');
+          else if (code === 'rate_limited') showToast('Another download is waiting for your answer — try again in a moment.', true);
+          else showToast(`Could not save ${filename} here (${code || 'unavailable'}).`, true);
+        });
+      });
+      return;
+    }
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = filename; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+  }
+  /** Rows of plain values for CSV/XLSX: header, data rows, TOTAL row. */
+  function statementMatrix(st) {
+    const cols = statementColumns(st);
+    const out = [cols.map(c => c.label)];
+    st.rows.forEach(r => out.push(cols.map(c => c.key === 'date' ? r.date : (r[c.key] == null ? '' : r2(r[c.key])))));
+    out.push(cols.map(c => c.key === 'date' ? 'TOTAL' : (c.total ? r2(st.totals[c.key]) : '')));
+    return { cols, rows: out };
+  }
+  function exportCSV() {
+    const st = buildStatement(activeProduct, month);
+    const { rows } = statementMatrix(st);
+    const csv = rows.map(row => row.map(v => { const s = String(v ?? ''); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }).join(',')).join('\r\n');
+    downloadBlob(new Blob(['﻿', csv], { type: 'text/csv;charset=utf-8' }), fileBase(activeProduct, month) + '.csv');
+    showToast(`CSV downloaded · ${st.rows.length} row(s).`);
+  }
+  const xmlEsc = v => String(v ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;').replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+  function colName(n) { let s = ''; while (n > 0) { const r = (n - 1) % 26; s = String.fromCharCode(65 + r) + s; n = Math.floor((n - 1) / 26); } return s; }
+  const CRC_TABLE = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  function crc32(bytes) { let c = 0xFFFFFFFF; for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+  const le16 = v => [v & 255, (v >>> 8) & 255]; const le32 = v => [v & 255, (v >>> 8) & 255, (v >>> 16) & 255, (v >>> 24) & 255];
+  /** Minimal ZIP writer (stored, no compression) — enough for a valid .xlsx package. */
+  function zipStore(files, type) {
+    const enc = new TextEncoder(); const parts = []; const central = []; let offset = 0;
+    for (const f of files) {
+      const name = enc.encode(f.name); const data = enc.encode(f.data); const crc = crc32(data);
+      const header = new Uint8Array([...le32(0x04034b50), ...le16(20), ...le16(0x0800), ...le16(0), ...le16(0), ...le16(0x21), ...le32(crc), ...le32(data.length), ...le32(data.length), ...le16(name.length), ...le16(0), ...name]);
+      parts.push(header, data);
+      central.push(new Uint8Array([...le32(0x02014b50), ...le16(20), ...le16(20), ...le16(0x0800), ...le16(0), ...le16(0), ...le16(0x21), ...le32(crc), ...le32(data.length), ...le32(data.length), ...le16(name.length), ...le16(0), ...le16(0), ...le16(0), ...le16(0), ...le32(0), ...le32(offset), ...name]));
+      offset += header.length + data.length;
+    }
+    const csize = central.reduce((s, a) => s + a.length, 0);
+    const end = new Uint8Array([...le32(0x06054b50), ...le16(0), ...le16(0), ...le16(files.length), ...le16(files.length), ...le32(csize), ...le32(offset), ...le16(0)]);
+    return new Blob([...parts, ...central, end], { type });
+  }
+  // Cell styles: 0 normal, 1 bold, 2 money #,##0.00, 3 bold money, 4 integer #,##0, 5 bold integer, 6 title
+  function sheetXml(rowsSpec, widths, freezeRow) {
+    const xmlRows = rowsSpec.map((cells, ri) => `<row r="${ri + 1}">${cells.map((c, ci) => {
+      if (c == null || c.v === '' || c.v == null) return c && c.s ? `<c r="${colName(ci + 1)}${ri + 1}" s="${c.s}"/>` : '';
+      const ref = colName(ci + 1) + (ri + 1);
+      if (typeof c.v === 'number' && Number.isFinite(c.v)) return `<c r="${ref}" s="${c.s || 0}"><v>${c.v}</v></c>`;
+      return `<c r="${ref}" s="${c.s || 0}" t="inlineStr"><is><t xml:space="preserve">${xmlEsc(c.v)}</t></is></c>`;
+    }).join('')}</row>`).join('');
+    const pane = freezeRow ? `<sheetViews><sheetView workbookViewId="0"><pane ySplit="${freezeRow}" topLeftCell="A${freezeRow + 1}" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>` : '';
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">${pane}<sheetFormatPr defaultRowHeight="18"/><cols>${widths.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${xmlRows}</sheetData></worksheet>`;
+  }
+  function exportXLSX() {
+    const st = buildStatement(activeProduct, month); const { cols } = statementMatrix(st);
+    const style = (c, bold) => (c.type === 'money' || c.type === 'num' ? (bold ? 3 : 2) : c.type === 'int' ? (bold ? 5 : 4) : (bold ? 1 : 0));
+    const p = state.profile;
+    const head = [
+      [{ v: `${CFG[activeProduct].name} monthly statement — ${monthLabel(month)}`, s: 6 }],
+      [{ v: `${p.farmName || 'My Farm'}${p.location ? ' · ' + p.location : ''} · generated ${todayISO()} · FieldLedger` }],
+      [],
+      cols.map(c => ({ v: c.label, s: 1 }))
+    ];
+    const data = st.rows.map(r => cols.map(c => c.key === 'date' ? { v: r.date + (r.kind === 'expense-only' ? ' (expenses only)' : '') } : { v: r[c.key] == null ? '' : r2(r[c.key]), s: style(c, false) }));
+    const total = cols.map(c => c.key === 'date' ? { v: 'TOTAL', s: 1 } : (c.total ? { v: r2(st.totals[c.key]), s: style(c, true) } : { v: '' }));
+    const notes = [[], [{ v: 'Wastage (kg) is recorded only — it has no price and is not part of gross or net.' }], [{ v: 'Gross = weight/quantity × rate per kg. Net = gross − operating expenses' + (activeProduct === 'brinjal' ? ' − labour salary.' : '.') }], [{ v: 'Operating expenses are reported on each expense item’s own date (see "Expense items" sheet).' }]];
+    if (st.hasLegacy) notes.push([{ v: 'Legacy workers: historical totals from the source sheet; men/women split unknown.' }]);
+    const sheet1 = sheetXml([...head, ...data, total, ...notes], cols.map(c => c.key === 'date' ? 22 : Math.max(12, c.label.length + 2)), 4);
+    const expRows = [[{ v: `Expense items — ${CFG[activeProduct].name}, ${monthLabel(month)}`, s: 6 }], [], ['Date', 'What for?', 'Amount (₹)', 'Notes', 'Daily record date'].map(v => ({ v, s: 1 })),
+      ...st.expenseItems.map(x => [{ v: x.date }, { v: x.purpose }, { v: r2(x.amount), s: 2 }, { v: x.notes }, { v: x.recordDate }]),
+      [{ v: 'TOTAL', s: 1 }, { v: '' }, { v: r2(st.totals.expenses), s: 3 }]];
+    const sheet2 = sheetXml(expRows, [14, 40, 14, 40, 18], 3);
+    const styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="3"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="14"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="7"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/><xf numFmtId="4" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="4" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="3" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="3" fontId="1" fillId="0" borderId="0" xfId="0" applyNumberFormat="1" applyFont="1"/><xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    const files = [
+      { name: '[Content_Types].xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/worksheets/sheet2.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>' },
+      { name: '_rels/.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { name: 'xl/workbook.xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Statement" sheetId="1" r:id="rId1"/><sheet name="Expense items" sheetId="2" r:id="rId2"/></sheets></workbook>' },
+      { name: 'xl/_rels/workbook.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet2.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+      { name: 'xl/styles.xml', data: styles },
+      { name: 'xl/worksheets/sheet1.xml', data: sheet1 },
+      { name: 'xl/worksheets/sheet2.xml', data: sheet2 }
+    ];
+    downloadBlob(zipStore(files, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'), fileBase(activeProduct, month) + '.xlsx');
+    showToast(`Excel workbook downloaded · ${st.rows.length} row(s).`);
+  }
+  function exportJSON() {
+    const backup = { app: 'FieldLedger', schemaVersion: SCHEMA_VERSION, exportedAt: nowISO(), settings: clone(state.settings), profile: clone(state.profile), data: clone(state.data) };
+    downloadBlob(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8' }), `fieldledger-backup-${todayISO()}.json`);
+    importStatus = `Backup exported ${new Date().toLocaleString('en-IN')}.`;
+    const s = $('#importStatus'); if (s) s.textContent = importStatus;
+    showToast('Complete backup downloaded (both businesses, settings and profile).');
+  }
+  async function exportPDF() {
+    if (HOSTED() && !NATIVE) { showToast('PDF printing is not available in this web link. Use Excel or PNG here, or print from a normal browser or the Android app.', true); return; }
+    if (activeView !== 'reports') {
+      if (!(await guardLeaveEntry())) return;
+      activeView = 'reports'; render(); pushHash();
+    }
+    document.body.classList.add('printing-report');
+    if (NATIVE && typeof NATIVE.print === 'function') {
+      showToast('Choose “Save as PDF” as the printer to keep a PDF copy.');
+      setTimeout(() => { try { NATIVE.print(fileBase(activeProduct, month)); } catch (_) { document.body.classList.remove('printing-report'); showToast('Printing is not available on this phone.', true); } }, 80);
+      return;
+    }
+    const oldTitle = document.title; document.title = fileBase(activeProduct, month);
+    const done = () => { document.body.classList.remove('printing-report'); document.title = oldTitle; window.removeEventListener('afterprint', done); };
+    window.addEventListener('afterprint', done);
+    showToast('Print dialog: choose “Save as PDF” as the destination.');
+    setTimeout(() => { try { window.print(); } catch (_) { showToast('Printing is not available in this browser.', true); } setTimeout(done, 1500); }, 60);
+  }
+  function exportPNG() {
+    const st = buildStatement(activeProduct, month); const cols = statementColumns(st); const t = st.totals; const isB = activeProduct === 'brinjal';
+    const font = 'Arial, Helvetica, sans-serif';
+    const lines = [cols.map(c => c.label), ...st.rows.map(r => cols.map(c => (c.key === 'date' ? dateLabel(r.date) + (r.kind === 'expense-only' ? ' (exp.)' : '') : cellText(c, r[c.key])))), cols.map(c => (c.key === 'date' ? 'TOTAL' : c.total ? cellText(c, t[c.key]) : '—'))];
+    let widths = cols.map((c, i) => Math.max(70, ...lines.map((l, li) => String(l[i]).length * (li === 0 ? 7.2 : 8) + 22)));
+    const minW = 1100; const tableW = widths.reduce((a, b) => a + b, 0);
+    if (tableW < minW - 60) widths = widths.map(w => w * (minW - 60) / tableW);
+    const W = Math.round(Math.max(minW, widths.reduce((a, b) => a + b, 0) + 60));
+    const accent = isB ? '#7248df' : '#b07a06'; const soft = isB ? '#f3eeff' : '#fff5d6'; const ink = '#201d2b';
+    const tiles = isB ? [['TOTAL BAGS', fmt(t.bags)], ['TOTAL WEIGHT', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['GROSS SALES', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['LABOUR SALARY', money(t.labour)], ['NET AFTER COSTS', money(t.net)]]
+      : [['TOTAL QUANTITY', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['GROSS INCOME', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['NET AFTER EXPENSES', money(t.net)]];
+    const gap = 10; const tw = (W - 60 - gap * (tiles.length - 1)) / tiles.length;
+    let svg = '';
+    tiles.forEach(([l, v], i) => { const x = 30 + i * (tw + gap); svg += `<rect x="${x}" y="128" width="${tw}" height="74" rx="12" fill="${soft}" stroke="#e7e1f3"/><text x="${x + 12}" y="153" font-size="11" font-weight="700" fill="#6c6880">${xmlEsc(l)}</text><text x="${x + 12}" y="185" font-size="${tw < 170 ? 17 : 21}" font-weight="800" fill="${l.startsWith('NET') && t.net < 0 ? '#c93f3f' : accent}">${xmlEsc(v)}</text>`; });
+    const top = 228, rowH = 34;
+    lines.forEach((line, li) => {
+      let x = 30; const y = top + li * rowH; const isHead = li === 0, isTotal = li === lines.length - 1;
+      line.forEach((v, ci) => {
+        const fill = isHead ? soft : isTotal ? '#f4f2f8' : (li % 2 ? '#ffffff' : '#faf9fd');
+        const right = ci > 0;
+        svg += `<rect x="${x}" y="${y}" width="${widths[ci]}" height="${rowH}" fill="${fill}" stroke="#e7e2f1"/><text x="${right ? x + widths[ci] - 10 : x + 10}" y="${y + 22}" text-anchor="${right ? 'end' : 'start'}" font-size="${isHead ? 11.5 : 13}" font-weight="${isHead || isTotal ? 700 : 400}" fill="${isHead ? '#3c2d6b' : ink}">${xmlEsc(v)}</text>`;
+        x += widths[ci];
+      });
+    });
+    const H = top + lines.length * rowH + 70;
+    const p = state.profile;
+    const full = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${font}"><rect width="100%" height="100%" fill="#ffffff"/><rect width="100%" height="8" fill="${accent}"/><text x="30" y="46" font-size="13" font-weight="700" letter-spacing="2" fill="${accent}">FIELDLEDGER · ${xmlEsc((p.farmName || 'My Farm').toUpperCase())}${p.location ? ' · ' + xmlEsc(p.location.toUpperCase()) : ''}</text><text x="30" y="86" font-size="30" font-weight="800" fill="${ink}">${xmlEsc(`${CFG[activeProduct].name} monthly statement · ${monthLabel(month)}`)}</text><text x="30" y="110" font-size="13" fill="#6c6880">Generated ${xmlEsc(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))} · ${t.records} daily record(s)${st.hasLegacy ? ' · legacy workers = historical totals, split unknown' : ''}</text>${svg}<text x="30" y="${H - 26}" font-size="11.5" fill="#6c6880">Net = gross − operating expenses${isB ? ' − labour salary' : ''}. Wastage is in kg only (no price). Expenses are counted on their own date. Costs not entered in FieldLedger are not included.</text></svg>`;
+    const url = URL.createObjectURL(new Blob([full], { type: 'image/svg+xml;charset=utf-8' }));
+    const img = new Image();
+    img.onload = () => {
+      const scale = 2; const canvas = document.createElement('canvas'); canvas.width = W * scale; canvas.height = H * scale;
+      const ctx = canvas.getContext('2d'); ctx.scale(scale, scale); ctx.drawImage(img, 0, 0, W, H); URL.revokeObjectURL(url);
+      canvas.toBlob(async png => {
+        if (!png) { showToast('Could not create the PNG in this browser.', true); return; }
+        const filename = fileBase(activeProduct, month) + '.png';
+        try {
+          const file = new File([png], filename, { type: 'image/png' });
+          if (!NATIVE && window.matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({ files: [file], title: filename, text: `${CFG[activeProduct].name} statement · ${monthLabel(month)}` });
+            showToast('Share sheet opened — choose “Save image” / Photos to keep it.');
+            return;
+          }
+        } catch (err) { if (err && err.name === 'AbortError') { showToast('Sharing cancelled.'); return; } }
+        downloadBlob(png, filename);
+        showToast('PNG statement downloaded.');
+      }, 'image/png');
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); showToast('PNG export failed in this browser.', true); };
+    img.src = url;
+  }
+
+  /* ------------------------------------------------------------------
+   * Import
+   * ------------------------------------------------------------------ */
+  function setImportStatus(msg) { importStatus = msg; const s = $('#importStatus'); if (s) s.innerHTML = msg; }
+  async function handleImportFile(file) {
+    if (!file) return;
+    if (file.size > 20 * 1024 * 1024) { setImportStatus('<span class="negative">Import failed: file is larger than 20 MB.</span>'); showToast('Import failed: file too large.', true); return; }
+    let parsed;
+    try { parsed = JSON.parse(await file.text()); }
+    catch (_) { setImportStatus(`<span class="negative">Import failed: “${esc(file.name)}” is not valid JSON. Nothing was changed.</span>`); showToast('Import failed: the file is not valid JSON. Nothing changed.', true); return; }
+    const res = normalizeState(parsed, true);
+    if (!res.state) {
+      const list = res.problems.slice(0, 4).map(esc).join('<br>') + (res.problems.length > 4 ? `<br>…and ${res.problems.length - 4} more` : '');
+      setImportStatus(`<span class="negative">Import failed — this is not a valid FieldLedger backup. Nothing was changed.</span><br>${list}`);
+      showToast('Import failed: not a valid FieldLedger backup. Nothing changed.', true);
+      return;
+    }
+    const nb = res.state.data.brinjal.length, nm = res.state.data.muskmelon.length;
+    const when = parsed.exportedAt ? ` (exported ${new Date(parsed.exportedAt).toLocaleString('en-IN')})` : '';
+    if (!(await ask(`Restore backup “${file.name}”${when}?\n\nIt contains ${nb} Brinjal and ${nm} Muskmelon records, plus settings and profile.\n\nThis REPLACES everything currently stored in this browser (${dataset('brinjal').length} Brinjal, ${dataset('muskmelon').length} Muskmelon records). Export a backup first if unsure.`))) {
+      setImportStatus('Import cancelled. Nothing was changed.'); showToast('Import cancelled. Nothing changed.'); return;
+    }
+    const prev = state; state = res.state;
+    if (!saveState()) { state = prev; return; }
+    draft = null; draftDirty = false; startupNotice = '';
+    importStatus = `<span class="positive">Backup restored: ${nb} Brinjal and ${nm} Muskmelon records.</span>`;
+    render(); showToast('Backup restored successfully.');
+  }
+
+  /* ------------------------------------------------------------------
+   * Navigation, routing and render
+   * ------------------------------------------------------------------ */
+  async function guardLeaveEntry() {
+    if (activeView !== 'entry' || !draftDirty) return true;
+    if (!(await ask('You have unsaved changes in this daily entry.\n\nLeave without saving? The draft will be discarded.'))) return false;
+    draft = null; draftDirty = false; return true;
+  }
+  async function go(view, opts = {}) {
+    if (!VIEWS.includes(view)) return false;
+    if (!opts.force && view !== activeView && !(await guardLeaveEntry())) return false;
+    if (modalOpen()) closeModal();
+    if (view !== 'entry') { draft = null; draftDirty = false; }
+    else if (activeView !== 'entry') { draft = null; draftDirty = false; }
+    activeView = view; render();
+    if (!opts.fromHistory) pushHash();
+    scrollTop(); return true;
+  }
+  async function switchProduct(p) {
+    if (!PRODUCTS.includes(p) || p === activeProduct) return;
+    if (!(await guardLeaveEntry())) return;
+    if (modalOpen()) closeModal();
+    activeProduct = p; saveUI(); draft = null; draftDirty = false; recordsFilter = { month: '', q: '' };
+    if (activeView === 'entry') activeView = 'dashboard';
+    render(); pushHash();
+  }
+  const hashFor = () => `#/${activeProduct}/${activeView}`;
+  function pushHash() { try { if (location.hash !== hashFor()) history.pushState(null, '', hashFor()); } catch (_) { /* sandboxed frame */ } }
+  function readHash() { const m = /^#\/(brinjal|muskmelon)\/(\w+)$/.exec(location.hash); return m && VIEWS.includes(m[2]) ? { product: m[1], view: m[2] } : null; }
+  window.addEventListener('popstate', async () => {
+    if (askOpen()) { askState.finish(false); history.pushState(null, '', hashFor()); return; }
+    if (modalOpen()) { if (modalCtx && modalCtx.isDirty && modalCtx.isDirty() && !(await ask('Discard the changes made in this window?'))) { history.pushState(null, '', hashFor()); return; } if (modalCtx && modalCtx.onCancel) modalCtx.onCancel(); closeModal(); }
+    const h = readHash(); if (!h) return;
+    if ((h.product !== activeProduct || h.view !== activeView) && !(await guardLeaveEntry())) { history.pushState(null, '', hashFor()); return; }
+    if (h.product !== activeProduct) { activeProduct = h.product; saveUI(); recordsFilter = { month: '', q: '' }; draft = null; draftDirty = false; }
+    if (h.view !== activeView) { draft = null; draftDirty = false; activeView = h.view; }
+    render();
+  });
+  window.addEventListener('beforeunload', e => { if (activeView === 'entry' && draftDirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  function render() {
+    renderShell();
+    const views = { dashboard: dashboardView, entry: entryView, records: recordsView, reports: reportView, tools: toolsView, settings: settingsView, profile: profileView };
+    $('#viewContainer').innerHTML = (views[activeView] || dashboardView)();
+    if (activeView === 'entry') wireEntry();
+  }
+
+  /* ------------------------------------------------------------------
+   * Events
+   * ------------------------------------------------------------------ */
+  function setMonth(v) {
+    if (!isMonth(v)) { showToast('Choose a month in YYYY-MM format.', true); return; }
+    month = v; render();
+    const el = $('.month-input'); if (el) el.focus();
+  }
+  async function removeBrinjalType(type) {
+    const list = state.settings.brinjalTypes;
+    if (list.length <= 1) { showToast('Keep at least one brinjal type.', true); return; }
+    let used = 0; dataset('brinjal').forEach(r => r.bagDetails.forEach(b => { if (b.brinjalType === type) used++; }));
+    if (!(await ask(`Remove “${type}” from the brinjal type list?\n\n${used ? `${used} saved bag(s) use this type. They will KEEP the label “${type}” — it is only removed from the dropdown for new bags.` : 'No saved bags use this type.'}`))) return;
+    state.settings.brinjalTypes = list.filter(t => t !== type);
+    if (saveState()) { render(); showToast(`“${type}” removed from the list.`); }
+  }
+  async function handleAction(el) {
+    const id = el.dataset.id;
+    switch (el.dataset.action) {
+      case 'month-prev': setMonth(addMonths(month, -1)); break;
+      case 'month-next': setMonth(addMonths(month, 1)); break;
+      case 'open-bags': openBagModal(); break;
+      case 'open-expenses': openExpenseModal(); break;
+      case 'legacy-remove': draft.removedLegacy = draft.legacyLabour; draft.legacyLabour = null; draftDirty = true; refreshEntry(); showToast('Historical labour amount will be removed when you save.'); break;
+      case 'legacy-undo': draft.legacyLabour = draft.removedLegacy; draft.removedLegacy = null; refreshEntry(); break;
+      case 'entry-cancel':
+        if (draftDirty && !(await ask(draft.id ? 'Discard your changes to this entry?' : 'Clear this daily entry? Unsaved values will be lost.'))) return;
+        if (draft.id) { draft = null; draftDirty = false; go('records', { force: true }); } else { draft = null; draftDirty = false; render(); }
+        break;
+      case 'entry-delete': deleteRecord(draft.id); break;
+      case 'view-record': viewRecord(id); break;
+      case 'edit-record': startEdit(id); break;
+      case 'delete-record': deleteRecord(id); break;
+      case 'records-clear': recordsFilter = { month: '', q: '' }; render(); break;
+      case 'export-json': exportJSON(); break;
+      case 'check-updates': if (NATIVE) { updateStatus = 'Checking for updates…'; const el = $('#updateStatus'); if (el) el.textContent = updateStatus; NATIVE.checkForUpdates(true); } break;
+      case 'import-json': $('#importFile').value = ''; $('#importFile').click(); break;
+      case 'export-csv': exportCSV(); break;
+      case 'export-xlsx': exportXLSX(); break;
+      case 'export-pdf': exportPDF(); break;
+      case 'export-png': exportPNG(); break;
+      case 'set-theme': state.settings.theme = el.dataset.value === 'dark' ? 'dark' : 'light'; saveState(); render(); showToast(`${state.settings.theme === 'dark' ? 'Dark' : 'Light'} theme on.`); break;
+      case 'set-text': state.settings.textSize = el.dataset.value; saveState(); render(); showToast(`Text size: ${el.dataset.value}.`); break;
+      case 'remove-type': removeBrinjalType(el.dataset.type); break;
+      case 'reset-demo':
+        if (!(await ask('Restore the October 2026 sample data?\n\nAll current Brinjal and Muskmelon records in this browser will be REPLACED. Settings and profile are kept.'))) return;
+        { const prev = state.data; state.data = seedState().data; if (!saveState()) { state.data = prev; return; } }
+        month = '2026-10'; draft = null; draftDirty = false; render(); showToast('Sample data restored.');
+        break;
+      default: break;
+    }
+  }
+  document.addEventListener('click', e => {
+    const t = e.target;
+    // Modal-scoped controls first
+    if (modalOpen() && t.closest('#modalRoot')) {
+      if (t.closest('[data-modal-close]')) { requestCloseModal(); return; }
+      if (t.matches('[data-modal-backdrop]')) { requestCloseModal(); return; }
+      if (t.closest('#saveBagModal')) { saveBagModal(); return; }
+      if (t.closest('#saveExpenseModal')) { saveExpenseModal(); return; }
+      const addBag = t.closest('[data-bag-add]');
+      if (addBag) { if (modalCtx.items.length >= MAX_BAGS * 2) return; modalCtx.items = resizeBags(modalCtx.items, modalCtx.items.length + 1); renderBagModal('#bagWeight' + (modalCtx.items.length - 1)); return; }
+      const rmBag = t.closest('[data-bag-remove]');
+      if (rmBag) { const i = Number(rmBag.dataset.bagRemove); modalCtx.items.splice(i, 1); renderBagModal(modalCtx.items.length ? '#bagWeight' + Math.max(0, i - 1) : '[data-bag-add]'); showToast(`Bag ${i + 1} removed from this list.`); return; }
+      if (t.closest('[data-bag-copy]')) { const f = modalCtx.items[0]; modalCtx.items.forEach(b => { b.brinjalType = f.brinjalType; b.size = f.size; }); renderBagModal('[data-bag-copy]'); showToast('Bag 1 type and size applied to every bag.'); return; }
+      if (t.closest('[data-exp-add]')) { modalCtx.items.push(blankExpense()); renderExpenseModal('#expensePurpose' + (modalCtx.items.length - 1)); return; }
+      const rmExp = t.closest('[data-exp-remove]');
+      if (rmExp) { const i = Number(rmExp.dataset.expRemove); modalCtx.items.splice(i, 1); renderExpenseModal(modalCtx.items.length ? '#expensePurpose' + Math.max(0, i - 1) : '[data-exp-add]'); return; }
+    }
+    const p = t.closest('[data-product-tab]'); if (p) { switchProduct(p.dataset.productTab); return; }
+    const mr = t.closest('[data-month-report]'); if (mr) { if (isMonth(mr.dataset.monthReport)) month = mr.dataset.monthReport; go('reports'); return; }
+    const n = t.closest('[data-nav]'); if (n) { if (n.dataset.nav === activeView && activeView !== 'entry') { scrollTop(); return; } if (n.dataset.nav === 'entry' && activeView === 'entry') { scrollTop(); return; } go(n.dataset.nav); return; }
+    const a = t.closest('[data-action]'); if (a) { handleAction(a); }
+  });
+  document.addEventListener('keydown', e => {
+    if (askOpen()) {
+      if (e.key === 'Escape') { e.preventDefault(); askState.finish(false); return; }
+      if (e.key === 'Tab') { e.preventDefault(); const a = $('#askOk'), c = $('#askCancel'); (document.activeElement === a ? c : a).focus(); }
+      return;
+    }
+    if (!modalOpen()) return;
+    if (e.key === 'Escape') { e.preventDefault(); requestCloseModal(); return; }
+    if (e.key === 'Tab') {
+      const f = $$('#modalRoot button, #modalRoot input, #modalRoot select, #modalRoot textarea').filter(x => !x.disabled && x.offsetParent !== null);
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+  $('#quickThemeBtn').addEventListener('click', () => { state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark'; saveState(); if (activeView === 'entry') renderShell(); else render(); });
+  $('#quickTextBtn').addEventListener('click', () => { const cycle = { small: 'medium', medium: 'large', large: 'small' }; state.settings.textSize = cycle[state.settings.textSize]; saveState(); if (activeView === 'entry') renderShell(); else render(); showToast(`Text size: ${state.settings.textSize}.`); });
+  $('#viewContainer').addEventListener('change', e => {
+    if (e.target.classList.contains('month-input')) { if (e.target.value) setMonth(e.target.value); return; }
+    if (e.target.id === 'recordsMonth') { recordsFilter.month = isMonth(e.target.value) ? e.target.value : ''; $('#recordsList').innerHTML = recordsList(); }
+  });
+  $('#viewContainer').addEventListener('input', e => {
+    if (e.target.id === 'recordsSearch') { recordsFilter.q = e.target.value.slice(0, 80); $('#recordsList').innerHTML = recordsList(); }
+  });
+  $('#viewContainer').addEventListener('submit', e => {
+    if (e.target.id === 'typeForm') {
+      e.preventDefault();
+      const input = $('#newBrinjalType'); const value = str(input.value, 50);
+      if (!value) { input.setAttribute('aria-invalid', 'true'); input.focus(); showToast('Type a name for the brinjal type.', true); return; }
+      if (state.settings.brinjalTypes.some(t => t.toLowerCase() === value.toLowerCase())) { input.setAttribute('aria-invalid', 'true'); showToast('That brinjal type already exists.', true); return; }
+      state.settings.brinjalTypes.push(value);
+      if (saveState()) { render(); $('#newBrinjalType').focus(); showToast(`“${value}” added — it now appears in the bag type dropdown.`); }
+    }
+    if (e.target.id === 'updateUrlForm' && NATIVE) {
+      e.preventDefault();
+      const msg = NATIVE.setUpdateUrl($('#updateUrl').value.trim());
+      showToast(msg, /must|invalid/i.test(msg)); render();
+      return;
+    }
+    if (e.target.id === 'profileForm') {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      state.profile = normProfile({ farmName: fd.get('farmName'), ownerName: fd.get('ownerName'), phone: fd.get('phone'), location: fd.get('location') });
+      if (saveState()) { render(); showToast('Profile saved.'); }
+    }
+  });
+  $('#importFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; handleImportFile(f); });
+  window.addEventListener('afterprint', () => document.body.classList.remove('printing-report'));
+
+  /* 3D tilt for cards on devices with a precise pointer (skipped for touch and reduced motion). */
+  if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let tiltEl = null;
+    document.addEventListener('pointermove', e => {
+      if (prefersReducedMotion()) return;
+      const el = e.target.closest && e.target.closest('.tilt');
+      if (tiltEl && tiltEl !== el) { tiltEl.classList.remove('tilting'); tiltEl.style.removeProperty('--tilt-x'); tiltEl.style.removeProperty('--tilt-y'); tiltEl = null; }
+      if (!el) return;
+      const r = el.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width - .5; const py = (e.clientY - r.top) / r.height - .5;
+      el.style.setProperty('--tilt-x', (-py * 9).toFixed(2) + 'deg'); el.style.setProperty('--tilt-y', (px * 11).toFixed(2) + 'deg');
+      el.classList.add('tilting'); tiltEl = el;
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => { if (tiltEl) { tiltEl.classList.remove('tilting'); tiltEl.style.removeProperty('--tilt-x'); tiltEl.style.removeProperty('--tilt-y'); tiltEl = null; } });
+  }
+
+  /* ------------------------------------------------------------------
+   * Boot
+   * ------------------------------------------------------------------ */
+  const initial = readHash();
+  if (initial) { activeProduct = initial.product; activeView = initial.view; }
+  if (!lsGet(STORAGE_KEY) && storageOK) saveState();
+  render();
+  try { history.replaceState(null, '', hashFor()); } catch (_) { /* sandboxed frame */ }
+  if (HOSTED() && !NATIVE) document.body.classList.add('hosted');
+  if (startupNotice) showToast(startupNotice);
+  // Exposed for automated tests and debugging (read-only helpers; no network access anywhere).
+  window.FieldLedger = Object.freeze({ calc, buildStatement, normalizeState, getState: () => clone(state), version: '2.0.0' });
+})();
+</script>

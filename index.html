@@ -109,7 +109,9 @@
   .field-hint { color:var(--muted); font-size:calc(11px * var(--fs)); margin-top:-2px; }
   .form-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:18px; padding-top:17px; border-top:1px solid var(--line); }
   .calc-strip { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); align-items:stretch; gap:10px; margin-top:18px; }
-  .calc-strip.three-col { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .calc-strip.three-col { grid-template-columns:repeat(3,minmax(0,1fr)); } .calc-strip.four-col { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .calc-strip.six { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .calc-item.wastage strong { color:var(--muted); }
   .calc-item { min-width:0; padding:14px; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:0 5px 16px rgba(35,24,76,.045); }
   .calc-item span { display:block; color:var(--muted); font-size:calc(11px * var(--fs)); font-weight:750; }
   .calc-item strong { font-size:clamp(16px,1.7vw,21px); display:block; margin-top:6px; color:var(--primary); overflow-wrap:anywhere; }
@@ -181,6 +183,77 @@
   .record-card dt { color:var(--muted); font-size:calc(10px * var(--fs)); font-weight:750; text-transform:uppercase; letter-spacing:.5px; }
   .record-card dd { margin:0; font-weight:750; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
   .detail-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-bottom:14px; }
+
+  /* ===================== 3D depth layer (v2.1) ===================== */
+  :root { --hl: rgba(255,255,255,.85); --ink-shadow: 30, 20, 70; --tilt-x: 0deg; --tilt-y: 0deg; }
+  body[data-theme="dark"] { --hl: rgba(255,255,255,.10); --ink-shadow: 0, 0, 0; }
+  body { background:
+      radial-gradient(1100px 620px at 8% -12%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 62%),
+      radial-gradient(900px 520px at 108% 4%, color-mix(in srgb, var(--primary-2) 18%, transparent), transparent 60%),
+      radial-gradient(700px 500px at 50% 115%, color-mix(in srgb, var(--primary) 9%, transparent), transparent 70%),
+      var(--bg);
+    background-attachment: fixed; }
+  .card { border-color: color-mix(in srgb, var(--line) 75%, transparent);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 96%, var(--primary-soft)) 0%, var(--surface) 38%);
+    box-shadow: inset 0 1px 0 var(--hl), 0 1px 2px rgba(var(--ink-shadow), .05), 0 6px 14px rgba(var(--ink-shadow), .06), 0 22px 44px -12px rgba(var(--ink-shadow), .16); }
+  .tilt { transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateY(var(--lift, 0)); transform-style: preserve-3d; transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s; will-change: transform; }
+  .tilt.tilting { transition: transform .08s linear, box-shadow .35s; --lift: -3px; box-shadow: inset 0 1px 0 var(--hl), 0 2px 4px rgba(var(--ink-shadow), .06), 0 18px 30px rgba(var(--ink-shadow), .12), 0 34px 60px -18px color-mix(in srgb, var(--primary) 38%, transparent); }
+  .tilt .kpi-value, .tilt .quick-icon, .tilt .kpi-icon { transform: translateZ(26px); }
+  .kpi::after { background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--primary-2) 45%, var(--primary-soft)), var(--primary-soft) 70%); opacity: .75; }
+  .kpi-icon, .quick-icon, .entry-card-number, .avatar {
+    background: radial-gradient(circle at 30% 22%, var(--hl) 0, color-mix(in srgb, var(--primary-soft) 80%, white) 32%, color-mix(in srgb, var(--primary) 30%, var(--primary-soft)) 100%);
+    box-shadow: inset 0 -3px 6px color-mix(in srgb, var(--primary) 22%, transparent), inset 0 2px 2px var(--hl), 0 6px 12px -2px color-mix(in srgb, var(--primary) 30%, transparent); }
+  .avatar { color:#fff; background: radial-gradient(circle at 30% 22%, rgba(255,255,255,.55), var(--primary-2) 35%, var(--primary) 100%); }
+  .brand-mark { box-shadow: inset 0 2px 2px rgba(255,255,255,.6), inset 0 -4px 8px rgba(0,0,0,.18), 0 3px 0 color-mix(in srgb, var(--primary) 70%, black), 0 12px 22px color-mix(in srgb, var(--primary) 35%, transparent); }
+  /* Raised, pressable buttons */
+  .btn { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 90%, rgba(var(--ink-shadow), .25)), 0 6px 14px -6px rgba(var(--ink-shadow), .18); transition: transform .12s, box-shadow .12s, background .15s; }
+  .btn:active, .quick-card:active, .choice:active, .product-tab:active, .detail-edit:active { transform: translateY(2px) !important; }
+  .btn:active { box-shadow: inset 0 1px 0 var(--hl), 0 1px 0 color-mix(in srgb, var(--line) 90%, rgba(var(--ink-shadow), .25)); }
+  .btn.primary { box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(0,0,0,.12), 0 4px 0 color-mix(in srgb, var(--primary) 62%, black), 0 12px 22px -6px color-mix(in srgb, var(--primary) 55%, transparent); }
+  .btn.primary:active { box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 1px 0 color-mix(in srgb, var(--primary) 62%, black), 0 4px 10px -4px color-mix(in srgb, var(--primary) 45%, transparent); }
+  .btn.danger-solid { color:#fff; border-color:transparent; background: linear-gradient(135deg, #e25b5b, #c13a3a); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 0 #8f2626, 0 12px 22px -6px rgba(193,58,58,.5); }
+  .btn.danger-solid:active { box-shadow: 0 1px 0 #8f2626; }
+  .icon-btn, .profile-chip { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 90%, rgba(var(--ink-shadow), .25)), 0 8px 16px -8px rgba(var(--ink-shadow), .25); }
+  .icon-btn:active, .profile-chip:active { transform: translateY(2px); box-shadow: inset 0 1px 0 var(--hl), 0 1px 0 var(--line); }
+  .quick-card { background: linear-gradient(160deg, var(--surface) 0%, var(--surface-2) 100%); box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 85%, transparent), 0 10px 20px -12px rgba(var(--ink-shadow), .3); }
+  /* Segmented product switch with a raised active pill */
+  .product-switch { background: color-mix(in srgb, var(--surface-2) 70%, var(--surface)); box-shadow: inset 0 2px 5px rgba(var(--ink-shadow), .08), inset 0 -1px 0 var(--hl), 0 10px 26px -14px rgba(var(--ink-shadow), .35); }
+  .product-tab.active { background: linear-gradient(180deg, var(--surface), color-mix(in srgb, var(--primary-soft) 70%, var(--surface))); box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--primary) 30%, var(--line)), 0 10px 18px -8px color-mix(in srgb, var(--primary) 45%, transparent); }
+  .product-tab .mini-icon { box-shadow: inset 0 1px 1px var(--hl), 0 3px 6px -2px rgba(var(--ink-shadow), .25); background: radial-gradient(circle at 30% 25%, var(--hl), var(--surface-2) 60%); }
+  /* Inputs sit "into" the surface */
+  input, select, textarea { box-shadow: inset 0 2px 4px rgba(var(--ink-shadow), .06); }
+  /* 3D bars: lit front + shaded side + top cap */
+  .bar { position: relative; border-radius: 6px 6px 3px 3px; background: linear-gradient(90deg, var(--primary-2) 0%, color-mix(in srgb, var(--primary-2) 55%, var(--primary)) 62%, color-mix(in srgb, var(--primary) 78%, black) 100%); box-shadow: 0 8px 14px -6px color-mix(in srgb, var(--primary) 55%, transparent); }
+  .bar::before { content: ""; position: absolute; left: 0; right: 0; top: -5px; height: 10px; border-radius: 50%; background: radial-gradient(ellipse at 40% 40%, color-mix(in srgb, var(--primary-2) 50%, white), var(--primary-2)); }
+  /* Summary tiles and calc items */
+  .calc-item, .report-tile { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 80%, transparent), 0 12px 22px -14px rgba(var(--ink-shadow), .35); }
+  .calc-item.net { background: linear-gradient(160deg, var(--surface), var(--primary-soft)); }
+  .detail-edit { box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--line) 85%, transparent); }
+  .labour-card, .bag-entry-card, .expense-entry-card, .record-card { box-shadow: inset 0 1px 0 var(--hl), 0 8px 18px -14px rgba(var(--ink-shadow), .35); }
+  /* 3D product emblem beside the page title */
+  .title-wrap { display:flex; align-items:center; gap:14px; }
+  .emblem { width:54px; height:54px; flex:none; perspective:400px; }
+  .emblem-coin { width:100%; height:100%; border-radius:18px; display:grid; place-items:center; font-size:28px; transform-style:preserve-3d; transform: rotateY(-14deg) rotateX(8deg);
+    background: radial-gradient(circle at 30% 22%, rgba(255,255,255,.9), var(--primary-soft) 38%, color-mix(in srgb, var(--primary) 40%, var(--primary-soft)) 100%);
+    box-shadow: inset 0 2px 2px rgba(255,255,255,.8), inset 0 -5px 10px color-mix(in srgb, var(--primary) 30%, transparent), 4px 6px 0 color-mix(in srgb, var(--primary) 45%, var(--line)), 0 16px 24px -8px color-mix(in srgb, var(--primary) 50%, transparent);
+    animation: emblemIn .9s cubic-bezier(.2,.8,.2,1) both; }
+  .emblem-coin .melon-svg { width:34px; height:34px; }
+  @keyframes emblemIn { from { transform: rotateY(-200deg) rotateX(8deg) scale(.7); opacity:0 } to { transform: rotateY(-14deg) rotateX(8deg) scale(1); opacity:1 } }
+  /* Floating bottom nav active pill (mobile) and sheet handle */
+  .nav-btn.active .ico { filter: drop-shadow(0 3px 4px color-mix(in srgb, var(--primary) 45%, transparent)); }
+  /* In-app confirm dialog */
+  .ask-layer { position:fixed; inset:0; z-index:400; display:grid; place-items:center; padding:20px; background:rgba(17,14,28,.5); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); animation:fadeIn .15s ease both; }
+  .ask-panel { width:min(440px,100%); background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:24px; padding:22px; text-align:center; box-shadow: inset 0 1px 0 var(--hl), 0 30px 80px rgba(0,0,0,.35); animation:askIn .22s cubic-bezier(.2,.8,.2,1) both; }
+  .ask-panel h2 { font-size:calc(18px * var(--fs)); margin:12px 0 6px; }
+  .ask-panel p { color:var(--muted); white-space:pre-line; margin:0 0 18px; font-size:calc(13px * var(--fs)); }
+  .ask-emblem { width:56px; height:56px; margin:0 auto; border-radius:18px; display:grid; place-items:center; font-size:26px; color:var(--primary); background: radial-gradient(circle at 30% 22%, var(--hl), var(--primary-soft) 45%, color-mix(in srgb, var(--primary) 30%, var(--primary-soft))); box-shadow: inset 0 -3px 6px color-mix(in srgb, var(--primary) 25%, transparent), 0 10px 18px -6px color-mix(in srgb, var(--primary) 45%, transparent); }
+  .ask-panel.danger .ask-emblem { color:#c13a3a; background: radial-gradient(circle at 30% 22%, var(--hl), #ffe3e3 45%, #f6b4b4); box-shadow: inset 0 -3px 6px rgba(193,58,58,.25), 0 10px 18px -6px rgba(193,58,58,.4); }
+  .ask-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  @keyframes askIn { from { opacity:0; transform: perspective(700px) rotateX(-14deg) translateY(16px) scale(.96) } to { opacity:1; transform:none } }
+  body.ask-open { overflow:hidden; }
+  details summary { cursor:pointer; }
+  body.hosted [data-action="export-pdf"] { display:none !important; }
+  body[data-theme="dark"] { color-scheme: dark; } body[data-theme="light"] { color-scheme: light; }
   .hidden { display:none !important; }
   @media(max-width:960px) { .grid.kpis, .grid.kpis.six { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calc-strip { grid-template-columns:repeat(3,minmax(0,1fr)); } .report-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   @media(max-width:640px) {
@@ -193,8 +266,8 @@
     .nav-btn.active { background:var(--primary-soft); color:var(--primary); }
     .nav-btn:active { transform:scale(.96); }
     .toast { bottom:calc(96px + env(safe-area-inset-bottom)); }
-    .calc-strip,.calc-strip.three-col { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    .calc-strip .calc-item.net { grid-column:1/-1; }
+    .calc-strip,.calc-strip.three-col,.calc-strip.four-col,.calc-strip.six { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .calc-strip.three-col .calc-item:first-child { grid-column:1/-1; }
     .calc-item { padding:12px; }
     .calc-item strong { font-size:calc(18px * var(--fs)); }
     .modal-layer { align-items:flex-end; padding:0; }
@@ -212,6 +285,11 @@
     .records-table { display:none; } .record-cards { display:block; }
     .month-nav { width:100%; } .month-nav input { flex:1; max-width:none; }
     .report-tile strong { font-size:calc(16px * var(--fs)); }
+    .nav-btn.active { background: linear-gradient(180deg, var(--surface), var(--primary-soft)); box-shadow: inset 0 1px 0 var(--hl), 0 3px 0 color-mix(in srgb, var(--primary) 28%, var(--line)), 0 8px 16px -8px color-mix(in srgb, var(--primary) 50%, transparent); transform: translateY(-3px); }
+    .modal-head { position:relative; padding-top:22px; }
+    .modal-head::before { content:""; position:absolute; top:8px; left:50%; width:42px; height:5px; margin-left:-21px; border-radius:5px; background:var(--line); }
+    .emblem { width:44px; height:44px; } .emblem-coin { font-size:22px; border-radius:15px; } .emblem-coin .melon-svg { width:28px; height:28px; }
+    .ask-layer { align-items:end; padding:12px 12px calc(12px + env(safe-area-inset-bottom)); }
   }
   @media(max-width:380px) { .grid.kpis, .grid.kpis.six { gap:10px; } .kpi-value { font-size:calc(18px * var(--fs)); } .quick-grid.cols-2, .quick-grid { grid-template-columns:1fr; } }
   @media print {
@@ -255,18 +333,19 @@
   <div id="bannerArea"></div>
 
   <div class="context-row">
-    <div><div class="eyebrow" id="pageEyebrow">Overview</div><h1 id="pageTitle">Brinjal business</h1></div>
+    <div class="title-wrap"><div class="emblem" aria-hidden="true"><div class="emblem-coin" id="emblemCoin">🍆</div></div><div><div class="eyebrow" id="pageEyebrow">Overview</div><h1 id="pageTitle">Brinjal business</h1></div></div>
     <div class="context-actions" id="contextActions"></div>
   </div>
 
   <nav class="nav" aria-label="Main navigation" id="mainNav"></nav>
 
   <main id="viewContainer" class="view" tabindex="-1"></main>
-  <footer class="footer"><span>FieldLedger · Data is saved only in this browser on this device — export a backup regularly.</span><span>Build 2.0 · Phone, tablet and desktop</span></footer>
+  <footer class="footer"><span>FieldLedger · Data is saved only in this browser on this device — export a backup regularly.</span><span id="buildLabel">Web app</span></footer>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-hidden="true" tabindex="-1" />
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div id="modalRoot"></div>
+<div id="dialogRoot"></div>
 <script>
 (() => {
   'use strict';
@@ -287,6 +366,15 @@
   const NEW_BAG_KG = 32;
   const MAX_BAGS = 60;
   const MAX_WORKERS = 50;
+  const APP_VERSION = '2.1.0';
+  // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
+  const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
+  // Running as a published claude.ai page: downloads go through the host's "downloads" capability
+  // (the frame blocks plain <a download>), and the print dialog is unavailable there.
+  const HOSTED = () => !!(window.claude && typeof window.claude.use === 'function');
+  let hostDownloads;
+  const getHostDownloads = async () => { if (hostDownloads === undefined) { try { hostDownloads = HOSTED() ? await window.claude.use('downloads') : null; } catch (_) { hostDownloads = null; } } return hostDownloads; };
+  const nativeInfo = () => { try { return NATIVE ? JSON.parse(NATIVE.getAppInfo()) : null; } catch (_) { return null; } };
 
   /* ------------------------------------------------------------------
    * Small helpers
@@ -372,8 +460,10 @@
    * Data model, seed and normalisation
    * ------------------------------------------------------------------
    * Brinjal record: { id, date, ratePerKg, bagDetails[{id, weightKg, brinjalType, size}],
-   *   menCount, womenCount, menWage, womenWage, legacyLabour|null, expenseItems[], createdAt, updatedAt }
-   * Muskmelon record: { id, date, kg, ratePerKg, expenseItems[], createdAt, updatedAt }
+   *   menCount, womenCount, menWage, womenWage, wastageKg, legacyLabour|null, expenseItems[], createdAt, updatedAt }
+   * Muskmelon record: { id, date, kg, ratePerKg, wastageKg, expenseItems[], createdAt, updatedAt }
+ * wastageKg (both businesses) is produce that was not sold. It has no price and never changes
+ * gross/net; it is recorded and reported in kg only.
    * Expense item: { id, date, purpose, amount, notes }
    *
    * legacyLabour = { workers, salary } holds an aggregate labour figure whose men/women split is
@@ -390,7 +480,7 @@
       id: `sample-b${i + 1}`, date, ratePerKg: rate,
       // Source sheet weights are all 32 kg per bag (e.g. 320 kg / 10 bags). Type/size are demo values.
       bagDetails: Array.from({ length: bags }, (_, j) => ({ id: `sample-b${i + 1}-bag${j + 1}`, weightKg: 32, brinjalType: 'Local', size: 'M' })),
-      menCount: 0, womenCount: 0, menWage: 500, womenWage: 400,
+      menCount: 0, womenCount: 0, menWage: 500, womenWage: 400, wastageKg: 0,
       legacyLabour: { workers, salary },
       expenseItems: [{ id: `sample-b${i + 1}-exp1`, date, purpose: 'Daily operating expenses (source sheet total)', amount: exp, notes: '' }],
       sample: true, createdAt: stamp, updatedAt: stamp
@@ -399,7 +489,7 @@
       ['2026-10-02', 3500, 15, 3000], ['2026-10-04', 2000, 12, 0], ['2026-10-10', 1500, 10, 5000],
       ['2026-10-12', 1200, 10, 2000], ['2026-10-18', 1500, 10, 0], ['2026-10-20', 1200, 10, 8000]
     ].map(([date, kg, rate, exp], i) => ({
-      id: `sample-m${i + 1}`, date, kg, ratePerKg: rate,
+      id: `sample-m${i + 1}`, date, kg, ratePerKg: rate, wastageKg: 0,
       expenseItems: exp ? [{ id: `sample-m${i + 1}-exp1`, date, purpose: 'Operating expenses (source sheet total)', amount: exp, notes: '' }] : [],
       sample: true, createdAt: stamp, updatedAt: stamp
     }));
@@ -441,13 +531,15 @@
     if (!isISODate(r.date)) return { error: `date "${str(r.date, 20)}" is not a valid YYYY-MM-DD date` };
     const rate = parseNonNeg(r.ratePerKg ?? r.rate ?? 0);
     if (rate === null) return { error: 'rate per kg must be a non-negative number' };
+    const wastage = parseNonNeg(r.wastageKg ?? 0);
+    if (wastage === null) return { error: 'wastage (kg) must be a non-negative number' };
     const items = [];
     if (Array.isArray(r.expenseItems)) {
       for (const x of r.expenseItems) { const res = normExpense(x, r.date); if (res.error) return res; items.push(res.value); }
     } else if (num(r.expenses) > 0) {
       items.push({ id: uid('exp'), date: r.date, purpose: 'Daily farm expenses', amount: num(r.expenses), notes: '' });
     }
-    const base = { id: str(r.id, 60) || uid(product === 'brinjal' ? 'b' : 'm'), date: r.date, ratePerKg: rate, expenseItems: items, createdAt: str(r.createdAt, 40) || nowISO(), updatedAt: str(r.updatedAt, 40) || nowISO() };
+    const base = { id: str(r.id, 60) || uid(product === 'brinjal' ? 'b' : 'm'), date: r.date, ratePerKg: rate, wastageKg: wastage, expenseItems: items, createdAt: str(r.createdAt, 40) || nowISO(), updatedAt: str(r.updatedAt, 40) || nowISO() };
     if (r.sample === true) base.sample = true;
     if (product === 'muskmelon') {
       const kg = parseNonNeg(r.kg ?? 0);
@@ -556,6 +648,7 @@
     labour: r => calc.menSubtotal(r) + calc.womenSubtotal(r) + calc.legacySalary(r),
     workers: r => int(r.menCount) + int(r.womenCount) + int(r.legacyLabour && r.legacyLabour.workers),
     kg: (p, r) => (p === 'brinjal' ? calc.bagKg(r.bagDetails) : num(r.kg)),
+    wastage: r => num(r.wastageKg),
     gross: (p, r) => calc.kg(p, r) * num(r.ratePerKg),
     /** Net for a single daily record using the expense items attached to that record. */
     recordNet: (p, r) => calc.gross(p, r) - calc.expenseTotal(r.expenseItems) - (p === 'brinjal' ? calc.labour(r) : 0)
@@ -584,22 +677,22 @@
       const recs = monthRecords.filter(r => r.date === date);
       const exp = expByDate.get(date) || 0;
       if (!recs.length) {
-        rows.push({ date, kind: 'expense-only', recordId: null, bags: null, kg: null, rate: null, gross: 0, expenses: exp, men: null, women: null, legacyWorkers: null, workers: 0, labour: 0, net: -exp });
+        rows.push({ date, kind: 'expense-only', recordId: null, bags: null, kg: null, wastage: null, rate: null, gross: 0, expenses: exp, men: null, women: null, legacyWorkers: null, workers: 0, labour: 0, net: -exp });
         return;
       }
       recs.forEach((r, i) => {
         const e = i === 0 ? exp : 0; const gross = calc.gross(product, r);
         const labour = product === 'brinjal' ? calc.labour(r) : 0;
         rows.push({
-          date, kind: 'record', recordId: r.id, bags: product === 'brinjal' ? r.bagDetails.length : null, kg: calc.kg(product, r), rate: num(r.ratePerKg), gross, expenses: e,
+          date, kind: 'record', recordId: r.id, bags: product === 'brinjal' ? r.bagDetails.length : null, kg: calc.kg(product, r), wastage: calc.wastage(r), rate: num(r.ratePerKg), gross, expenses: e,
           men: product === 'brinjal' ? int(r.menCount) : null, women: product === 'brinjal' ? int(r.womenCount) : null,
           legacyWorkers: product === 'brinjal' && r.legacyLabour ? int(r.legacyLabour.workers) : null,
           workers: product === 'brinjal' ? calc.workers(r) : 0, labour, net: gross - e - labour
         });
       });
     });
-    const t = { records: monthRecords.length, bags: 0, kg: 0, gross: 0, expenses: 0, men: 0, women: 0, legacyWorkers: 0, workers: 0, labour: 0, net: 0 };
-    rows.forEach(r => { t.bags += r.bags || 0; t.kg += r.kg || 0; t.gross += r.gross; t.expenses += r.expenses; t.men += r.men || 0; t.women += r.women || 0; t.legacyWorkers += r.legacyWorkers || 0; t.workers += r.workers || 0; t.labour += r.labour; });
+    const t = { records: monthRecords.length, bags: 0, kg: 0, wastage: 0, gross: 0, expenses: 0, men: 0, women: 0, legacyWorkers: 0, workers: 0, labour: 0, net: 0 };
+    rows.forEach(r => { t.bags += r.bags || 0; t.kg += r.kg || 0; t.wastage += r.wastage || 0; t.gross += r.gross; t.expenses += r.expenses; t.men += r.men || 0; t.women += r.women || 0; t.legacyWorkers += r.legacyWorkers || 0; t.workers += r.workers || 0; t.labour += r.labour; });
     t.net = t.gross - t.expenses - t.labour;
     t.avgRate = t.kg ? t.gross / t.kg : 0;
     return { product, month, rows, totals: t, expenseItems, crossDated, hasLegacy: rows.some(r => r.legacyWorkers), hasExpenseOnly: rows.some(r => r.kind === 'expense-only') };
@@ -610,6 +703,7 @@
         { key: 'date', label: 'Date', type: 'date' },
         { key: 'bags', label: 'Bags', type: 'int', total: true },
         { key: 'kg', label: 'Total weight (kg)', type: 'num', total: true },
+        { key: 'wastage', label: 'Wastage (kg)', type: 'num', total: true },
         { key: 'rate', label: 'Rate/kg (₹)', type: 'money' },
         { key: 'gross', label: 'Gross sales (₹)', type: 'money', total: true },
         { key: 'expenses', label: 'Operating expenses (₹)', type: 'money', total: true },
@@ -623,6 +717,7 @@
     return [
       { key: 'date', label: 'Date', type: 'date' },
       { key: 'kg', label: 'Quantity (kg)', type: 'num', total: true },
+      { key: 'wastage', label: 'Wastage (kg)', type: 'num', total: true },
       { key: 'rate', label: 'Rate/kg (₹)', type: 'money' },
       { key: 'gross', label: 'Gross income (₹)', type: 'money', total: true },
       { key: 'expenses', label: 'Operating expenses (₹)', type: 'money', total: true },
@@ -663,13 +758,17 @@
     const b = document.body;
     b.dataset.theme = state.settings.theme; b.dataset.product = activeProduct;
     b.classList.remove('text-small', 'text-medium', 'text-large'); b.classList.add('text-' + state.settings.textSize);
-    $('meta[name="theme-color"]').setAttribute('content', state.settings.theme === 'dark' ? '#111018' : CFG[activeProduct].themeColor);
+    const themeColor = state.settings.theme === 'dark' ? '#111018' : CFG[activeProduct].themeColor;
+    const metaTheme = $('meta[name="theme-color"]'); if (metaTheme) metaTheme.setAttribute('content', themeColor);
+    if (NATIVE && typeof NATIVE.setThemeColor === 'function') { try { NATIVE.setThemeColor(themeColor, state.settings.theme === 'dark'); } catch (_) { /* older shell */ } }
+    const ni = nativeInfo(); $('#buildLabel').textContent = ni ? `Android app v${ni.versionName}` : `Web app v${APP_VERSION}`;
     const dark = state.settings.theme === 'dark';
     const tb = $('#quickThemeBtn'); tb.innerHTML = icon(dark ? 'sun' : 'moon'); tb.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
     $('#quickTextBtn').setAttribute('aria-label', `Change text size (currently ${state.settings.textSize})`);
     const p = state.profile; const initial = (p.farmName || p.ownerName || 'F').trim().charAt(0).toUpperCase() || 'F';
     $('#avatarInitial').textContent = initial; $('#profileChipName').textContent = p.farmName || 'My Farm';
     $('#melonTabIcon').innerHTML = melonSvg;
+    const coin = $('#emblemCoin'); if (coin.dataset.p !== activeProduct) { coin.dataset.p = activeProduct; coin.innerHTML = activeProduct === 'brinjal' ? '🍆' : melonSvg; coin.style.animation = 'none'; void coin.offsetWidth; coin.style.animation = ''; }
     $$('.product-tab').forEach(t => { const on = t.dataset.productTab === activeProduct; t.classList.toggle('active', on); t.setAttribute('aria-selected', String(on)); });
     const navActive = ['settings', 'profile'].includes(activeView) ? 'tools' : activeView;
     $('#mainNav').innerHTML = NAV.map(([v, ic, label]) => `<button class="nav-btn ${navActive === v ? 'active' : ''}" type="button" data-nav="${v}" ${navActive === v ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`).join('');
@@ -703,12 +802,12 @@
    * Shared view parts
    * ------------------------------------------------------------------ */
   function kpi(label, value, ic, note = '', cls = '') {
-    return `<div class="card kpi ${cls}"><div class="kpi-top"><span>${label}</span><span class="kpi-icon">${ic.startsWith('<') ? ic : icon(ic)}</span></div><div class="kpi-value mono">${value}</div><div class="kpi-note">${note}</div></div>`;
+    return `<div class="card kpi tilt ${cls}"><div class="kpi-top"><span>${label}</span><span class="kpi-icon">${ic.startsWith('<') ? ic : icon(ic)}</span></div><div class="kpi-value mono">${value}</div><div class="kpi-note">${note}</div></div>`;
   }
   function monthNav(id, label = 'Month') {
     return `<div class="month-nav" role="group" aria-label="${esc(label)}"><button class="icon-btn" type="button" data-action="month-prev" aria-label="Previous month">${icon('chevL')}</button><label class="sr-only" for="${id}">${esc(label)}</label><input id="${id}" class="month-input" type="month" value="${esc(month)}"><button class="icon-btn" type="button" data-action="month-next" aria-label="Next month">${icon('chevR')}</button></div>`;
   }
-  const quick = (attr, ic, title, sub) => `<button class="quick-card" type="button" ${attr}><span class="quick-icon">${ic.startsWith('<') ? ic : icon(ic)}</span><span><strong>${title}</strong><span>${sub}</span></span></button>`;
+  const quick = (attr, ic, title, sub) => `<button class="quick-card tilt" type="button" ${attr}><span class="quick-icon">${ic.startsWith('<') ? ic : icon(ic)}</span><span><strong>${title}</strong><span>${sub}</span></span></button>`;
   function quickActions() {
     return `<div class="quick-grid cols-2">
       ${quick('data-nav="entry"', 'plus', 'New daily entry', "Add today's numbers")}
@@ -742,7 +841,7 @@
     return `<div class="card-head" style="margin-bottom:12px"><div class="muted small">Monthly totals for <strong>${esc(ml)}</strong> · ${t.records} daily record${t.records === 1 ? '' : 's'}</div>${monthNav('dashMonth', 'Overview month')}</div>
       <div class="grid kpis six">
         ${kpi('Total bags', fmt(t.bags), 'bag', 'Bags recorded this month')}
-        ${kpi('Total weight', fmt(t.kg) + ' kg', 'scale', 'Sum of every bag weight')}
+        ${kpi('Total weight', fmt(t.kg) + ' kg', 'scale', `Sold weight · wastage ${fmt(t.wastage)} kg (not priced)`)}
         ${kpi('Gross sales', money(t.gross), 'trend', 'Total weight × daily rate/kg', 'sale')}
         ${kpi('Operating expenses', money(t.expenses), 'receipt', 'Expense items dated this month', 'expense')}
         ${kpi('Labour salary', money(t.labour), 'users', `${fmt(t.workers)} worker-days · men + women wages`, 'labour')}
@@ -770,7 +869,7 @@
     const trend = months.slice(0, 6).reverse().map(m => ({ label: monthLabel(m).replace(/ (\d{4})$/, " '$1").replace(/'(\d\d)(\d\d)/, "'$2"), value: buildStatement('muskmelon', m).totals.gross }));
     return `<section class="card"><div class="month-hero"><div><div class="eyebrow">Monthly focus</div><h2 style="font-size:22px;margin-top:4px">${esc(monthLabel(month))}</h2><div class="big ${netCls(t.net)} mono">${money(t.net)}</div><div class="muted small">Net after expenses · ${t.records} daily record${t.records === 1 ? '' : 's'}${t.kg ? ` · average rate ${money(t.avgRate)}/kg` : ''}</div></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:min(100%,300px)">${monthNav('dashMonth', 'Focus month')}<button class="btn primary" type="button" data-month-report="${esc(month)}">${icon('report')} Open ${esc(monthLabel(month))} statement</button></div></div></section>
       <div class="grid kpis section-gap">
-        ${kpi('Quantity this month', fmt(t.kg) + ' kg', 'scale', esc(monthLabel(month)))}
+        ${kpi('Quantity this month', fmt(t.kg) + ' kg', 'scale', `Wastage ${fmt(t.wastage)} kg (not priced)`)}
         ${kpi('Gross income', money(t.gross), melonSvg, 'Quantity × daily rate/kg', 'sale')}
         ${kpi('Operating expenses', money(t.expenses), 'receipt', 'Expense items dated this month', 'expense')}
         ${kpi('Net after expenses', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross income − expenses')}
@@ -791,7 +890,7 @@
    * ------------------------------------------------------------------ */
   function makeDraft(product, rec) {
     const latest = sortedDesc(product)[0];
-    const base = { product, id: rec ? rec.id : null, date: rec ? rec.date : todayISO(), ratePerKg: rec ? String(rec.ratePerKg) : (latest ? String(latest.ratePerKg) : ''), expenseItems: clone(rec ? rec.expenseItems : []), createdAt: rec ? rec.createdAt : null, sample: rec ? !!rec.sample : false };
+    const base = { product, id: rec ? rec.id : null, date: rec ? rec.date : todayISO(), ratePerKg: rec ? String(rec.ratePerKg) : (latest ? String(latest.ratePerKg) : ''), wastageKg: rec && rec.wastageKg ? String(rec.wastageKg) : '', expenseItems: clone(rec ? rec.expenseItems : []), createdAt: rec ? rec.createdAt : null, sample: rec ? !!rec.sample : false };
     if (product === 'muskmelon') return { ...base, kg: rec ? String(rec.kg) : '' };
     return {
       ...base, bagDetails: clone(rec ? rec.bagDetails : []),
@@ -814,10 +913,11 @@
     ensureDraft();
     const d = draft; const isB = d.product === 'brinjal'; const editing = !!d.id;
     const head = `<div class="card-head"><div><h2>${editing ? 'Edit' : 'Add'} ${isB ? 'brinjal' : 'muskmelon'} daily entry</h2><div class="muted small">${isB ? 'Record each bag separately — total weight is the sum of the bags.' : 'Enter the day’s quantity and market rate.'}</div></div>${editing ? `<span class="tag">${icon('edit')} Editing ${esc(dateLabel(d.date))}</span>` : `<span class="kpi-icon">${productIcon(d.product)}</span>`}</div>`;
-    const dateRate = `<div class="form-grid${isB ? '' : ' three'}">
+    const dateRate = `<div class="form-grid${isB ? ' three' : ''}">
         <div class="field"><label for="entryDate">Date</label><input id="entryDate" type="date" data-field="date" required value="${esc(d.date)}"></div>
         ${isB ? '' : `<div class="field"><label for="entryKg">Quantity (kg)</label><input id="entryKg" type="number" inputmode="decimal" min="0" step="0.01" data-field="kg" required placeholder="e.g. 1500" value="${esc(d.kg)}"></div>`}
         <div class="field"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's market rate" value="${esc(d.ratePerKg)}"><div class="field-hint">Market rate can change every day.</div></div>
+        <div class="field"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Unsold / spoiled produce. No price — not added to sales.</div></div>
       </div>`;
     const expenses = `<div class="form-section"><div class="section-title"><h3>${icon('receipt')} Operating expenses</h3><span class="muted small">Date · purpose · amount · notes</span></div>
         <button class="detail-edit" type="button" data-action="open-expenses"><span><strong>${d.expenseItems.length ? 'View / edit expense details' : 'Add expense details'}</strong><span class="muted small" style="display:block;margin-top:3px">Each expense keeps its own date</span></span>${icon(d.expenseItems.length ? 'edit' : 'plus')}</button>
@@ -841,8 +941,9 @@
             <div class="labour-card"><div class="labour-title"><span>Women</span><span class="subtotal" id="womenSubtotal"></span></div><div class="field"><label for="womenCount">Number of women</label><select id="womenCount" data-field="womenCount" data-int="1">${opts(int(d.womenCount), MAX_WORKERS)}</select></div><div class="field"><label for="womenWage">Wage per woman (₹/day)</label><input id="womenWage" type="number" inputmode="decimal" min="0" step="1" data-field="womenWage" value="${esc(d.womenWage)}"></div></div>
           </div>${legacy}</div>
         ${expenses}
-        <div class="calc-strip" aria-live="polite">
+        <div class="calc-strip six" aria-live="polite">
           <div class="calc-item"><span>Total weight</span><strong id="calcKg">0 kg</strong><small id="calcBags">0 bags</small></div>
+          <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
           <div class="calc-item sale"><span>Gross sales</span><strong id="calcGross">₹0</strong><small>Weight × rate/kg</small></div>
           <div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong><small>Sum of expense items</small></div>
           <div class="calc-item labour"><span>Labour salary</span><strong id="calcLabour">₹0</strong><small>Men + women</small></div>
@@ -850,7 +951,8 @@
         </div>`;
     } else {
       body = `${dateRate}${expenses}
-        <div class="calc-strip three-col" aria-live="polite">
+        <div class="calc-strip four-col" aria-live="polite">
+          <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
           <div class="calc-item sale"><span>Gross income</span><strong id="calcGross">₹0</strong><small>Quantity × rate/kg</small></div>
           <div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong><small>Sum of expense items</small></div>
           <div class="calc-item net"><span>Net after expenses</span><strong id="calcNet">₹0</strong><small>Gross − expenses</small></div>
@@ -879,6 +981,7 @@
     }
     const net = gross - exp - labour;
     $('#calcGross').textContent = money(gross); $('#calcExpenses').textContent = money(exp);
+    $('#calcWastage').textContent = fmt(num(d.wastageKg)) + ' kg';
     const n = $('#calcNet'); n.textContent = money(net); n.classList.toggle('negative', r2(net) < 0);
   }
   function wireEntry() {
@@ -901,21 +1004,22 @@
     if (el) { el.setAttribute('aria-invalid', 'true'); el.focus(); }
     showToast(msg, true);
   }
-  function saveEntry() {
+  async function saveEntry() {
     const d = draft; const isB = d.product === 'brinjal';
     if (!isISODate(d.date)) return markInvalid($('#entryDate'), 'Please choose a valid date.');
     if (isB && !d.bagDetails.length) { showToast('Choose the number of bags and enter each bag’s details.', true); $('#bagCount').setAttribute('aria-invalid', 'true'); $('#bagCount').focus(); return; }
     if (!isB && parseNonNeg(d.kg) === null) return markInvalid($('#entryKg'), 'Quantity must be a number of kg (0 or more).');
     if (parseNonNeg(d.ratePerKg) === null) return markInvalid($('#entryRate'), 'Rate per kg must be a number (0 or more).');
+    if (String(d.wastageKg ?? '').trim() !== '' && parseNonNeg(d.wastageKg) === null) return markInvalid($('#entryWastage'), 'Wastage must be a number of kg (0 or more), or left blank.');
     if (isB) {
       if (parseNonNeg(d.menWage) === null) return markInvalid($('#menWage'), "Men's wage must be a number (0 or more).");
       if (parseNonNeg(d.womenWage) === null) return markInvalid($('#womenWage'), "Women's wage must be a number (0 or more).");
     }
     const arr = dataset(d.product);
     const clash = arr.find(r => r.date === d.date && r.id !== d.id);
-    if (clash && !confirm(`A ${CFG[d.product].name} entry for ${dateLong(d.date)} already exists.\n\nReplace that entry with this one? (The other entry will be deleted.)`)) return;
+    if (clash && !(await ask(`A ${CFG[d.product].name} entry for ${dateLong(d.date)} already exists.\n\nReplace that entry with this one? (The other entry will be deleted.)`))) return;
     const now = nowISO();
-    let rec = { id: d.id || uid(d.product === 'brinjal' ? 'b' : 'm'), date: d.date, ratePerKg: num(d.ratePerKg), expenseItems: clone(d.expenseItems), createdAt: d.createdAt || now, updatedAt: now };
+    let rec = { id: d.id || uid(d.product === 'brinjal' ? 'b' : 'm'), date: d.date, ratePerKg: num(d.ratePerKg), wastageKg: num(d.wastageKg), expenseItems: clone(d.expenseItems), createdAt: d.createdAt || now, updatedAt: now };
     if (isB) rec = { ...rec, bagDetails: clone(d.bagDetails), menCount: int(d.menCount), womenCount: int(d.womenCount), menWage: num(d.menWage), womenWage: num(d.womenWage), legacyLabour: d.legacyLabour ? clone(d.legacyLabour) : null };
     else rec.kg = num(d.kg);
     const prev = clone(state.data[d.product]);
@@ -930,17 +1034,17 @@
   }
 
   /* --------------------------- Bag modal ---------------------------- */
-  function onBagCountChange(sel) {
+  async function onBagCountChange(sel) {
     const n = int(sel.value); const cur = draft.bagDetails.length;
     sel.removeAttribute('aria-invalid');
     if (!n) {
-      if (cur && confirm(`Remove all ${cur} bags (${fmt(calc.bagKg(draft.bagDetails))} kg) from this draft?`)) { draft.bagDetails = []; draftDirty = true; refreshEntry(); }
+      if (cur && (await ask(`Remove all ${cur} bags (${fmt(calc.bagKg(draft.bagDetails))} kg) from this draft?`))) { draft.bagDetails = []; draftDirty = true; refreshEntry(); }
       else sel.value = cur ? String(cur) : '';
       return;
     }
     if (n < cur) {
       const removed = draft.bagDetails.slice(n);
-      const ok = confirm(`Reduce from ${cur} to ${n} bags?\n\n${removed.length === 1 ? `Bag ${n + 1}` : `Bags ${n + 1}–${cur}`} (${fmt(calc.bagKg(removed))} kg) will be removed when you save the bag details. Bags 1–${n} keep their values.`);
+      const ok = (await ask(`Reduce from ${cur} to ${n} bags?\n\n${removed.length === 1 ? `Bag ${n + 1}` : `Bags ${n + 1}–${cur}`} (${fmt(calc.bagKg(removed))} kg) will be removed when you save the bag details. Bags 1–${n} keep their values.`));
       if (!ok) { sel.value = String(cur); return; }
     }
     openBagModal(n);
@@ -1050,6 +1154,40 @@
   }
   function refreshEntry() { const y = window.scrollY; render(); window.scrollTo(0, y); }
 
+  /* ---------------------- In-app confirm dialog ----------------------
+   * Replaces window.confirm(): native dialogs are blocked in sandboxed pages and look out of
+   * place in the Android app. Returns a Promise<boolean>. The first paragraph is the title.
+   */
+  let askState = null;
+  const askOpen = () => !!askState;
+  function ask(message, opts = {}) {
+    if (askState) askState.finish(false);
+    return new Promise(resolve => {
+      const [first, ...rest] = String(message).split('\n\n');
+      const verb = opts.ok || (/^Delete/.test(first) ? 'Delete' : /^Remove/.test(first) ? 'Remove' : /^Restore/.test(first) ? 'Restore' : /^(Discard|You have unsaved|Clear)/.test(first) ? 'Discard' : /already exists/.test(first) ? 'Replace' : /^Reduce/.test(first) ? 'Reduce' : 'OK');
+      const danger = opts.danger ?? ['Delete', 'Remove', 'Restore', 'Discard', 'Replace'].includes(verb);
+      const prevFocus = document.activeElement;
+      const root = $('#dialogRoot');
+      root.innerHTML = `<div class="ask-layer" data-ask-backdrop><section class="ask-panel ${danger ? 'danger' : ''}" role="alertdialog" aria-modal="true" aria-labelledby="askTitle" aria-describedby="askBody">
+        <div class="ask-emblem" aria-hidden="true">${icon(danger ? 'alert' : 'check')}</div>
+        <h2 id="askTitle">${esc(first)}</h2>${rest.length ? `<p id="askBody">${esc(rest.join('\n\n'))}</p>` : '<p id="askBody"></p>'}
+        <div class="ask-actions"><button type="button" class="btn" id="askCancel">${esc(opts.cancel || 'Cancel')}</button><button type="button" class="btn ${danger ? 'danger-solid' : 'primary'}" id="askOk">${esc(verb)}</button></div></section></div>`;
+      document.body.classList.add('ask-open');
+      const finish = val => {
+        if (!askState) return;
+        askState = null; root.innerHTML = ''; document.body.classList.remove('ask-open');
+        if (prevFocus && document.body.contains(prevFocus)) prevFocus.focus({ preventScroll: true });
+        resolve(val);
+      };
+      askState = { finish };
+      $('#askOk').addEventListener('click', () => finish(true));
+      $('#askCancel').addEventListener('click', () => finish(false));
+      $('[data-ask-backdrop]').addEventListener('click', e => { if (e.target === e.currentTarget) finish(false); });
+      (danger ? $('#askCancel') : $('#askOk')).focus({ preventScroll: true });
+      window.dispatchEvent(new CustomEvent('fl-ask', { detail: { message: String(message) } }));
+    });
+  }
+
   /* -------------------------- Modal core ---------------------------- */
   function openModal(panelHtml, focusSel) {
     const root = $('#modalRoot');
@@ -1066,9 +1204,9 @@
     document.body.classList.remove('modal-open'); modalCtx = null;
     if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); lastFocus = null;
   }
-  function requestCloseModal() {
+  async function requestCloseModal() {
     if (!modalCtx) { closeModal(); return; }
-    if (modalCtx.isDirty && modalCtx.isDirty() && !confirm('Discard the changes made in this window?\n\nValues already saved to the draft stay as they were.')) return;
+    if (modalCtx.isDirty && modalCtx.isDirty() && !(await ask('Discard the changes made in this window?\n\nValues already saved to the draft stay as they were.'))) return;
     if (modalCtx.onCancel) modalCtx.onCancel();
     closeModal();
   }
@@ -1095,15 +1233,15 @@
     if (!rows.length) return `<div class="empty"><div class="empty-icon">${icon('list')}</div><strong>No records match these filters.</strong><div class="small">Try another month or clear the search.</div><button class="btn" type="button" data-action="records-clear">Clear filters</button></div>`;
     const isB = activeProduct === 'brinjal';
     const actions = r => `<div class="btn-row"><button class="btn small-btn" type="button" data-action="view-record" data-id="${esc(r.id)}" aria-label="View ${esc(dateLabel(r.date))}">${icon('eye')} View</button><button class="btn small-btn" type="button" data-action="edit-record" data-id="${esc(r.id)}" aria-label="Edit ${esc(dateLabel(r.date))}">${icon('edit')} Edit</button><button class="btn small-btn danger" type="button" data-action="delete-record" data-id="${esc(r.id)}" aria-label="Delete ${esc(dateLabel(r.date))}">${icon('trash')}</button></div>`;
-    const table = `<div class="table-wrap records-table"><table><thead><tr><th>Date</th>${isB ? '<th class="num">Bags</th>' : ''}<th class="num">${isB ? 'Weight' : 'Quantity'} (kg)</th><th class="num">Rate/kg</th><th class="num">${isB ? 'Gross sales' : 'Gross income'}</th><th class="num">Expenses</th>${isB ? '<th class="num">Men</th><th class="num">Women</th><th class="num">Labour salary</th>' : ''}<th class="num">Net</th><th>Actions</th></tr></thead><tbody>${rows.map(r => {
+    const table = `<div class="table-wrap records-table"><table><thead><tr><th>Date</th>${isB ? '<th class="num">Bags</th>' : ''}<th class="num">${isB ? 'Weight' : 'Quantity'} (kg)</th><th class="num">Wastage (kg)</th><th class="num">Rate/kg</th><th class="num">${isB ? 'Gross sales' : 'Gross income'}</th><th class="num">Expenses</th>${isB ? '<th class="num">Men</th><th class="num">Women</th><th class="num">Labour salary</th>' : ''}<th class="num">Net</th><th>Actions</th></tr></thead><tbody>${rows.map(r => {
       const net = calc.recordNet(activeProduct, r);
-      return `<tr data-record-row="${esc(r.id)}"><td><strong>${esc(dateLabel(r.date))}</strong> <span class="muted small">${esc(r.date.slice(0, 4))}</span>${r.sample ? ' <span class="tag">sample</span>' : ''}</td>${isB ? `<td class="num">${fmt(r.bagDetails.length)}</td>` : ''}<td class="num">${fmt(calc.kg(activeProduct, r))}</td><td class="num">${money(r.ratePerKg)}</td><td class="num positive">${money(calc.gross(activeProduct, r))}</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td>${isB ? `<td class="num">${fmt(r.menCount)}</td><td class="num">${fmt(r.womenCount)}${r.legacyLabour ? ` <span class="tag warn" title="Historical aggregate: men/women split unknown">+${fmt(r.legacyLabour.workers)} legacy</span>` : ''}</td><td class="num">${money(calc.labour(r))}</td>` : ''}<td class="num ${netCls(net)}">${money(net)}</td><td>${actions(r)}</td></tr>`;
+      return `<tr data-record-row="${esc(r.id)}"><td><strong>${esc(dateLabel(r.date))}</strong> <span class="muted small">${esc(r.date.slice(0, 4))}</span>${r.sample ? ' <span class="tag">sample</span>' : ''}</td>${isB ? `<td class="num">${fmt(r.bagDetails.length)}</td>` : ''}<td class="num">${fmt(calc.kg(activeProduct, r))}</td><td class="num">${fmt(calc.wastage(r))}</td><td class="num">${money(r.ratePerKg)}</td><td class="num positive">${money(calc.gross(activeProduct, r))}</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td>${isB ? `<td class="num">${fmt(r.menCount)}</td><td class="num">${fmt(r.womenCount)}${r.legacyLabour ? ` <span class="tag warn" title="Historical aggregate: men/women split unknown">+${fmt(r.legacyLabour.workers)} legacy</span>` : ''}</td><td class="num">${money(calc.labour(r))}</td>` : ''}<td class="num ${netCls(net)}">${money(net)}</td><td>${actions(r)}</td></tr>`;
     }).join('')}</tbody></table></div>`;
     const cards = `<div class="record-cards">${rows.map(r => {
       const net = calc.recordNet(activeProduct, r);
       return `<article class="record-card"><div class="record-card-head"><strong>${esc(dateLong(r.date))}</strong>${r.sample ? '<span class="tag">sample</span>' : ''}</div><dl>
         ${isB ? `<div><dt>Bags · weight</dt><dd>${fmt(r.bagDetails.length)} · ${fmt(calc.kg('brinjal', r))} kg</dd></div>` : `<div><dt>Quantity</dt><dd>${fmt(r.kg)} kg</dd></div>`}
-        <div><dt>Rate/kg</dt><dd>${money(r.ratePerKg)}</dd></div><div><dt>${isB ? 'Gross sales' : 'Gross income'}</dt><dd class="positive">${money(calc.gross(activeProduct, r))}</dd></div><div><dt>Expenses</dt><dd>${money(calc.expenseTotal(r.expenseItems))}</dd></div>
+        <div><dt>Wastage</dt><dd>${fmt(calc.wastage(r))} kg</dd></div><div><dt>Rate/kg</dt><dd>${money(r.ratePerKg)}</dd></div><div><dt>${isB ? 'Gross sales' : 'Gross income'}</dt><dd class="positive">${money(calc.gross(activeProduct, r))}</dd></div><div><dt>Expenses</dt><dd>${money(calc.expenseTotal(r.expenseItems))}</dd></div>
         ${isB ? `<div><dt>Labour</dt><dd>${money(calc.labour(r))}</dd></div>` : ''}<div><dt>Net</dt><dd class="${netCls(net)}">${money(net)}</dd></div></dl>${actions(r)}</article>`;
     }).join('')}</div>`;
     return `<div class="muted small" style="margin-bottom:8px">Showing ${rows.length} of ${all.length} record${all.length === 1 ? '' : 's'}</div>${table}${cards}`;
@@ -1118,19 +1256,19 @@
     const exps = `<h3 style="margin:16px 0 8px">Expense items (${r.expenseItems.length})</h3>${r.expenseItems.length ? `<div class="table-wrap"><table style="min-width:0"><thead><tr><th>Date</th><th>What for?</th><th class="num">Amount</th><th>Notes</th></tr></thead><tbody>${r.expenseItems.map(x => `<tr><td>${esc(dateLabel(x.date))}</td><td style="white-space:normal">${esc(x.purpose)}</td><td class="num">${money(x.amount)}</td><td style="white-space:normal">${esc(x.notes) || '—'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td><td></td></tr></tfoot></table></div>` : '<div class="muted small">No expenses recorded for this day.</div>'}`;
     modalCtx = { kind: 'view', isDirty: () => false };
     openModal(`<section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="viewTitle"><div class="modal-head"><div><div class="eyebrow">${CFG[activeProduct].name} · daily record</div><h2 id="viewTitle" style="margin-top:4px">${esc(dateLong(r.date))}</h2></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
-      <div class="modal-body"><div class="detail-list">${isB ? tile('Bags', fmt(r.bagDetails.length)) : ''}${tile(isB ? 'Total weight' : 'Quantity', fmt(calc.kg(activeProduct, r)) + ' kg')}${tile('Rate/kg', money(r.ratePerKg))}${tile(isB ? 'Gross sales' : 'Gross income', money(calc.gross(activeProduct, r)), 'positive')}${tile('Expenses', money(calc.expenseTotal(r.expenseItems)), 'negative')}${isB ? tile('Labour salary', money(calc.labour(r))) : ''}${tile('Net', money(net), netCls(net))}</div>${bags}${exps}</div>
+      <div class="modal-body"><div class="detail-list">${isB ? tile('Bags', fmt(r.bagDetails.length)) : ''}${tile(isB ? 'Total weight' : 'Quantity', fmt(calc.kg(activeProduct, r)) + ' kg')}${tile('Wastage (not priced)', fmt(calc.wastage(r)) + ' kg')}${tile('Rate/kg', money(r.ratePerKg))}${tile(isB ? 'Gross sales' : 'Gross income', money(calc.gross(activeProduct, r)), 'positive')}${tile('Expenses', money(calc.expenseTotal(r.expenseItems)), 'negative')}${isB ? tile('Labour salary', money(calc.labour(r))) : ''}${tile('Net', money(net), netCls(net))}</div>${bags}${exps}</div>
       <div class="modal-foot"><button type="button" class="btn danger" data-action="delete-record" data-id="${esc(r.id)}">${icon('trash')} Delete</button><div class="btn-row"><button type="button" class="btn" data-modal-close>Close</button><button type="button" class="btn primary" data-action="edit-record" data-id="${esc(r.id)}">${icon('edit')} Edit</button></div></div></section>`, '[data-modal-close]');
   }
-  function startEdit(id) {
+  async function startEdit(id) {
     const r = dataset().find(x => x.id === id); if (!r) return;
-    if (!guardLeaveEntry()) return;
+    if (!(await guardLeaveEntry())) return;
     if (modalOpen()) closeModal();
     draft = makeDraft(activeProduct, r); draftDirty = false;
     activeView = 'entry'; render(); pushHash(); scrollTop();
   }
-  function deleteRecord(id) {
+  async function deleteRecord(id) {
     const r = dataset().find(x => x.id === id); if (!r) return;
-    if (!confirm(`Delete the ${CFG[activeProduct].name} entry for ${dateLong(r.date)}?\n\nThis cannot be undone unless you have a backup.`)) return;
+    if (!(await ask(`Delete the ${CFG[activeProduct].name} entry for ${dateLong(r.date)}?\n\nThis cannot be undone unless you have a backup.`))) return;
     const prev = state.data[activeProduct];
     state.data[activeProduct] = prev.filter(x => x.id !== id);
     if (!saveState()) { state.data[activeProduct] = prev; return; }
@@ -1147,13 +1285,14 @@
     const isB = activeProduct === 'brinjal';
     const tile = (l, v, cls = '') => `<div class="report-tile"><span>${l}</span><strong class="${cls}">${v}</strong></div>`;
     const tiles = isB
-      ? tile('Total bags', fmt(t.bags)) + tile('Total weight', fmt(t.kg) + ' kg') + tile('Gross sales', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Labour salary', money(t.labour)) + tile('Workers (worker-days)', fmt(t.workers)) + tile('Average rate', t.kg ? money(t.avgRate) + '/kg' : '—') + tile('Net after costs', money(t.net), netCls(t.net))
-      : tile('Total quantity', fmt(t.kg) + ' kg') + tile('Gross income', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Net after expenses', money(t.net), netCls(t.net));
+      ? tile('Total bags', fmt(t.bags)) + tile('Total weight', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross sales', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Labour salary', money(t.labour)) + tile('Workers (worker-days)', fmt(t.workers)) + tile('Average rate', t.kg ? money(t.avgRate) + '/kg' : '—') + tile('Net after costs', money(t.net), netCls(t.net))
+      : tile('Total quantity', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross income', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Net after expenses', money(t.net), netCls(t.net));
     const body = st.rows.map(r => `<tr${r.kind === 'expense-only' ? ' class="muted"' : ''}>${cols.map(c => c.key === 'date' ? `<td><strong>${esc(dateLabel(r.date))}</strong>${r.kind === 'expense-only' ? ' <span class="tag warn">expenses only</span>' : ''}</td>` : `<td class="num ${c.key === 'net' ? netCls(r.net) : c.key === 'gross' && r.gross ? 'positive' : ''}">${cellText(c, r[c.key])}</td>`).join('')}</tr>`).join('');
     const foot = st.rows.length ? `<tfoot><tr>${cols.map(c => c.key === 'date' ? '<td>TOTAL</td>' : `<td class="num">${c.total ? cellText(c, t[c.key]) : '—'}</td>`).join('')}</tr></tfoot>` : '';
     const notes = [];
     if (isB && st.hasLegacy) notes.push('<strong>Legacy labour:</strong> some days come from the original sheet, which recorded only the total number of workers and total labour salary. Those workers are shown in a separate “split unknown” column and are not counted as men or women.');
     if (st.crossDated || st.hasExpenseOnly) notes.push(`<strong>Expense dates:</strong> expenses are counted on their own date. ${st.crossDated} expense item(s) in this month belong to a daily record dated differently${st.hasExpenseOnly ? '; dates marked “expenses only” have no sales record that day' : ''}.`);
+    notes.push('<strong>Wastage:</strong> recorded in kg only. It has no price and is not included in gross sales or net.');
     if (!isB) notes.push('<strong>Gross vs net:</strong> the original sheet’s “Profit” column is quantity × rate, i.e. gross income before expenses. Net after expenses is shown separately.');
     const expTable = st.expenseItems.length ? `<h3 style="margin:18px 0 8px">Expense items · ${esc(monthLabel(month))}</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>What for?</th><th class="num">Amount</th><th>Notes</th><th>Daily record</th></tr></thead><tbody>${st.expenseItems.map(x => `<tr><td>${esc(dateLabel(x.date))}</td><td style="white-space:normal">${esc(x.purpose)}</td><td class="num">${money(x.amount)}</td><td style="white-space:normal">${esc(x.notes) || '—'}</td><td>${esc(dateLabel(x.recordDate))}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="num">${money(t.expenses)}</td><td colspan="2"></td></tr></tfoot></table></div>` : '';
     const p = state.profile;
@@ -1186,8 +1325,32 @@
         <div id="importStatus" class="small" role="status" style="margin-top:10px">${importStatus}</div>
         <div class="report-summary" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:14px"><div class="report-tile"><span>Brinjal records</span><strong>${fmt(nb)}</strong></div><div class="report-tile"><span>Muskmelon records</span><strong>${fmt(nm)}</strong></div></div>
         <div class="form-section"><h3>Sample data</h3><p class="muted small" style="margin:7px 0 12px">Replaces both businesses' records with the October 2026 demo figures from the original sheet. Settings and profile are kept. Export a backup first if you have real data.</p><button class="btn danger" type="button" data-action="reset-demo">${icon('restore')} Restore sample data</button></div></section></div>
-      <div class="notice section-gap"><strong>Privacy:</strong> this is a browser-only app. Nothing is uploaded; there is no account, server or cloud sync.</div>`;
+      ${updatesCard()}
+      <div class="notice section-gap"><strong>Privacy:</strong> your records stay on this device. Nothing is uploaded; there is no account, server or cloud sync.</div>`;
   }
+  function updatesCard() {
+    const ni = nativeInfo();
+    if (!ni) {
+      return `<section class="card section-gap"><div class="card-head"><div><h2>App version</h2><div class="muted small">Web app v${APP_VERSION}</div></div><span class="kpi-icon">${icon('restore')}</span></div><div class="notice">The web version always opens the latest published build — reload the page to get updates. On Android, install the FieldLedger APK; it checks for new versions and installs them from inside the app (More → App updates).</div></section>`;
+    }
+    return `<section class="card section-gap" id="updatesCard"><div class="card-head"><div><h2>App updates</h2><div class="muted small">Installed: v${esc(ni.versionName)} (build ${esc(ni.versionCode)})${ni.lastCheck ? ' · last checked ' + esc(ni.lastCheck) : ''}</div></div><span class="kpi-icon">${icon('restore')}</span></div>
+      <div class="btn-row"><button class="btn primary" type="button" data-action="check-updates">${icon('download')} Check for updates</button></div>
+      <div id="updateStatus" class="small" role="status" style="margin-top:10px">${esc(updateStatus)}</div>
+      <details style="margin-top:12px"><summary class="muted small">Update source (advanced)</summary><form id="updateUrlForm" novalidate style="margin-top:10px"><div class="field"><label for="updateUrl">Update manifest URL</label><input id="updateUrl" type="url" inputmode="url" value="${esc(ni.updateUrl)}" placeholder="https://…/version.json"></div><div class="form-actions"><span class="muted small">The app downloads updates only from this address (HTTPS) and installs them only if they are signed with the same key.</span><button class="btn" type="submit">${icon('check')} Save source</button></div></form></details></section>`;
+  }
+  let updateStatus = '';
+  // Events from the Android shell (update progress, print finished).
+  window.FieldLedgerNativeEvent = (name, data) => {
+    if (name === 'update-status') { updateStatus = String(data || ''); const el = $('#updateStatus'); if (el) el.textContent = updateStatus; }
+    if (name === 'print-finished') document.body.classList.remove('printing-report');
+  };
+  // Android back button: close dialogs/modals first, otherwise let the shell go back in history.
+  window.FieldLedgerBack = () => {
+    if (askOpen()) { askState.finish(false); return true; }
+    if (modalOpen()) { requestCloseModal(); return true; }
+    return false;
+  };
+
   function settingsView() {
     const s = state.settings;
     const usage = {}; dataset('brinjal').forEach(r => r.bagDetails.forEach(b => { usage[b.brinjalType] = (usage[b.brinjalType] || 0) + 1; }));
@@ -1213,6 +1376,29 @@
    * Exports
    * ------------------------------------------------------------------ */
   function downloadBlob(blob, filename) {
+    if (NATIVE) {
+      // WebView cannot follow blob: downloads, so hand the bytes to the Android shell.
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { const msg = NATIVE.saveFile(filename, blob.type || 'application/octet-stream', String(reader.result).split(',')[1] || ''); showToast(msg || `Saved ${filename}.`, /^Could not/.test(msg || '')); }
+        catch (e) { showToast(`Could not save ${filename}.`, true); }
+      };
+      reader.onerror = () => showToast(`Could not read ${filename}.`, true);
+      reader.readAsDataURL(blob);
+      return;
+    }
+    if (HOSTED()) {
+      getHostDownloads().then(dl => {
+        if (!dl) { showToast('Downloads are not available in this view. Open FieldLedger in a browser or the Android app to export.', true); return; }
+        dl.save({ filename, data: blob }).then(() => showToast(`${filename} saved.`)).catch(err => {
+          const code = err && err.code;
+          if (code === 'declined') showToast('Download cancelled.');
+          else if (code === 'rate_limited') showToast('Another download is waiting for your answer — try again in a moment.', true);
+          else showToast(`Could not save ${filename} here (${code || 'unavailable'}).`, true);
+        });
+      });
+      return;
+    }
     const url = URL.createObjectURL(blob); const a = document.createElement('a');
     a.href = url; a.download = filename; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 4000);
@@ -1274,7 +1460,7 @@
     ];
     const data = st.rows.map(r => cols.map(c => c.key === 'date' ? { v: r.date + (r.kind === 'expense-only' ? ' (expenses only)' : '') } : { v: r[c.key] == null ? '' : r2(r[c.key]), s: style(c, false) }));
     const total = cols.map(c => c.key === 'date' ? { v: 'TOTAL', s: 1 } : (c.total ? { v: r2(st.totals[c.key]), s: style(c, true) } : { v: '' }));
-    const notes = [[], [{ v: 'Gross = weight/quantity × rate per kg. Net = gross − operating expenses' + (activeProduct === 'brinjal' ? ' − labour salary.' : '.') }], [{ v: 'Operating expenses are reported on each expense item’s own date (see "Expense items" sheet).' }]];
+    const notes = [[], [{ v: 'Wastage (kg) is recorded only — it has no price and is not part of gross or net.' }], [{ v: 'Gross = weight/quantity × rate per kg. Net = gross − operating expenses' + (activeProduct === 'brinjal' ? ' − labour salary.' : '.') }], [{ v: 'Operating expenses are reported on each expense item’s own date (see "Expense items" sheet).' }]];
     if (st.hasLegacy) notes.push([{ v: 'Legacy workers: historical totals from the source sheet; men/women split unknown.' }]);
     const sheet1 = sheetXml([...head, ...data, total, ...notes], cols.map(c => c.key === 'date' ? 22 : Math.max(12, c.label.length + 2)), 4);
     const expRows = [[{ v: `Expense items — ${CFG[activeProduct].name}, ${monthLabel(month)}`, s: 6 }], [], ['Date', 'What for?', 'Amount (₹)', 'Notes', 'Daily record date'].map(v => ({ v, s: 1 })),
@@ -1301,12 +1487,18 @@
     const s = $('#importStatus'); if (s) s.textContent = importStatus;
     showToast('Complete backup downloaded (both businesses, settings and profile).');
   }
-  function exportPDF() {
+  async function exportPDF() {
+    if (HOSTED() && !NATIVE) { showToast('PDF printing is not available in this web link. Use Excel or PNG here, or print from a normal browser or the Android app.', true); return; }
     if (activeView !== 'reports') {
-      if (!guardLeaveEntry()) return;
+      if (!(await guardLeaveEntry())) return;
       activeView = 'reports'; render(); pushHash();
     }
     document.body.classList.add('printing-report');
+    if (NATIVE && typeof NATIVE.print === 'function') {
+      showToast('Choose “Save as PDF” as the printer to keep a PDF copy.');
+      setTimeout(() => { try { NATIVE.print(fileBase(activeProduct, month)); } catch (_) { document.body.classList.remove('printing-report'); showToast('Printing is not available on this phone.', true); } }, 80);
+      return;
+    }
     const oldTitle = document.title; document.title = fileBase(activeProduct, month);
     const done = () => { document.body.classList.remove('printing-report'); document.title = oldTitle; window.removeEventListener('afterprint', done); };
     window.addEventListener('afterprint', done);
@@ -1322,8 +1514,8 @@
     if (tableW < minW - 60) widths = widths.map(w => w * (minW - 60) / tableW);
     const W = Math.round(Math.max(minW, widths.reduce((a, b) => a + b, 0) + 60));
     const accent = isB ? '#7248df' : '#b07a06'; const soft = isB ? '#f3eeff' : '#fff5d6'; const ink = '#201d2b';
-    const tiles = isB ? [['TOTAL BAGS', fmt(t.bags)], ['TOTAL WEIGHT', fmt(t.kg) + ' kg'], ['GROSS SALES', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['LABOUR SALARY', money(t.labour)], ['NET AFTER COSTS', money(t.net)]]
-      : [['TOTAL QUANTITY', fmt(t.kg) + ' kg'], ['GROSS INCOME', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['NET AFTER EXPENSES', money(t.net)]];
+    const tiles = isB ? [['TOTAL BAGS', fmt(t.bags)], ['TOTAL WEIGHT', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['GROSS SALES', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['LABOUR SALARY', money(t.labour)], ['NET AFTER COSTS', money(t.net)]]
+      : [['TOTAL QUANTITY', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['GROSS INCOME', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['NET AFTER EXPENSES', money(t.net)]];
     const gap = 10; const tw = (W - 60 - gap * (tiles.length - 1)) / tiles.length;
     let svg = '';
     tiles.forEach(([l, v], i) => { const x = 30 + i * (tw + gap); svg += `<rect x="${x}" y="128" width="${tw}" height="74" rx="12" fill="${soft}" stroke="#e7e1f3"/><text x="${x + 12}" y="153" font-size="11" font-weight="700" fill="#6c6880">${xmlEsc(l)}</text><text x="${x + 12}" y="185" font-size="${tw < 170 ? 17 : 21}" font-weight="800" fill="${l.startsWith('NET') && t.net < 0 ? '#c93f3f' : accent}">${xmlEsc(v)}</text>`; });
@@ -1339,7 +1531,7 @@
     });
     const H = top + lines.length * rowH + 70;
     const p = state.profile;
-    const full = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${font}"><rect width="100%" height="100%" fill="#ffffff"/><rect width="100%" height="8" fill="${accent}"/><text x="30" y="46" font-size="13" font-weight="700" letter-spacing="2" fill="${accent}">FIELDLEDGER · ${xmlEsc((p.farmName || 'My Farm').toUpperCase())}${p.location ? ' · ' + xmlEsc(p.location.toUpperCase()) : ''}</text><text x="30" y="86" font-size="30" font-weight="800" fill="${ink}">${xmlEsc(`${CFG[activeProduct].name} monthly statement · ${monthLabel(month)}`)}</text><text x="30" y="110" font-size="13" fill="#6c6880">Generated ${xmlEsc(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))} · ${t.records} daily record(s)${st.hasLegacy ? ' · legacy workers = historical totals, split unknown' : ''}</text>${svg}<text x="30" y="${H - 26}" font-size="11.5" fill="#6c6880">Net = gross − operating expenses${isB ? ' − labour salary' : ''}. Expenses are counted on their own date. Costs not entered in FieldLedger are not included.</text></svg>`;
+    const full = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${font}"><rect width="100%" height="100%" fill="#ffffff"/><rect width="100%" height="8" fill="${accent}"/><text x="30" y="46" font-size="13" font-weight="700" letter-spacing="2" fill="${accent}">FIELDLEDGER · ${xmlEsc((p.farmName || 'My Farm').toUpperCase())}${p.location ? ' · ' + xmlEsc(p.location.toUpperCase()) : ''}</text><text x="30" y="86" font-size="30" font-weight="800" fill="${ink}">${xmlEsc(`${CFG[activeProduct].name} monthly statement · ${monthLabel(month)}`)}</text><text x="30" y="110" font-size="13" fill="#6c6880">Generated ${xmlEsc(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))} · ${t.records} daily record(s)${st.hasLegacy ? ' · legacy workers = historical totals, split unknown' : ''}</text>${svg}<text x="30" y="${H - 26}" font-size="11.5" fill="#6c6880">Net = gross − operating expenses${isB ? ' − labour salary' : ''}. Wastage is in kg only (no price). Expenses are counted on their own date. Costs not entered in FieldLedger are not included.</text></svg>`;
     const url = URL.createObjectURL(new Blob([full], { type: 'image/svg+xml;charset=utf-8' }));
     const img = new Image();
     img.onload = () => {
@@ -1350,7 +1542,7 @@
         const filename = fileBase(activeProduct, month) + '.png';
         try {
           const file = new File([png], filename, { type: 'image/png' });
-          if (window.matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
+          if (!NATIVE && window.matchMedia('(pointer:coarse)').matches && navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file], title: filename, text: `${CFG[activeProduct].name} statement · ${monthLabel(month)}` });
             showToast('Share sheet opened — choose “Save image” / Photos to keep it.');
             return;
@@ -1383,7 +1575,7 @@
     }
     const nb = res.state.data.brinjal.length, nm = res.state.data.muskmelon.length;
     const when = parsed.exportedAt ? ` (exported ${new Date(parsed.exportedAt).toLocaleString('en-IN')})` : '';
-    if (!confirm(`Restore backup “${file.name}”${when}?\n\nIt contains ${nb} Brinjal and ${nm} Muskmelon records, plus settings and profile.\n\nThis REPLACES everything currently stored in this browser (${dataset('brinjal').length} Brinjal, ${dataset('muskmelon').length} Muskmelon records). Export a backup first if unsure.`)) {
+    if (!(await ask(`Restore backup “${file.name}”${when}?\n\nIt contains ${nb} Brinjal and ${nm} Muskmelon records, plus settings and profile.\n\nThis REPLACES everything currently stored in this browser (${dataset('brinjal').length} Brinjal, ${dataset('muskmelon').length} Muskmelon records). Export a backup first if unsure.`))) {
       setImportStatus('Import cancelled. Nothing was changed.'); showToast('Import cancelled. Nothing changed.'); return;
     }
     const prev = state; state = res.state;
@@ -1396,14 +1588,14 @@
   /* ------------------------------------------------------------------
    * Navigation, routing and render
    * ------------------------------------------------------------------ */
-  function guardLeaveEntry() {
+  async function guardLeaveEntry() {
     if (activeView !== 'entry' || !draftDirty) return true;
-    if (!confirm('You have unsaved changes in this daily entry.\n\nLeave without saving? The draft will be discarded.')) return false;
+    if (!(await ask('You have unsaved changes in this daily entry.\n\nLeave without saving? The draft will be discarded.'))) return false;
     draft = null; draftDirty = false; return true;
   }
-  function go(view, opts = {}) {
+  async function go(view, opts = {}) {
     if (!VIEWS.includes(view)) return false;
-    if (!opts.force && view !== activeView && !guardLeaveEntry()) return false;
+    if (!opts.force && view !== activeView && !(await guardLeaveEntry())) return false;
     if (modalOpen()) closeModal();
     if (view !== 'entry') { draft = null; draftDirty = false; }
     else if (activeView !== 'entry') { draft = null; draftDirty = false; }
@@ -1411,21 +1603,22 @@
     if (!opts.fromHistory) pushHash();
     scrollTop(); return true;
   }
-  function switchProduct(p) {
+  async function switchProduct(p) {
     if (!PRODUCTS.includes(p) || p === activeProduct) return;
-    if (!guardLeaveEntry()) return;
+    if (!(await guardLeaveEntry())) return;
     if (modalOpen()) closeModal();
     activeProduct = p; saveUI(); draft = null; draftDirty = false; recordsFilter = { month: '', q: '' };
     if (activeView === 'entry') activeView = 'dashboard';
     render(); pushHash();
   }
   const hashFor = () => `#/${activeProduct}/${activeView}`;
-  function pushHash() { if (location.hash !== hashFor()) history.pushState(null, '', hashFor()); }
+  function pushHash() { try { if (location.hash !== hashFor()) history.pushState(null, '', hashFor()); } catch (_) { /* sandboxed frame */ } }
   function readHash() { const m = /^#\/(brinjal|muskmelon)\/(\w+)$/.exec(location.hash); return m && VIEWS.includes(m[2]) ? { product: m[1], view: m[2] } : null; }
-  window.addEventListener('popstate', () => {
-    if (modalOpen()) { if (modalCtx && modalCtx.isDirty && modalCtx.isDirty() && !confirm('Discard the changes made in this window?')) { history.pushState(null, '', hashFor()); return; } if (modalCtx && modalCtx.onCancel) modalCtx.onCancel(); closeModal(); }
+  window.addEventListener('popstate', async () => {
+    if (askOpen()) { askState.finish(false); history.pushState(null, '', hashFor()); return; }
+    if (modalOpen()) { if (modalCtx && modalCtx.isDirty && modalCtx.isDirty() && !(await ask('Discard the changes made in this window?'))) { history.pushState(null, '', hashFor()); return; } if (modalCtx && modalCtx.onCancel) modalCtx.onCancel(); closeModal(); }
     const h = readHash(); if (!h) return;
-    if ((h.product !== activeProduct || h.view !== activeView) && !guardLeaveEntry()) { history.pushState(null, '', hashFor()); return; }
+    if ((h.product !== activeProduct || h.view !== activeView) && !(await guardLeaveEntry())) { history.pushState(null, '', hashFor()); return; }
     if (h.product !== activeProduct) { activeProduct = h.product; saveUI(); recordsFilter = { month: '', q: '' }; draft = null; draftDirty = false; }
     if (h.view !== activeView) { draft = null; draftDirty = false; activeView = h.view; }
     render();
@@ -1447,15 +1640,15 @@
     month = v; render();
     const el = $('.month-input'); if (el) el.focus();
   }
-  function removeBrinjalType(type) {
+  async function removeBrinjalType(type) {
     const list = state.settings.brinjalTypes;
     if (list.length <= 1) { showToast('Keep at least one brinjal type.', true); return; }
     let used = 0; dataset('brinjal').forEach(r => r.bagDetails.forEach(b => { if (b.brinjalType === type) used++; }));
-    if (!confirm(`Remove “${type}” from the brinjal type list?\n\n${used ? `${used} saved bag(s) use this type. They will KEEP the label “${type}” — it is only removed from the dropdown for new bags.` : 'No saved bags use this type.'}`)) return;
+    if (!(await ask(`Remove “${type}” from the brinjal type list?\n\n${used ? `${used} saved bag(s) use this type. They will KEEP the label “${type}” — it is only removed from the dropdown for new bags.` : 'No saved bags use this type.'}`))) return;
     state.settings.brinjalTypes = list.filter(t => t !== type);
     if (saveState()) { render(); showToast(`“${type}” removed from the list.`); }
   }
-  function handleAction(el) {
+  async function handleAction(el) {
     const id = el.dataset.id;
     switch (el.dataset.action) {
       case 'month-prev': setMonth(addMonths(month, -1)); break;
@@ -1465,7 +1658,7 @@
       case 'legacy-remove': draft.removedLegacy = draft.legacyLabour; draft.legacyLabour = null; draftDirty = true; refreshEntry(); showToast('Historical labour amount will be removed when you save.'); break;
       case 'legacy-undo': draft.legacyLabour = draft.removedLegacy; draft.removedLegacy = null; refreshEntry(); break;
       case 'entry-cancel':
-        if (draftDirty && !confirm(draft.id ? 'Discard your changes to this entry?' : 'Clear this daily entry? Unsaved values will be lost.')) return;
+        if (draftDirty && !(await ask(draft.id ? 'Discard your changes to this entry?' : 'Clear this daily entry? Unsaved values will be lost.'))) return;
         if (draft.id) { draft = null; draftDirty = false; go('records', { force: true }); } else { draft = null; draftDirty = false; render(); }
         break;
       case 'entry-delete': deleteRecord(draft.id); break;
@@ -1474,6 +1667,7 @@
       case 'delete-record': deleteRecord(id); break;
       case 'records-clear': recordsFilter = { month: '', q: '' }; render(); break;
       case 'export-json': exportJSON(); break;
+      case 'check-updates': if (NATIVE) { updateStatus = 'Checking for updates…'; const el = $('#updateStatus'); if (el) el.textContent = updateStatus; NATIVE.checkForUpdates(true); } break;
       case 'import-json': $('#importFile').value = ''; $('#importFile').click(); break;
       case 'export-csv': exportCSV(); break;
       case 'export-xlsx': exportXLSX(); break;
@@ -1483,7 +1677,7 @@
       case 'set-text': state.settings.textSize = el.dataset.value; saveState(); render(); showToast(`Text size: ${el.dataset.value}.`); break;
       case 'remove-type': removeBrinjalType(el.dataset.type); break;
       case 'reset-demo':
-        if (!confirm('Restore the October 2026 sample data?\n\nAll current Brinjal and Muskmelon records in this browser will be REPLACED. Settings and profile are kept.')) return;
+        if (!(await ask('Restore the October 2026 sample data?\n\nAll current Brinjal and Muskmelon records in this browser will be REPLACED. Settings and profile are kept.'))) return;
         { const prev = state.data; state.data = seedState().data; if (!saveState()) { state.data = prev; return; } }
         month = '2026-10'; draft = null; draftDirty = false; render(); showToast('Sample data restored.');
         break;
@@ -1513,6 +1707,11 @@
     const a = t.closest('[data-action]'); if (a) { handleAction(a); }
   });
   document.addEventListener('keydown', e => {
+    if (askOpen()) {
+      if (e.key === 'Escape') { e.preventDefault(); askState.finish(false); return; }
+      if (e.key === 'Tab') { e.preventDefault(); const a = $('#askOk'), c = $('#askCancel'); (document.activeElement === a ? c : a).focus(); }
+      return;
+    }
     if (!modalOpen()) return;
     if (e.key === 'Escape') { e.preventDefault(); requestCloseModal(); return; }
     if (e.key === 'Tab') {
@@ -1541,6 +1740,12 @@
       state.settings.brinjalTypes.push(value);
       if (saveState()) { render(); $('#newBrinjalType').focus(); showToast(`“${value}” added — it now appears in the bag type dropdown.`); }
     }
+    if (e.target.id === 'updateUrlForm' && NATIVE) {
+      e.preventDefault();
+      const msg = NATIVE.setUpdateUrl($('#updateUrl').value.trim());
+      showToast(msg, /must|invalid/i.test(msg)); render();
+      return;
+    }
     if (e.target.id === 'profileForm') {
       e.preventDefault();
       const fd = new FormData(e.target);
@@ -1551,6 +1756,21 @@
   $('#importFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; handleImportFile(f); });
   window.addEventListener('afterprint', () => document.body.classList.remove('printing-report'));
 
+  /* 3D tilt for cards on devices with a precise pointer (skipped for touch and reduced motion). */
+  if (window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    let tiltEl = null;
+    document.addEventListener('pointermove', e => {
+      if (prefersReducedMotion()) return;
+      const el = e.target.closest && e.target.closest('.tilt');
+      if (tiltEl && tiltEl !== el) { tiltEl.classList.remove('tilting'); tiltEl.style.removeProperty('--tilt-x'); tiltEl.style.removeProperty('--tilt-y'); tiltEl = null; }
+      if (!el) return;
+      const r = el.getBoundingClientRect(); const px = (e.clientX - r.left) / r.width - .5; const py = (e.clientY - r.top) / r.height - .5;
+      el.style.setProperty('--tilt-x', (-py * 9).toFixed(2) + 'deg'); el.style.setProperty('--tilt-y', (px * 11).toFixed(2) + 'deg');
+      el.classList.add('tilting'); tiltEl = el;
+    }, { passive: true });
+    document.addEventListener('pointerleave', () => { if (tiltEl) { tiltEl.classList.remove('tilting'); tiltEl.style.removeProperty('--tilt-x'); tiltEl.style.removeProperty('--tilt-y'); tiltEl = null; } });
+  }
+
   /* ------------------------------------------------------------------
    * Boot
    * ------------------------------------------------------------------ */
@@ -1558,7 +1778,8 @@
   if (initial) { activeProduct = initial.product; activeView = initial.view; }
   if (!lsGet(STORAGE_KEY) && storageOK) saveState();
   render();
-  history.replaceState(null, '', hashFor());
+  try { history.replaceState(null, '', hashFor()); } catch (_) { /* sandboxed frame */ }
+  if (HOSTED() && !NATIVE) document.body.classList.add('hosted');
   if (startupNotice) showToast(startupNotice);
   // Exposed for automated tests and debugging (read-only helpers; no network access anywhere).
   window.FieldLedger = Object.freeze({ calc, buildStatement, normalizeState, getState: () => clone(state), version: '2.0.0' });

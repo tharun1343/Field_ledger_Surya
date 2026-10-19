@@ -1,0 +1,8 @@
+{
+  "versionCode": 210,
+  "versionName": "2.1.0",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/fieldledger-releases/main/FieldLedger-2.1.0.apk",
+  "sha256": "dfde787d4768ce6c3d43573f39411cba59483364d524cea39efbf6e47b1204f0",
+  "size": 194313,
+  "notes": "Wastage (kg) in daily entries and reports, new 3D look, in-app confirmations and automatic in-app updates."
+}
