@@ -263,7 +263,11 @@
     -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.6), var(--glass-shadow); }
   body[data-theme="dark"] .btn, body[data-theme="dark"] .icon-btn, body[data-theme="dark"] .account-chip, body[data-theme="dark"] .choice, body[data-theme="dark"] .quick-card, body[data-theme="dark"] .detail-edit { box-shadow: inset 0 1px 0 rgba(255,255,255,.08), var(--glass-shadow); }
-  .btn:hover, .icon-btn:hover, .quick-card:hover { background: var(--glass-strong); }
+  /* Hover: plain glass buttons lighten; coloured buttons keep their colour and only brighten. */
+  .btn:not(.primary):not(.danger-solid):not(.danger):not(.soft):hover, .icon-btn:hover, .quick-card:hover { background: var(--glass-strong); }
+  .btn.primary:hover, .btn.danger-solid:hover { filter: brightness(1.07) saturate(1.05); }
+  .btn.danger:hover { background: color-mix(in srgb, var(--negative) 16%, var(--glass)); }
+  .btn.soft:hover { background: var(--primary-soft); }
   .btn:active, .icon-btn:active, .account-chip:active { transform: translateY(1px) scale(.98) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 10px -6px rgba(40,24,90,.3); }
   .btn.primary { color:#fff; border-color: rgba(255,255,255,.35);
     background: linear-gradient(135deg, color-mix(in srgb, var(--primary-2) 78%, transparent), color-mix(in srgb, var(--primary) 88%, transparent));
@@ -316,7 +320,7 @@
   .wage-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 0; border-bottom:1px dashed var(--line); }
   .wage-row > strong { grid-column:1/-1; display:flex; align-items:center; gap:6px; }
   /* Sign-in screen */
-  body.login-mode .nav, body.login-mode .product-switch, body.login-mode .account-chip, body.login-mode .footer { display:none !important; }
+  body.login-mode .nav, body.login-mode .product-toggle, body.login-mode .account-chip, body.login-mode .footer { display:none !important; }
   .login-card { max-width:440px; margin:4vh auto 0; display:grid; gap:14px; }
   .login-card form { display:grid; gap:12px; }
   .login-brand { text-align:center; display:grid; gap:6px; }
@@ -342,6 +346,85 @@
   @keyframes vtZoomIn { from { opacity:0; transform: scale(.985); } }
   @keyframes vtReveal { from { clip-path: circle(0 at var(--vt-x, 90%) var(--vt-y, 40px)); } to { clip-path: circle(150% at var(--vt-x, 90%) var(--vt-y, 40px)); } }
   body, .card, .btn, .icon-btn, input, select, .nav { transition: background-color .35s ease, color .35s ease, border-color .35s ease; }
+
+  /* ===================== v2.4: product switch, brand, spinners, layout polish ===================== */
+  .topbar { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .brand { min-width:0; flex:1 1 auto; gap:10px; }
+  .brand-text { min-width:0; }
+  .brand-title { font-size:calc(17px * var(--fs)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-sub { display:block !important; margin-top:2px; font-size:calc(11.5px * var(--fs)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .brand-mark.single { display:grid; place-items:center; }
+  .brand-mark.single .melon-svg { position:static; width:30px; height:30px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+  .top-actions { flex:none; display:flex; align-items:center; gap:8px; }
+  .topbar .top-actions { flex:none; width:auto; justify-content:flex-end; }
+  .product-toggle { position:relative; flex:none; width:78px; height:44px; padding:0; border-radius:999px; cursor:pointer; color:var(--text);
+    background: var(--glass); border:1px solid var(--glass-line); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), var(--glass-shadow); }
+  .pt-track { position:absolute; inset:4px; border-radius:999px; background: color-mix(in srgb, var(--primary-soft) 85%, transparent); box-shadow: inset 0 2px 4px rgba(var(--ink-shadow), .12); transition: background-color .35s; }
+  .pt-icon { position:absolute; top:50%; width:22px; height:22px; margin-top:-11px; opacity:.5; display:grid; place-items:center; }
+  .pt-icon .melon-svg { width:20px; height:20px; }
+  .pt-left { left:7px; } .pt-right { right:7px; }
+  .pt-knob { position:absolute; top:2px; left:2px; width:32px; height:32px; border-radius:50%; display:grid; place-items:center; background: var(--surface);
+    box-shadow: 0 1px 0 rgba(255,255,255,.8) inset, 0 4px 10px -2px color-mix(in srgb, var(--primary) 55%, rgba(0,0,0,.3));
+    transition: transform .35s cubic-bezier(.3,1.35,.5,1); }
+  .pt-knob .melon-svg { width:24px; height:24px; }
+  .product-toggle[aria-checked="true"] .pt-knob { transform: translateX(34px); }
+  .product-toggle:focus-visible { outline:3px solid color-mix(in srgb, var(--primary) 60%, transparent); outline-offset:2px; }
+  .product-toggle:active .pt-knob { width:36px; }
+  .product-toggle[aria-checked="true"]:active .pt-knob { transform: translateX(30px); }
+  /* Button spinner */
+  .spinner { display:inline-block; flex:none; width:16px; height:16px; border-radius:50%; border:2.5px solid currentColor; border-right-color:transparent; animation: flSpin .7s linear infinite; }
+  .btn.loading { cursor:progress; opacity:.92; }
+  @keyframes flSpin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion:reduce) { .spinner { animation-duration: 1.4s !important; animation-iteration-count: infinite !important; } }
+  input:disabled { opacity:.6; }
+  /* Layout polish */
+  .card-head h2 { line-height:1.25; }
+  .entry-head { align-items:center; }
+  .entry-head h2 { margin:0; }
+  .month-nav .icon-btn { width:44px; }
+  .calc-item strong { line-height:1.15; }
+  .kpi-top > span:first-child { min-width:0; overflow-wrap:anywhere; }
+  .report-summary { grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); }
+  .detail-list { grid-template-columns:repeat(auto-fit, minmax(130px, 1fr)); }
+  .login-card { margin-top:2vh; }
+  @media(max-width:640px) {
+    .topbar { gap:8px; }
+    .brand { gap:8px; }
+    .brand-mark { width:40px; height:40px; border-radius:13px; }
+    .brand-mark.single .melon-svg { width:26px; height:26px; }
+    .brand-title { font-size:calc(15px * var(--fs)); }
+    .brand-sub { font-size:calc(10.5px * var(--fs)); }
+    .top-actions { gap:6px; }
+    .product-toggle { width:72px; }
+    .product-toggle[aria-checked="true"] .pt-knob { transform: translateX(28px); }
+    .product-toggle[aria-checked="true"]:active .pt-knob { transform: translateX(24px); }
+    .entry-head { gap:8px; }
+    .date-pill { font-size:calc(13px * var(--fs)); padding:8px 10px; }
+    .report-summary, .detail-list { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .card-head { gap:8px; }
+  }
+  @media(max-width:360px) { .brand-sub { display:none !important; } .icon-btn, .account-chip { width:42px; min-height:42px; } }
+
+  /* Phone list for recent entries */
+  .recent-list { display:none; }
+  .recent-row { width:100%; display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; align-items:center; gap:10px; padding:12px; margin-bottom:8px; text-align:left; color:var(--text); border-radius:14px;
+    background: var(--glass); border:1px solid var(--glass-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.5), var(--glass-shadow); }
+  .rr-date { display:grid; } .rr-date small { color:var(--muted); font-size:calc(11px * var(--fs)); }
+  .rr-mid { color:var(--muted); font-size:calc(12.5px * var(--fs)); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rr-net { font-weight:800; font-variant-numeric:tabular-nums; }
+  .recent-row .ico { color:var(--muted); width:1em; height:1em; }
+  .entry-card { max-width:1040px; margin-left:auto; margin-right:auto; }
+  @media(max-width:640px) {
+    .recent-list { display:block; }
+    .entry-grid { grid-template-columns:1fr 1fr !important; }
+    .entry-grid > .field { grid-column:auto; }
+    .entry-grid > .f-full { grid-column:1/-1; }
+    .entry-grid > .f-o1 { order:1; } .entry-grid > .f-o2 { order:2; } .entry-grid > .f-o3 { order:3; } .entry-grid > .f-o4 { order:4; }
+    .kpi::after { width:64px; height:64px; right:-28px; bottom:-30px; opacity:.6; }
+    .kpi-note { padding-right:18px; }
+    .report-summary > .report-tile:last-child:nth-child(odd), .grid.kpis > .kpi:last-child:nth-child(odd) { grid-column:1/-1; }
+  }
   .hidden { display:none !important; }
   @media(max-width:960px) { .grid.kpis, .grid.kpis.six, .grid.kpis.five { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calc-strip { grid-template-columns:repeat(3,minmax(0,1fr)); } .report-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   @media(max-width:640px) {
@@ -383,7 +466,6 @@
 
   @media(max-width:640px) {
     .topbar { margin-bottom:12px; }
-    .brand-title { display:none; }
     .brand-mark { width:42px; height:42px; border-radius:14px; }
     .brand-mark .melon-svg { width:24px; height:24px; }
     .product-switch { flex:1; min-width:0; width:auto; margin:0; }
@@ -396,7 +478,7 @@
     .ask-actions .btn { min-height:48px; }
   }
 @media(max-width:640px) { .product-tab { font-size:calc(12px * var(--fs)); padding:4px 6px 4px 4px; gap:4px; } .product-tab .mini-icon { width:24px; height:24px; } .product-tab .melon-svg { width:19px; height:19px; } .footer { display:none; } }
-  @media(max-width:420px) { body:not(.login-mode) .topbar .brand { display:none; } .top-actions { width:100%; } }
+
   @media (prefers-reduced-motion:reduce) { .status-dot.red { animation:none; } }
   @media print {
     body { background:white !important; color:#111 !important; font-size:10px !important; }
@@ -420,12 +502,11 @@
 <a href="#viewContainer" class="sr-only">Skip to content</a>
 <div class="app-shell" id="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-mark" aria-hidden="true" id="brandMark"></div><div class="brand-title">FieldLedger</div></div>
+    <div class="brand"><div class="brand-mark" aria-hidden="true" id="brandMark"></div><div class="brand-text"><div class="brand-title" id="brandTitle">FieldLedger</div><div class="brand-sub" id="brandSub"></div></div></div>
     <div class="top-actions">
-      <div class="product-switch" role="tablist" aria-label="Choose business">
-        <button class="product-tab active" type="button" data-product-tab="brinjal" role="tab" aria-selected="true" title="Brinjal / கத்திரிக்காய்"><span class="mini-icon" aria-hidden="true" id="brinjalTabIcon"></span><span class="tab-label">Brinjal</span></button>
-        <button class="product-tab" type="button" data-product-tab="muskmelon" role="tab" aria-selected="false" title="Muskmelon / முலாம்பழம்"><span class="mini-icon" aria-hidden="true" id="melonTabIcon"></span><span class="tab-label">Muskmelon</span></button>
-      </div>
+      <button class="product-toggle" id="productToggle" type="button" role="switch" aria-checked="false" data-action="toggle-product" aria-label="Switch to Muskmelon" title="Switch Brinjal / Muskmelon">
+        <span class="pt-track" aria-hidden="true"><span class="pt-icon pt-left" id="ptLeft"></span><span class="pt-icon pt-right" id="ptRight"></span><span class="pt-knob" id="ptKnob"></span></span>
+      </button>
       <button class="icon-btn" id="quickThemeBtn" type="button" aria-label="Switch to dark mode" title="Light / dark mode"></button>
       <button class="account-chip" id="accountChip" type="button" data-action="account" aria-label="Account and sync"><span class="avatar" id="avatarInitial" aria-hidden="true">M</span><span class="status-dot" id="statusDot" aria-hidden="true"></span></button>
     </div>
@@ -451,7 +532,6 @@
    * ------------------------------------------------------------------ */
   const STORAGE_KEY = 'fieldledger-v2';
   const LEGACY_KEY = 'fieldledger-prototype-v1'; // original prototype key; read once for migration, never written
-  const UI_KEY = 'fieldledger-ui';
   const SCHEMA_VERSION = 2;
   const PRODUCTS = ['brinjal', 'muskmelon'];
   const VIEWS = ['dashboard', 'entry', 'records', 'reports', 'tools', 'settings', 'profile'];
@@ -462,7 +542,7 @@
   const NEW_BAG_KG = 32;
   const MAX_BAGS = 60;
   const MAX_WORKERS = 50;
-  const APP_VERSION = '2.3.1';
+  const APP_VERSION = '2.4.0';
   // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
   const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
   // Running as a published claude.ai page: downloads go through the host's "downloads" capability
@@ -854,8 +934,8 @@
   let lastFocus = null;
   let toastTimer;
   let importStatus = '';
-  try { const ui = JSON.parse(lsGet(UI_KEY) || '{}'); if (PRODUCTS.includes(ui.product)) activeProduct = ui.product; } catch (_) { /* ignore */ }
-  const saveUI = () => { try { lsSet(UI_KEY, JSON.stringify({ product: activeProduct })); } catch (_) { /* ignore */ } };
+  // The app always opens on Brinjal; the business is not remembered between launches.
+  const saveUI = () => {};
   const dataset = (p = activeProduct) => state.data[p] || (state.data[p] = []);
   const sortedDesc = (p = activeProduct) => dataset(p).slice().sort((a, b) => b.date.localeCompare(a.date) || String(b.updatedAt).localeCompare(String(a.updatedAt)));
 
@@ -881,8 +961,21 @@
     const tb = $('#quickThemeBtn'); tb.innerHTML = icon(dark ? 'sun' : 'moon'); tb.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
     const p = state.profile; const initial = (p.farmName || p.ownerName || 'F').trim().charAt(0).toUpperCase() || 'F';
     $('#avatarInitial').textContent = cloud.session() ? (cloud.session().email || initial).charAt(0).toUpperCase() : initial;
-    if (!$('#brandMark').firstChild) { $('#brandMark').innerHTML = `<span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span>`; $('#brinjalTabIcon').innerHTML = brinjalSvg; $('#melonTabIcon').innerHTML = melonSvg; }
-    $$('.product-tab').forEach(t => { const on = t.dataset.productTab === activeProduct; t.classList.toggle('active', on); t.setAttribute('aria-selected', String(on)); });
+    // Top-left shows the business you are in; the switch beside the theme button changes it.
+    const login = b.classList.contains('login-mode'); const brandKey = login ? 'app' : activeProduct;
+    const mark = $('#brandMark');
+    if (mark.dataset.k !== brandKey) {
+      mark.dataset.k = brandKey;
+      mark.innerHTML = login ? `<span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span>` : productIcon(activeProduct);
+      mark.classList.toggle('single', !login);
+    }
+    $('#brandTitle').textContent = login ? 'FieldLedger' : CFG[activeProduct].name;
+    $('#brandSub').textContent = login ? 'Farm business ledger' : CFG[activeProduct].tamil;
+    $('#brandSub').lang = login ? 'en' : 'ta';
+    if (!$('#ptLeft').firstChild) { $('#ptLeft').innerHTML = brinjalSvg; $('#ptRight').innerHTML = melonSvg; }
+    const pt = $('#productToggle'); const isM = activeProduct === 'muskmelon';
+    pt.setAttribute('aria-checked', String(isM)); pt.setAttribute('aria-label', `Business: ${CFG[activeProduct].name}. Switch to ${isM ? 'Brinjal' : 'Muskmelon'}`);
+    const knob = $('#ptKnob'); if (knob.dataset.p !== activeProduct) { knob.dataset.p = activeProduct; knob.innerHTML = productIcon(activeProduct); }
     const navActive = ['settings', 'profile'].includes(activeView) ? 'tools' : activeView;
     $('#mainNav').innerHTML = NAV.map(([v, ic, label]) => `<button class="nav-btn ${navActive === v ? 'active' : ''}" type="button" data-nav="${v}" ${navActive === v ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`).join('');
     document.title = `${VIEW_TITLES[activeView] || 'Overview'} · ${CFG[activeProduct].name} · FieldLedger`;
@@ -924,6 +1017,7 @@
     const st = buildStatement('brinjal', month); const t = st.totals;
     const recent = sortedDesc('brinjal').slice(0, 5);
     const ml = monthLabel(month);
+    const recentList = recent.length ? `<div class="record-cards recent-list">${recent.map(r => { const net = calc.recordNet('brinjal', r); return `<button class="recent-row" type="button" data-action="view-record" data-id="${esc(r.id)}"><span class="rr-date"><strong>${esc(dateLabel(r.date))}</strong><small>${esc(r.brinjalType)}</small></span><span class="rr-mid">${fmt(r.bagDetails.length)} bags · ${fmt(calc.kg('brinjal', r))} kg</span><span class="rr-net ${netCls(net)}">${money(net)}</span>${icon('chevR')}</button>`; }).join('')}</div>` : '';
     const recentRows = recent.length ? recent.map(r => `<tr><td><strong>${esc(dateLabel(r.date))}</strong></td><td class="num">${fmt(r.bagDetails.length)}</td><td class="num">${fmt(calc.kg('brinjal', r))} kg</td><td class="num">${money(calc.gross('brinjal', r))}</td><td class="num">${money(calc.labour(r))}</td><td class="num ${netCls(calc.recordNet('brinjal', r))}">${money(calc.recordNet('brinjal', r))}</td><td><div class="btn-row"><button class="btn small-btn" type="button" data-action="view-record" data-id="${esc(r.id)}">${icon('eye')} View</button><button class="btn small-btn" type="button" data-action="edit-record" data-id="${esc(r.id)}">${icon('edit')} Edit</button></div></td></tr>`).join('')
       : `<tr><td colspan="7">${emptyState('No brinjal entries yet.', 'Add your first daily record to see totals here.')}</td></tr>`;
     return `<div class="card-head" style="margin-bottom:12px"><div class="muted small">Monthly totals for <strong>${esc(ml)}</strong> · ${t.records} daily record${t.records === 1 ? '' : 's'}</div>${monthNav('dashMonth', 'Overview month')}</div>
@@ -939,7 +1033,7 @@
         <section class="card"><div class="card-head"><div><h2>Sales activity</h2><div class="muted small">Daily gross sales · ${esc(ml)}</div></div><span class="tag">${t.records} entries</span></div>${barChart(st.rows.filter(r => r.kind === 'record').map(r => ({ label: dateLabel(r.date), value: r.gross })), `No brinjal records in ${esc(ml)}.`)}<div class="small muted" style="margin-top:12px">Bars show gross sales by date, before expenses and labour.</div></section>
       </div>
       <section class="card section-gap"><div class="card-head"><div><h2>Recent entries</h2><div class="muted small">Latest saved days for Brinjal (all months)</div></div><button class="btn small-btn" type="button" data-nav="records">View all ${icon('chevR')}</button></div>
-      <div class="table-wrap"><table><thead><tr><th>Date</th><th class="num">Bags</th><th class="num">Weight</th><th class="num">Gross sales</th><th class="num">Labour</th><th class="num">Net (this day)</th><th>Actions</th></tr></thead><tbody>${recentRows}</tbody></table></div></section>`;
+      <div class="table-wrap records-table"><table><thead><tr><th>Date</th><th class="num">Bags</th><th class="num">Weight</th><th class="num">Gross sales</th><th class="num">Labour</th><th class="num">Net (this day)</th><th>Actions</th></tr></thead><tbody>${recentRows}</tbody></table></div>${recentList}</section>`;
   }
   function monthsWithData(product) {
     const set = new Set();
@@ -953,6 +1047,7 @@
       const mt = buildStatement('muskmelon', m).totals;
       return `<tr class="${m === month ? 'selected' : ''}"><td><strong>${esc(monthLabel(m))}</strong>${m === month ? ' <span class="tag">Selected</span>' : ''}<div class="muted small">${mt.records} daily record${mt.records === 1 ? '' : 's'}</div></td><td class="num">${fmt(mt.kg)} kg</td><td class="num positive">${money(mt.gross)}</td><td class="num negative">${money(mt.expenses)}</td><td class="num">${money(mt.labour)}</td><td class="num ${netCls(mt.net)}">${money(mt.net)}</td><td><button class="btn small-btn" type="button" data-month-report="${esc(m)}">Statement ${icon('chevR')}</button></td></tr>`;
     }).join('') : `<tr><td colspan="7">${emptyState('No monthly totals yet.', 'Add muskmelon daily records to build monthly performance.', melonSvg)}</td></tr>`;
+    const monthList = months.length ? `<div class="record-cards recent-list">${months.map(m => { const mt = buildStatement('muskmelon', m).totals; return `<button class="recent-row" type="button" data-month-report="${esc(m)}"><span class="rr-date"><strong>${esc(monthLabel(m))}</strong><small>${mt.records} record${mt.records === 1 ? '' : 's'}</small></span><span class="rr-mid">${fmt(mt.kg)} kg</span><span class="rr-net ${netCls(mt.net)}">${money(mt.net)}</span>${icon('chevR')}</button>`; }).join('')}</div>` : '';
     const trend = months.slice(0, 6).reverse().map(m => ({ label: monthLabel(m).replace(/ (\d{4})$/, " '$1").replace(/'(\d\d)(\d\d)/, "'$2"), value: buildStatement('muskmelon', m).totals.gross }));
     return `<section class="card"><div class="month-hero"><div><div class="eyebrow">Monthly focus</div><h2 style="font-size:22px;margin-top:4px">${esc(monthLabel(month))}</h2><div class="big ${netCls(t.net)} mono">${money(t.net)}</div><div class="muted small">Net after costs · ${t.records} daily record${t.records === 1 ? '' : 's'}${t.kg ? ` · average rate ${money(t.avgRate)}/kg` : ''}</div></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:min(100%,300px)">${monthNav('dashMonth', 'Focus month')}<button class="btn primary" type="button" data-month-report="${esc(month)}">${icon('report')} Open ${esc(monthLabel(month))} statement</button></div></div></section>
       <div class="grid kpis five section-gap">
@@ -963,8 +1058,8 @@
         ${kpi('Net after costs', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross − expenses − labour')}
       </div>
       <div class="grid two section-gap">
-        <section class="card"><div class="card-head"><div><h2>Monthly performance</h2><div class="muted small">Every month with muskmelon activity, newest first</div></div><span class="kpi-icon">${melonSvg}</span></div>
-          <div class="table-wrap"><table style="min-width:600px"><thead><tr><th>Month</th><th class="num">Quantity</th><th class="num">Gross income</th><th class="num">Expenses</th><th class="num">Labour</th><th class="num">Net</th><th>Statement</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+        <section class="card"><div class="card-head"><div><h2>Monthly performance</h2><div class="muted small">Every month with muskmelon activity, newest first</div></div></div>
+          <div class="table-wrap records-table"><table style="min-width:600px"><thead><tr><th>Month</th><th class="num">Quantity</th><th class="num">Gross income</th><th class="num">Expenses</th><th class="num">Labour</th><th class="num">Net</th><th>Statement</th></tr></thead><tbody>${monthRows}</tbody></table></div>${monthList}
 </section>
         <section class="card"><div class="card-head"><div><h2>Gross income by month</h2><div class="muted small">Last ${Math.min(6, months.length) || 0} active month(s)</div></div></div>${barChart(trend, 'No months with data yet.')}</section>
       </div>`;
@@ -1011,7 +1106,7 @@
   function typeField(d) {
     const types = state.settings.brinjalTypes; const custom = d.typeMode === 'custom';
     const extra = d.brinjalType && !types.includes(d.brinjalType) && !custom ? `<option value="${esc(d.brinjalType)}" selected>${esc(d.brinjalType)} (not in list)</option>` : '';
-    return `<div class="field"><label for="entryType">Brinjal type / category</label>
+    return `<div class="field f-full f-o1"><label for="entryType">Brinjal type / category</label>
       <select id="entryType">${extra}${types.map(t => `<option value="${esc(t)}" ${!custom && t === d.brinjalType ? 'selected' : ''}>${esc(t)}</option>`).join('')}<option value="__custom__" ${custom ? 'selected' : ''}>＋ New type…</option></select>
       <input id="entryTypeCustom" class="${custom ? '' : 'hidden'}" maxlength="50" placeholder="New type, e.g. Green round" value="${esc(d.customType)}" aria-label="New brinjal type" autocomplete="off">
       <div class="field-hint">For all bags today. A new type is added to Settings.</div></div>`;
@@ -1022,13 +1117,13 @@
     const d = draft; const isB = d.product === 'brinjal'; const editing = !!d.id; const w = productWages(d.product);
     const head = `<div class="entry-head"><h2>${editing ? 'Edit entry' : 'Daily entry'}</h2>
       <label class="date-pill" title="Change date">${icon('calendar')}<span id="datePillText">${esc(datePillText(d.date))}</span>${icon('chevR', 'pill-chev')}<input id="entryDate" type="date" data-field="date" value="${esc(d.date)}" aria-label="Entry date"></label></div>`;
-    const rate = `<div class="field"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's rate" value="${esc(d.ratePerKg)}"></div>`;
-    const wastage = `<div class="field"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Not priced.</div></div>`;
+    const rate = `<div class="field f-o3"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's rate" value="${esc(d.ratePerKg)}"></div>`;
+    const wastage = `<div class="field f-o4"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Not priced.</div></div>`;
     const top = isB
-      ? `<div class="form-grid">${typeField(d)}${rate}
-          <div class="field"><label for="bagCount">Number of bags</label><div class="inline-action"><input id="bagCount" type="number" inputmode="numeric" min="0" max="${MAX_BAGS}" step="1" placeholder="e.g. 10" value="${d.bagDetails.length || ''}"><button type="button" class="btn" data-action="open-bags">${icon('edit')} Weights</button></div><div id="bagSummary" style="margin-top:6px">${bagSummary(d.bagDetails)}</div></div>
+      ? `<div class="form-grid entry-grid">${typeField(d)}${rate}
+          <div class="field f-full f-o2"><label for="bagCount">Number of bags</label><div class="inline-action"><input id="bagCount" type="number" inputmode="numeric" min="0" max="${MAX_BAGS}" step="1" placeholder="e.g. 10" value="${d.bagDetails.length || ''}"><button type="button" class="btn" data-action="open-bags">${icon('edit')} Weights</button></div><div id="bagSummary" style="margin-top:6px">${bagSummary(d.bagDetails)}</div></div>
           ${wastage}</div>`
-      : `<div class="form-grid three"><div class="field"><label for="entryKg">Quantity (kg)</label><input id="entryKg" type="number" inputmode="decimal" min="0" step="0.01" data-field="kg" required placeholder="e.g. 1500" value="${esc(d.kg)}"></div>${rate}${wastage}</div>`;
+      : `<div class="form-grid three entry-grid"><div class="field f-full f-o1"><label for="entryKg">Quantity (kg)</label><input id="entryKg" type="number" inputmode="decimal" min="0" step="0.01" data-field="kg" required placeholder="e.g. 1500" value="${esc(d.kg)}"></div>${rate}${wastage}</div>`;
     const legacy = d.legacyLabour ? `<div class="legacy-box"><span>${icon('alert')} Earlier record: ${fmt(d.legacyLabour.workers)} workers · ${money(d.legacyLabour.salary)} (men/women not recorded).</span><button class="btn small-btn" type="button" data-action="legacy-remove">Use men/women instead</button></div>`
       : (d.removedLegacy ? `<div class="legacy-box"><span>The earlier labour amount will be removed when you save.</span><button class="btn small-btn" type="button" data-action="legacy-undo">Undo</button></div>` : '');
     const wageHint = (v, def) => num(v) === def ? `Default from Settings` : `This entry only · default ${money(def)}`;
@@ -1934,25 +2029,46 @@
   const authErr = e => (e.network ? 'No internet connection. Try again when you are online.'
     : /expired|invalid/i.test(e.message) ? 'That code is wrong or has expired. Check the latest email or tap “Resend code”.'
     : e.status === 429 ? 'Too many requests. Wait a minute, then try again.' : e.message);
-  async function sendCode(email) {
-    setLoginStatus('Sending code…');
-    $$('.login-card button').forEach(b => { b.disabled = true; });
+  /** Shows a spinner + label on a button while work runs; returns a function that restores it. */
+  function busy(btn, label) {
+    if (!btn) return () => {};
+    const html = btn.innerHTML;
+    btn.classList.add('loading'); btn.disabled = true; btn.setAttribute('aria-busy', 'true');
+    btn.innerHTML = `<span class="spinner" aria-hidden="true"></span>${esc(label)}`;
+    return () => { if (!document.body.contains(btn)) return; btn.classList.remove('loading'); btn.disabled = false; btn.removeAttribute('aria-busy'); btn.innerHTML = html; };
+  }
+  async function sendCode(email, fromResend) {
+    const btn = fromResend ? $('#otpResend') : $('#loginForm [type="submit"]');
+    const done = busy(btn, fromResend ? 'Sending…' : 'Sending code…');
+    const email$ = $('#loginEmail'); if (email$) email$.disabled = true;
+    setLoginStatus(`Sending a 6-digit code to ${email}…`);
     try {
       await cloud.sendOtp(email);
       otpEmail = email; otpCooldownUntil = Date.now() + 60000;
-      render(); setLoginStatus('Code sent. It may take a minute — check spam too.'); tickResend();
+      render(); setLoginStatus('Code sent. It can take a minute to arrive — check spam too.'); tickResend();
       const c = $('#otpCode'); if (c) c.focus();
-    } catch (e) { setLoginStatus(authErr(e), true); $$('.login-card button').forEach(b => { b.disabled = false; }); }
+    } catch (e) {
+      done(); if (email$) email$.disabled = false;
+      setLoginStatus(authErr(e), true); if (fromResend) tickResend();
+    }
   }
+  let verifying = false;
   async function verifyCode() {
-    const code = String($('#otpCode').value).replace(/\D/g, '');
-    if (code.length !== 6) return markInvalid($('#otpCode'), 'Enter the 6-digit code from the email.');
-    setLoginStatus('Checking code…');
-    $$('.login-card button').forEach(b => { b.disabled = true; });
+    if (verifying) return;
+    const input = $('#otpCode'); const code = String(input.value).replace(/\D/g, '');
+    if (code.length !== 6) return markInvalid(input, 'Enter the 6-digit code from the email.');
+    verifying = true;
+    const done = busy($('#otpForm [type="submit"]'), 'Verifying code…');
+    input.disabled = true; $$('#otpForm .login-links button').forEach(b => { b.disabled = true; });
+    setLoginStatus('Verifying your code…');
     try {
       await cloud.verifyOtp(otpEmail, code);
-      otpEmail = ''; showToast('Signed in. Your records are syncing.'); render();
-    } catch (e) { setLoginStatus(authErr(e), true); $$('.login-card button').forEach(b => { b.disabled = false; }); tickResend(); $('#otpCode').select(); }
+      otpEmail = ''; activeProduct = 'brinjal'; activeView = 'dashboard';
+      showToast('Signed in. Your records are syncing.'); render(); pushHash();
+    } catch (e) {
+      done(); input.disabled = false; $$('#otpForm .login-links button').forEach(b => { b.disabled = false; });
+      setLoginStatus(authErr(e), true); tickResend(); input.focus(); input.select();
+    } finally { verifying = false; }
   }
   function openAccountSheet() {
     const s = cloud.session(); const st = cloud.status();
@@ -2066,10 +2182,11 @@
       case 'records-clear': recordsFilter = { month: '', q: '' }; render(); break;
       case 'export-json': exportJSON(); break;
       case 'account': openAccountSheet(); break;
+      case 'toggle-product': switchProduct(activeProduct === 'brinjal' ? 'muskmelon' : 'brinjal'); break;
       case 'sync-now': cloud.syncNow(true); break;
       case 'go-login': if (modalOpen()) closeModal(); cloud.wantLogin(); render(); break;
       case 'local-only': cloud.useLocally(); render(); showToast('Using FieldLedger on this phone only. Sign in any time from the account button.'); break;
-      case 'otp-resend': if (Date.now() >= otpCooldownUntil) sendCode(otpEmail); break;
+      case 'otp-resend': if (Date.now() >= otpCooldownUntil) sendCode(otpEmail, true); break;
       case 'otp-change-email': otpEmail = ''; render(); break;
       case 'change-server': if (await ask('Change the cloud server?\n\nYou will need the Project URL and anon key again.', { ok: 'Change' })) { cloud.clearServer(); render(); } break;
       case 'sign-out': {

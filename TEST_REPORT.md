@@ -1,9 +1,9 @@
 # FieldLedger: Acceptance Test Report
 
-- **Build tested:** `index.html` v2.3.0, the claude.ai page variant, and a simulated Android shell.
+- **Build tested:** `index.html` v2.4.0, the claude.ai page variant, and a simulated Android shell.
 - **How:** `npm test` (`tests/acceptance.js`) drives the real app in headless Chromium 141 (Playwright 1.56).
   - Sign-in and sync run against `tests/mock-supabase.js`, an in-memory stand-in for Supabase Auth + PostgREST. The real Supabase service was **not** used.
-- **Result:** **101 / 101 automated checks passed** (run 2026-10-20).
+- **Result:** **109 / 109 automated checks passed** (run 2026-10-20).
 
 ## Not tested
 
@@ -18,7 +18,7 @@
 
 | Result | Check | Observed |
 |---|---|---|
-| ✅ Pass | First launch shows the sign-in screen (Supabase setup step when not configured) |  |
+| ✅ Pass | First launch shows the email sign-in for the built-in Supabase project |  |
 | ✅ Pass | “Use without an account” opens the app on this device |  |
 | ✅ Pass | Status dot is orange when online but not signed in | status-dot orange |
 | ✅ Pass | Local-only choice is remembered after reload |  |
@@ -27,10 +27,14 @@
 
 | Result | Check | Observed |
 |---|---|---|
-| ✅ Pass | Top bar order: product switch → theme → account | product-switch / icon-btn / account-chip |
+| ✅ Pass | Top bar order: product toggle → theme → account | product-toggle / icon-btn / account-chip |
 | ✅ Pass | Text-size button removed from the top bar |  |
 | ✅ Pass | Large page title / emblem block removed |  |
 | ✅ Pass | Small brinjal SVG icon used instead of the eggplant emoji |  |
+| ✅ Pass | Business switch is a text-free toggle (role=switch) | {"role":"switch","checked":"false","text":""} |
+| ✅ Pass | Top-left shows the Brinjal icon and name |  |
+| ✅ Pass | Toggling switches to Muskmelon: knob moves, top-left shows Muskmelon |  |
+| ✅ Pass | A fresh launch always opens on Brinjal |  |
 | ✅ Pass | Quick-actions duplicate card removed from the overview |  |
 
 ### Sample data reconciles with the source sheet
@@ -135,8 +139,10 @@
 |---|---|---|
 | ✅ Pass | Bad project URL is rejected with a message |  |
 | ✅ Pass | Sign-in asks only for an email (no password field) |  |
+| ✅ Pass | “Send code” shows a spinner and “Sending code…” while sending | {"loading":true,"disabled":true,"text":"Sending code…","spinner":true} |
 | ✅ Pass | “Send code” emails a 6-digit code and shows the code field |  |
 | ✅ Pass | Resend is locked for 60 seconds |  |
+| ✅ Pass | While checking, the button shows “Verifying code…” with a spinner and the code field is locked | {"text":"Verifying code…","status":"Verifying your code…","inputLocked":true} |
 | ✅ Pass | A wrong code shows a clear message |  |
 | ✅ Pass | Correct code creates the account, signs in, and the dot turns green |  |
 | ✅ Pass | Sample records are removed once an account is used |  |
@@ -166,7 +172,9 @@
 | Result | Check | Observed |
 |---|---|---|
 | ✅ Pass | No horizontal overflow at 360px on any screen | 14 screens fit |
-| ✅ Pass | Product names fit in the top bar at 360px | [true,true] |
+| ✅ Pass | Top bar fits at 360px (brand, toggle, theme, account on one row) | {"brand":173,"toggle":181,"acct":349,"vw":360} |
+| ✅ Pass | Recent entries show as a tappable list on phones (no sideways table) |  |
+| ✅ Pass | Rate and Wastage share one row on phones |  |
 | ✅ Pass | Bottom navigation fixed and on-screen | {"x":8,"y":664,"width":344,"height":68} |
 | ✅ Pass | 12-bag sheet scrolls and Save stays visible | {"scrollable":true,"bottom":728} |
 | ✅ Pass | 12 bags saved on phone |  |

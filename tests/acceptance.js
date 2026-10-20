@@ -60,7 +60,7 @@ async function helpers(page, ctxName) {
     settle: async () => { await page.waitForFunction(() => !document.querySelector('.ask-layer')); await page.waitForTimeout(80); },
     view: () => page.evaluate(() => document.body.dataset.view),
     nav: async v => { await page.locator(`.nav [data-nav="${v}"]`).click(); await page.waitForFunction(v => document.body.dataset.view === v, v); },
-    product: async p => { await page.locator(`.topbar [data-product-tab="${p}"]`).click(); await page.waitForFunction(p => document.body.dataset.product === p, p); },
+    product: async p => { if (await page.evaluate(() => document.body.dataset.product) !== p) await page.locator('#productToggle').click(); await page.waitForFunction(p => document.body.dataset.product === p, p); },
     setMonth: async m => { const el = page.locator('.month-input').first(); await el.fill(m); await el.dispatchEvent('change'); },
     download: async (action, filenameOut) => {
       const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 10000 }), page.locator(`[data-action="${action}"]:visible`).first().click()]);
@@ -105,10 +105,17 @@ async function helpers(page, ctxName) {
   group('Compact shell: product switch beside theme, no page title block');
   {
     const ids = await page.evaluate(() => Array.from(document.querySelector('.top-actions').children).map(e => e.className || e.id));
-    check('Top bar order: product switch → theme → account', /product-switch/.test(ids[0]) && /icon-btn/.test(ids[1]) && /account-chip/.test(ids[2]), ids.join(' | '));
+    check('Top bar order: product toggle → theme → account', /product-toggle/.test(ids[0]) && /icon-btn/.test(ids[1]) && /account-chip/.test(ids[2]), ids.join(' | '));
     check('Text-size button removed from the top bar', (await page.locator('#quickTextBtn').count()) === 0);
     check('Large page title / emblem block removed', (await page.locator('.context-row, #pageTitle, .emblem').count()) === 0);
-    check('Small brinjal SVG icon used instead of the eggplant emoji', !(await page.content()).includes('🍆') && (await page.locator('#brinjalTabIcon svg').count()) === 1);
+    check('Small brinjal SVG icon used instead of the eggplant emoji', !(await page.content()).includes('🍆') && (await page.locator('#brandMark svg').count()) === 1);
+    const tog = await page.evaluate(() => { const b = document.querySelector('#productToggle'); return { role: b.getAttribute('role'), checked: b.getAttribute('aria-checked'), text: b.innerText.trim() }; });
+    check('Business switch is a text-free toggle (role=switch)', tog.role === 'switch' && tog.checked === 'false' && tog.text === '', JSON.stringify(tog));
+    check('Top-left shows the Brinjal icon and name', (await text('#brandTitle')) === 'Brinjal' && (await page.locator('#brandMark.single svg').count()) === 1);
+    await page.locator('#productToggle').click(); await page.waitForFunction(() => document.body.dataset.product === 'muskmelon');
+    check('Toggling switches to Muskmelon: knob moves, top-left shows Muskmelon', (await page.locator('#productToggle').getAttribute('aria-checked')) === 'true' && (await text('#brandTitle')) === 'Muskmelon' && (await page.locator('#ptKnob .melon-svg').count()) === 1);
+    await page.goto(base + '/index.html'); await page.waitForSelector('#viewContainer .kpi');
+    check('A fresh launch always opens on Brinjal', await page.evaluate(() => document.body.dataset.product === 'brinjal'));
     check('Quick-actions duplicate card removed from the overview', !(await page.content()).includes('Quick actions'));
   }
 
@@ -304,7 +311,7 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await tp.evaluate(() => { window.__vt = []; new MutationObserver(() => { const v = document.documentElement.dataset.vt; if (v) window.__vt.push(v); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-vt'] }); });
     await tp.locator('.nav [data-nav="records"]').click(); await tp.waitForTimeout(500);
     await tp.locator('.nav [data-nav="dashboard"]').click(); await tp.waitForTimeout(500);
-    await tp.locator('[data-product-tab="muskmelon"]').click(); await tp.waitForTimeout(500);
+    await tp.locator('#productToggle').click(); await tp.waitForTimeout(500);
     await tp.locator('#quickThemeBtn').click(); await tp.waitForTimeout(700);
     const vt = await tp.evaluate(() => window.__vt);
     check('Tabs slide forward/back, product cross-fades, theme reveals (View Transitions)', ['forward', 'back', 'product', 'theme'].every(k => vt.includes(k)), vt.join(','));
@@ -329,13 +336,23 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await A.p.locator('#cloudUrl').fill(cloudUrl); await A.p.locator('#cloudKey').fill('anon-key-for-tests-0123456789'); await A.p.locator('#cloudSetupForm button[type="submit"]').click();
     await A.p.waitForSelector('#loginForm');
     check('Sign-in asks only for an email (no password field)', (await A.p.locator('input[type="password"]').count()) === 0);
+    await A.p.route('**/auth/v1/otp', async r => { await new Promise(res => setTimeout(res, 700)); await r.continue(); });
     await A.p.locator('#loginEmail').fill('farmer@example.com'); await A.p.locator('#loginForm [type="submit"]').click();
+    const sending = await A.p.locator('#loginForm [type="submit"]').evaluate(b => ({ loading: b.classList.contains('loading'), disabled: b.disabled, text: b.innerText, spinner: !!b.querySelector('.spinner') }));
+    check('“Send code” shows a spinner and “Sending code…” while sending', sending.loading && sending.disabled && sending.spinner && /Sending code/.test(sending.text), JSON.stringify(sending));
+    await A.p.waitForSelector('#otpCode'); await A.p.unroute('**/auth/v1/otp');
     await A.p.waitForSelector('#otpCode');
     check('“Send code” emails a 6-digit code and shows the code field', /^\d{6}$/.test(mock.codes.get('farmer@example.com') || '') && (await A.p.locator('#otpCode').getAttribute('autocomplete')) === 'one-time-code');
     check('Resend is locked for 60 seconds', await A.p.locator('#otpResend').isDisabled() && /Resend in/.test(await A.p.locator('#otpResend').innerText()));
-    await A.p.locator('#otpCode').fill('000000'); await A.p.locator('#otpForm [type="submit"]').click();
+    await A.p.route('**/auth/v1/verify', async r => { await new Promise(res => setTimeout(res, 700)); await r.continue(); });
+    await A.p.locator('#otpCode').fill('000000');   // 6 digits auto-submit
+    await A.p.waitForFunction(() => document.querySelector('#otpForm [type="submit"]').classList.contains('loading'));
+    const verifying = await A.p.evaluate(() => ({ text: document.querySelector('#otpForm [type="submit"]').innerText, status: document.querySelector('#loginStatus').textContent, inputLocked: document.querySelector('#otpCode').disabled }));
+    check('While checking, the button shows “Verifying code…” with a spinner and the code field is locked', /Verifying code/.test(verifying.text) && /Verifying your code/.test(verifying.status) && verifying.inputLocked, JSON.stringify(verifying));
     await A.p.waitForFunction(() => /wrong or has expired/.test(document.querySelector('#loginStatus').textContent));
+    await A.p.unroute('**/auth/v1/verify');
     check('A wrong code shows a clear message', true);
+    await A.p.waitForFunction(() => !document.querySelector('#otpCode').disabled);
     await A.p.locator('#otpCode').fill(mock.codes.get('farmer@example.com'));   // 6 digits auto-submit
     await A.p.waitForSelector('#viewContainer .kpi');
     await A.p.waitForFunction(() => document.querySelector('#statusDot').classList.contains('green'), null, { timeout: 8000 });
@@ -440,8 +457,13 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
       if (['dashboard', 'entry', 'reports'].includes(v)) await m.screenshot({ path: path.join(OUT, `mobile360-${p}-${v}.png`), fullPage: true });
     }
     check('No horizontal overflow at 360px on any screen', bad.length === 0, bad.join(', ') || '14 screens fit');
-    const tabs = await m.evaluate(() => Array.from(document.querySelectorAll('.product-tab .tab-label')).map(e => e.scrollWidth <= e.clientWidth + 1));
-    check('Product names fit in the top bar at 360px', tabs.every(Boolean), JSON.stringify(tabs));
+    const top = await m.evaluate(() => { const r = el => document.querySelector(el).getBoundingClientRect(); return { brand: r('.brand').right, toggle: r('#productToggle').left, acct: r('#accountChip').right, vw: innerWidth }; });
+    check('Top bar fits at 360px (brand, toggle, theme, account on one row)', top.brand <= top.toggle && top.acct <= top.vw, JSON.stringify(top));
+    await m.evaluate(() => { location.hash = '#/brinjal/dashboard'; }); await m.waitForTimeout(100);
+    check('Recent entries show as a tappable list on phones (no sideways table)', (await m.locator('.recent-list .recent-row').count()) === 5 && (await m.locator('.records-table').first().isHidden()));
+    await m.evaluate(() => { location.hash = '#/brinjal/entry'; }); await m.waitForTimeout(100);
+    const rw = await m.evaluate(() => { const a = document.querySelector('#entryRate').getBoundingClientRect(), b = document.querySelector('#entryWastage').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right < b.left; });
+    check('Rate and Wastage share one row on phones', rw);
     await m.evaluate(() => { location.hash = '#/brinjal/dashboard'; }); await m.waitForTimeout(100);
     const navBox = await m.locator('.nav').boundingBox();
     check('Bottom navigation fixed and on-screen', navBox.y + navBox.height <= 740 && navBox.y > 600, JSON.stringify(navBox));

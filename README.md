@@ -7,12 +7,26 @@ A mobile-first daily ledger for two separate farm businesses:
 
 You record production, sales, labour and expenses each day, review month-wise statements, and export them as PDF, Excel, CSV or PNG, plus a full JSON backup.
 
-> **Latest runnable build: [`index.html`](index.html)** (v2.3.0). It is a single standalone file with no build step and no dependencies.
-> **Android app:** `release/FieldLedger-2.3.0.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
+> **Latest runnable build: [`index.html`](index.html)** (v2.4.0). It is a single standalone file with no build step and no dependencies.
+> **Android app:** `release/FieldLedger-2.4.0.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
 > **Web link:** https://claude.ai/artifact/D9nAx8srHFF4tJuNo5epya, the same app published on claude.ai. It is private until shared from its Share menu.
 > The original prototype is kept unchanged at [`original/farm_business_ledger_prototype.html`](original/farm_business_ledger_prototype.html).
 
 ---
+
+## What's new in 2.4
+
+- **Business switch:** the Brinjal/Muskmelon choice is now a text-free toggle next to the theme button. The top-left shows the current business's icon and name.
+- **Always opens on Brinjal,** including right after signing in.
+- **Sign-in feedback:**
+  - The button shows a spinner and "Sending code…" while the email is sent.
+  - It shows "Verifying code…" while the code is checked, with the code field locked meanwhile.
+- **Button colours on hover:** coloured buttons (Save, Discard, Delete) keep their colour; previously they turned white in light theme.
+- **Phone layout:**
+  - Recent entries and Muskmelon months show as tappable lists instead of sideways-scrolling tables.
+  - Rate and Wastage share a row.
+  - An odd last summary card spans the full width.
+  - The desktop entry form has a comfortable maximum width.
 
 ## What's new in 2.3
 
@@ -89,7 +103,7 @@ You record production, sales, labour and expenses each day, review month-wise st
 - The **status bar** follows the product colour.
 
 ### Install
-1. Copy `FieldLedger-2.3.0.apk` to the phone and open it.
+1. Copy `FieldLedger-2.4.0.apk` to the phone and open it.
 2. Allow "install unknown apps" for the app you opened it from (Files, Chrome, WhatsApp) when Android asks.
 3. Google Play Protect may warn that the app is from an unknown developer, because it isn't on the Play Store. Choose **Install anyway**.
 

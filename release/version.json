@@ -1,8 +1,8 @@
 {
-  "versionCode": 231,
-  "versionName": "2.3.1",
-  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.3.1.apk",
-  "sha256": "d03e69c2e2e7bfae09d1f75869bac8fbde517affe3943aac037fbc259459a259",
-  "size": 304905,
-  "notes": "Your FieldLedger cloud account is now built in: sign in with your email and the 6-digit code."
+  "versionCode": 240,
+  "versionName": "2.4.0",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.4.0.apk",
+  "sha256": "94ce0ef89a24a229f6475e5ec4ba5b9c052fecdf4458ad5ec061cfa4dcd18905",
+  "size": 309001,
+  "notes": "New Brinjal/Muskmelon switch, current business shown top-left, opens on Brinjal, sending/verifying indicators for the sign-in code, button hover fix and phone layout improvements."
 }
