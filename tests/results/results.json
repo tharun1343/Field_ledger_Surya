@@ -1,11 +1,11 @@
 {
-  "ranAt": "2026-10-20T08:30:21.664Z",
+  "ranAt": "2026-10-20T08:43:28.746Z",
   "passed": 101,
   "total": 101,
   "results": [
     {
       "group": "Sign-in screen and local mode",
-      "name": "First launch shows the sign-in screen (Supabase setup step when not configured)",
+      "name": "First launch shows the email sign-in for the built-in Supabase project",
       "pass": true,
       "detail": ""
     },

@@ -1,8 +1,8 @@
 {
-  "versionCode": 230,
-  "versionName": "2.3.0",
-  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.3.0.apk",
-  "sha256": "52e02a4299e41364cd5c7c6e9148bf9dd223e18ae5e512148851c0d9543dc094",
+  "versionCode": 231,
+  "versionName": "2.3.1",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.3.1.apk",
+  "sha256": "d03e69c2e2e7bfae09d1f75869bac8fbde517affe3943aac037fbc259459a259",
   "size": 304905,
-  "notes": "Sign in with a 6-digit email code (no password). Updates now come from the FieldLedger repository."
+  "notes": "Your FieldLedger cloud account is now built in: sign in with your email and the 6-digit code."
 }

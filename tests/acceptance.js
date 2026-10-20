@@ -92,7 +92,7 @@ async function helpers(page, ctxName) {
   group('Sign-in screen and local mode');
   {
     await page.waitForSelector('.login-card');
-    check('First launch shows the sign-in screen (Supabase setup step when not configured)', (await page.locator('#cloudSetupForm').count()) === 1 && (await page.locator('.nav').isHidden()));
+    check('First launch shows the email sign-in for the built-in Supabase project', (await page.locator('#loginForm #loginEmail').count()) === 1 && /ylztkijajqkuzmgmdody\.supabase\.co/.test(await text('.login-card')) && (await page.locator('.nav').isHidden()));
     await page.locator('[data-action="local-only"]').click();
     await page.waitForSelector('#viewContainer .kpi');
     check('“Use without an account” opens the app on this device', (await H.view()) === 'dashboard');
@@ -318,7 +318,9 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     const mkDevice = async name => {
       const ctx = await browser.newContext({ viewport: { width: 400, height: 860 }, reducedMotion: 'reduce' });
       const p = await ctx.newPage(); const h = await helpers(p, name);
-      await p.goto(base + '/index.html'); await p.waitForSelector('.login-card');
+      await p.goto(base + '/index.html'); await p.waitForSelector('#loginForm');
+      // Point this phone at the mock server through the app's own “Change server” link.
+      await p.locator('[data-action="change-server"]').click(); await p.waitForSelector('#cloudSetupForm');
       return { ctx, p, h };
     };
     const A = await mkDevice('phoneA');

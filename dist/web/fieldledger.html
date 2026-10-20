@@ -454,7 +454,7 @@
   const NEW_BAG_KG = 32;
   const MAX_BAGS = 60;
   const MAX_WORKERS = 50;
-  const APP_VERSION = '2.2.0';
+  const APP_VERSION = '2.3.1';
   // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
   const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
   // Running as a published claude.ai page: downloads go through the host's "downloads" capability
@@ -1706,7 +1706,7 @@
    */
   const CLOUD_KEY = 'fieldledger-cloud';
   // Optional: fill these in before building so people only see email + password on the sign-in screen.
-  const CLOUD_DEFAULTS = { url: '', anonKey: '' };
+  const CLOUD_DEFAULTS = { url: 'https://ylztkijajqkuzmgmdody.supabase.co', anonKey: 'sb_publishable_zMXCgzRUzFrRBpRtNl3LuA_hxnTL7Rf' };
   const cloud = (() => {
     const cfg = { url: '', anonKey: '', session: null, localOnly: false, lastPull: '', outbox: {}, lastSyncAt: '', lastError: '', settingsUpdatedAt: '' };
     try { Object.assign(cfg, JSON.parse(lsGet(CLOUD_KEY) || '{}')); } catch (_) { /* fresh */ }
