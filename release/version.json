@@ -1,8 +1,8 @@
 {
-  "versionCode": 241,
-  "versionName": "2.4.1",
-  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.4.1.apk",
-  "sha256": "21c91f46751bcdffeb20e493f72c27e73f1517c81bc912b0a245c20efd9b7ce6",
-  "size": 309001,
-  "notes": "Checks for updates every time the app opens, with a backup update address."
+  "versionCode": 242,
+  "versionName": "2.4.2",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.4.2.apk",
+  "sha256": "9023c39511d08bcaca59ab6fd5aef6398131b797e0785a11faf136f0edd7ab16",
+  "size": 313097,
+  "notes": "FieldLedger 2.4.2"
 }

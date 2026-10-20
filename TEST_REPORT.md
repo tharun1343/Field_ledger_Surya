@@ -1,6 +1,6 @@
 # FieldLedger: Acceptance Test Report
 
-- **Build tested:** `index.html` v2.4.0, the claude.ai page variant, and a simulated Android shell.
+- **Build tested:** `index.html` v2.4.2, the claude.ai page variant, and a simulated Android shell.
 - **How:** `npm test` (`tests/acceptance.js`) drives the real app in headless Chromium 141 (Playwright 1.56).
   - Sign-in and sync run against `tests/mock-supabase.js`, an in-memory stand-in for Supabase Auth + PostgREST. The real Supabase service was **not** used.
 - **Result:** **109 / 109 automated checks passed** (run 2026-10-20).

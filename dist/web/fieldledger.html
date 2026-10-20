@@ -419,6 +419,19 @@
     .kpi-note { padding-right:18px; }
     .report-summary > .report-tile:last-child:nth-child(odd), .grid.kpis > .kpi:last-child:nth-child(odd) { grid-column:1/-1; }
   }
+
+  /* 3D colour icons */
+  .i3d { width:1.7em; height:1.7em; flex:none; vertical-align:middle; filter: drop-shadow(0 2px 2px rgba(30,20,60,.18)); }
+  .i3d.sm { width:1.4em; height:1.4em; }
+  .h-ico { display:flex; align-items:center; gap:10px; }
+  .h-ico .i3d, .h-ico .melon-svg { width:34px; height:34px; }
+  .kpi-icon:has(.i3d), .quick-icon:has(.i3d) { background:none; box-shadow:none; width:auto; height:auto; }
+  .kpi-icon .i3d { width:36px; height:36px; }
+  .quick-icon .i3d { width:38px; height:38px; }
+  .nav-btn .i3d { width:26px; height:26px; transition: filter .25s, transform .25s; filter: saturate(.25) opacity(.7) drop-shadow(0 1px 1px rgba(30,20,60,.12)); }
+  .nav-btn.active .i3d, .nav-btn:hover .i3d { filter: drop-shadow(0 3px 3px rgba(30,20,60,.22)); transform: translateY(-1px) scale(1.06); }
+  .btn .i3d { margin-left:-2px; }
+  @media(max-width:640px) { .nav-btn .i3d { width:28px; height:28px; } .h-ico .i3d, .h-ico .melon-svg { width:30px; height:30px; } }
   .hidden { display:none !important; }
   @media(max-width:960px) { .grid.kpis, .grid.kpis.six, .grid.kpis.five { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calc-strip { grid-template-columns:repeat(3,minmax(0,1fr)); } .report-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   @media(max-width:640px) {
@@ -534,7 +547,7 @@
   const NEW_BAG_KG = 32;
   const MAX_BAGS = 60;
   const MAX_WORKERS = 50;
-  const APP_VERSION = '2.4.1';
+  const APP_VERSION = '2.4.2';
   // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
   const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
   // Running as a published claude.ai page: downloads go through the host's "downloads" capability
@@ -616,6 +629,47 @@
     copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>'
   };
   const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name] || ''}</svg>`;
+  /* ------------------------------------------------------------------
+   * 3D colour icons (tabs, exports, settings, summary cards)
+   * Shared gradients live once in #i3dDefs; each icon is a 48×48 SVG.
+   * ------------------------------------------------------------------ */
+  const I3D_GRADS = { red: ['#ff8080', '#d93030'], green: ['#62e08f', '#1b9a52'], blue: ['#6cc6ff', '#2669d6'], purple: ['#bb98ff', '#6a3cd6'], orange: ['#ffc56e', '#ee7419'],
+    yellow: ['#fff18a', '#f2ae00'], paper: ['#ffffff', '#dfe3ee'], gray: ['#eef0f5', '#959cb0'], brown: ['#e6b47e', '#9c5d2a'], teal: ['#74f0da', '#119c85'], cream: ['#fff8e6', '#ecd29c'],
+    indigo: ['#9aa3ff', '#3a3cb2'], gold: ['#ffe680', '#d39300'], sky: ['#d4efff', '#69b6f1'], skin: ['#ffd9b8', '#e0a477'] };
+  const i3dDefs = () => `<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>${Object.entries(I3D_GRADS).map(([k, [a, b]]) => `<linearGradient id="fl-${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient>`).join('')}</defs></svg>`;
+  const SH = '<ellipse cx="24" cy="44.6" rx="14" ry="2.2" fill="#1a1035" opacity=".16"/>';
+  const HL = (x, y, w, h, r = 2) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="#fff" opacity=".35"/>`;
+  const doc = (band, label, extra = '') => `${SH}<path d="M12 4h17l10 10v27a3 3 0 0 1-3 3H12a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3z" fill="url(#fl-paper)" stroke="#c3c8d6"/><path d="M29 4v8a2 2 0 0 0 2 2h8z" fill="#cfd4e1"/>${extra}<rect x="4" y="24" width="31" height="13" rx="3.5" fill="url(#fl-${band})"/>${HL(6, 25.2, 27, 3.4, 1.7)}<text x="19.5" y="34.2" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="9" font-weight="800" fill="#fff" letter-spacing=".4">${label}</text>`;
+  const gearTeeth = Array.from({ length: 8 }, (_, i) => `<rect x="21" y="5" width="6" height="9" rx="1.6" transform="rotate(${i * 45} 24 24)"/>`).join('');
+  const I3D = {
+    home: `${SH}<rect x="31" y="8" width="5" height="11" rx="1" fill="url(#fl-brown)"/><path d="M10 22v18a2 2 0 0 0 2 2h24a2 2 0 0 0 2-2V22L24 11z" fill="url(#fl-cream)" stroke="#d6b47f"/><path d="M4.5 24.5 24 7l19.5 17.5-3 3.2L24 13 7.5 27.7z" fill="url(#fl-red)"/>${HL(9, 18.5, 14, 2, 1)}<path d="M20 42V31.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2V42z" fill="url(#fl-brown)"/><rect x="12.5" y="28" width="5" height="5" rx="1" fill="url(#fl-sky)"/><rect x="30.5" y="28" width="5" height="5" rx="1" fill="url(#fl-sky)"/>`,
+    entry: `${SH}<rect x="8" y="6" width="27" height="35" rx="3.5" fill="url(#fl-paper)" stroke="#c3c8d6"/><rect x="8" y="6" width="27" height="8" rx="3.5" fill="url(#fl-orange)"/>${HL(10, 7, 23, 2.5, 1.2)}<path d="M13.5 20h16M13.5 26h16M13.5 32h9" stroke="#b5bccb" stroke-width="2.2" stroke-linecap="round"/><circle cx="35" cy="34" r="9.5" fill="url(#fl-green)" stroke="#fff" stroke-width="2"/><path d="M35 29v10M30 34h10" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>`,
+    records: `${SH}<rect x="11" y="5" width="29" height="37" rx="3.5" fill="url(#fl-blue)"/><rect x="15" y="9" width="21" height="29" rx="2" fill="url(#fl-paper)"/><path d="M19 16h13M19 21.5h13M19 27h13M19 32.5h8" stroke="#a3b9d8" stroke-width="2.2" stroke-linecap="round"/><path d="M8 11h6M8 18h6M8 25h6M8 32h6" stroke="#5b6475" stroke-width="2.6" stroke-linecap="round"/>${HL(12, 6, 3, 35, 1.5)}`,
+    reports: `${SH}<rect x="5" y="39" width="38" height="3.5" rx="1.75" fill="url(#fl-gray)"/><rect x="8" y="25" width="9" height="14" rx="2.2" fill="url(#fl-orange)"/><rect x="19.5" y="15" width="9" height="24" rx="2.2" fill="url(#fl-purple)"/><rect x="31" y="7" width="9" height="32" rx="2.2" fill="url(#fl-green)"/>${HL(9.3, 26, 2.2, 12, 1)}${HL(20.8, 16, 2.2, 22, 1)}${HL(32.3, 8, 2.2, 30, 1)}`,
+    more: `${SH}<circle cx="10.5" cy="24" r="6.5" fill="url(#fl-red)"/><circle cx="24" cy="24" r="6.5" fill="url(#fl-yellow)"/><circle cx="37.5" cy="24" r="6.5" fill="url(#fl-blue)"/><circle cx="8.6" cy="21.6" r="2" fill="#fff" opacity=".6"/><circle cx="22.1" cy="21.6" r="2" fill="#fff" opacity=".6"/><circle cx="35.6" cy="21.6" r="2" fill="#fff" opacity=".6"/>`,
+    pdf: doc('red', 'PDF', '<path d="M14 12h10M14 17h12" stroke="#c9cedb" stroke-width="2" stroke-linecap="round"/>'),
+    xlsx: doc('green', 'XLS', '<path d="M13 9h14v12H13zM13 13h14M13 17h14M20 9v12" fill="none" stroke="#9ccfb0" stroke-width="1.4"/>'),
+    csv: doc('blue', 'CSV', '<path d="M14 11h4M21 11h4M14 16h4M21 16h4M14 21h4M21 21h4" stroke="#a9c3e6" stroke-width="2" stroke-linecap="round"/>'),
+    png: doc('purple', 'PNG', '<rect x="13" y="8" width="15" height="12" rx="1.5" fill="url(#fl-sky)"/><path d="M13 20l5-6 4 4 2-2 4 4z" fill="#3fae5f"/><circle cx="24.5" cy="11.5" r="1.8" fill="#ffd23a"/>'),
+    backup: `${SH}<path d="M7 18 24 11l17 7v19l-17 7-17-7z" fill="url(#fl-brown)"/><path d="M7 18l17 7 17-7M24 25v19" fill="none" stroke="#7d4618" stroke-width="1.3"/><path d="M7 18 24 11l17 7-17 7z" fill="#e8bd8c"/><path d="M15 14.6 32 21.4" stroke="#c99a63" stroke-width="3"/><circle cx="36" cy="10" r="8" fill="url(#fl-green)" stroke="#fff" stroke-width="2"/><path d="M36 5.5v8.5M32.5 10.5 36 14l3.5-3.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>`,
+    restore: `${SH}<path d="M13 37a9 9 0 0 1-1.2-17.9A12 12 0 0 1 35 16.5 9.5 9.5 0 0 1 35.5 37z" fill="url(#fl-sky)" stroke="#5aa3dc"/>${HL(14, 21, 12, 3, 1.5)}<path d="M24 33V21M18.5 26 24 20.5l5.5 5.5" fill="none" stroke="#1f63c9" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    cloud: `${SH}<path d="M12 36a9 9 0 0 1-1.2-17.9A12 12 0 0 1 34 15.5 9.5 9.5 0 0 1 34.5 36z" fill="url(#fl-sky)" stroke="#5aa3dc"/>${HL(13, 20, 12, 3, 1.5)}<circle cx="34" cy="34" r="8.5" fill="url(#fl-green)" stroke="#fff" stroke-width="2"/><path d="M30 34l3 3 5.5-6" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+    gear: `${SH}<g fill="url(#fl-gray)" stroke="#8189a0" stroke-width=".8">${gearTeeth}<circle cx="24" cy="24" r="13.5"/></g><circle cx="24" cy="24" r="5.5" fill="url(#fl-paper)" stroke="#8189a0"/>${HL(15, 14, 9, 2.5, 1.2)}`,
+    farmer: `${SH}<path d="M9 43c0-8.5 6.5-13.5 15-13.5S39 34.5 39 43z" fill="url(#fl-green)"/><circle cx="24" cy="21" r="8" fill="url(#fl-skin)"/><ellipse cx="24" cy="14" rx="15" ry="3.4" fill="url(#fl-yellow)"/><path d="M15.5 14c0-6.5 3.8-9 8.5-9s8.5 2.5 8.5 9z" fill="url(#fl-yellow)"/><path d="M15.5 12.6h17" stroke="#c0392b" stroke-width="2"/>`,
+    people: `${SH}<path d="M3 42c0-7 4.6-11 10.5-11S24 35 24 42z" fill="url(#fl-orange)"/><circle cx="13.5" cy="22" r="6.3" fill="url(#fl-skin)"/><path d="M20 43c0-8 5.6-12.5 12.5-12.5S45 35 45 43z" fill="url(#fl-blue)"/><circle cx="32.5" cy="20.5" r="7.2" fill="url(#fl-skin)"/><path d="M25.3 18.5c1-4.8 4-7 7.2-7s6.3 2.2 7.2 7c-2.5-2.2-11.9-2.2-14.4 0z" fill="#3b2a20"/><path d="M7.3 20.5c.8-4 3.2-5.8 6.2-5.8s5.4 1.8 6.2 5.8c-2-1.8-10.4-1.8-12.4 0z" fill="#3b2a20"/>`,
+    palette: `${SH}<path d="M24 5C12.4 5 4 13.2 4 23.5S12 42 22 42c3 0 4.2-1.9 3.7-4-.6-2.4.9-4.2 3.3-4.2H34c5.8 0 10-4 10-10C44 13 35.6 5 24 5z" fill="url(#fl-cream)" stroke="#c9a96a"/><circle cx="14" cy="22" r="3.6" fill="url(#fl-red)"/><circle cx="19" cy="13.5" r="3.6" fill="url(#fl-yellow)"/><circle cx="29.5" cy="12.5" r="3.6" fill="url(#fl-green)"/><circle cx="36.5" cy="20" r="3.6" fill="url(#fl-blue)"/><circle cx="14.5" cy="32" r="3.2" fill="url(#fl-purple)"/>`,
+    sun: `${SH}<g stroke="url(#fl-orange)" stroke-width="3.2" stroke-linecap="round"><path d="M24 3v5M24 38v4M3.5 22.5h5M39.5 22.5h5M9.5 8l3.5 3.5M35 34l3.5 3.5M9.5 37l3.5-3.5M35 11l3.5-3.5"/></g><circle cx="24" cy="22.5" r="10.5" fill="url(#fl-yellow)"/><circle cx="20.5" cy="18.5" r="3.5" fill="#fff" opacity=".55"/>`,
+    moon: `${SH}<path d="M30 6a16 16 0 1 0 11.5 26A13 13 0 0 1 30 6z" fill="url(#fl-indigo)"/><path d="M14 13a14 14 0 0 1 9-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".45"/><path d="M36 9l1.4 3.1 3.1 1.4-3.1 1.4L36 18l-1.4-3.1-3.1-1.4 3.1-1.4z" fill="url(#fl-yellow)"/>`,
+    update: `${SH}<circle cx="24" cy="23" r="18" fill="url(#fl-green)"/>${HL(13, 10, 16, 4, 2)}<path d="M15.5 21a9 9 0 0 1 15.6-5l2.4 2.4M32.5 25a9 9 0 0 1-15.6 5l-2.4-2.4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M34 12.5v6.4h-6.4M14 33.5v-6.4h6.4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    bag: `${SH}<path d="M13.5 17c-4.5 6.5-6.5 13.5-4.5 20 1.2 4 5 6 15 6s13.8-2 15-6c2-6.5 0-13.5-4.5-20z" fill="url(#fl-brown)"/><path d="M16 17h16l-3-7.5H19z" fill="#d7a26a"/><rect x="13.5" y="14.5" width="21" height="4.5" rx="2.2" fill="#7a4518"/>${HL(12, 22, 3, 14, 1.5)}<path d="M18 26c4 2 8 2 12 0M17 32c4.5 2 9.5 2 14 0" stroke="#8a5424" stroke-width="1.3" fill="none" opacity=".6"/>`,
+    scale: `${SH}<rect x="22.5" y="9" width="3" height="31" rx="1.5" fill="url(#fl-gold)"/><rect x="15" y="39" width="18" height="4" rx="2" fill="url(#fl-gold)"/><rect x="7" y="11" width="34" height="3" rx="1.5" fill="url(#fl-gold)"/><circle cx="24" cy="9" r="3" fill="url(#fl-gold)"/><path d="M10 14 4.5 26h11zM38 14l-5.5 12h11z" fill="none" stroke="#b58100" stroke-width="1.2"/><path d="M3.5 26h13a6.5 6.5 0 0 1-13 0zM31.5 26h13a6.5 6.5 0 0 1-13 0z" fill="url(#fl-gold)"/>`,
+    trend: `${SH}<rect x="5" y="7" width="38" height="33" rx="5" fill="url(#fl-paper)" stroke="#c9cedb"/><path d="M10 34h28" stroke="#d3d7e2" stroke-width="2"/><path d="M11 30l8.5-8.5 6 5L37 15" fill="none" stroke="url(#fl-green)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M30 14h8v8" fill="none" stroke="#1b9a52" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`,
+    receipt: `${SH}<path d="M11 4h26v38l-4.3-2.6L28.3 42 24 39.4 19.7 42l-4.4-2.6L11 42z" fill="url(#fl-paper)" stroke="#c3c8d6"/><path d="M16 12h16M16 18h16M16 24h9" stroke="#b5bccb" stroke-width="2.2" stroke-linecap="round"/><circle cx="31" cy="30" r="6.5" fill="url(#fl-red)"/><text x="31" y="33.4" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" font-weight="800" fill="#fff">₹</text>`,
+    coin: `${SH}<circle cx="24" cy="25" r="17" fill="#c58a00"/><circle cx="24" cy="22.5" r="17" fill="url(#fl-gold)"/><circle cx="24" cy="22.5" r="12.5" fill="none" stroke="#fff3c2" stroke-width="1.5" opacity=".8"/><text x="24" y="29" text-anchor="middle" font-family="Arial,sans-serif" font-size="18" font-weight="800" fill="#9a6400">₹</text><ellipse cx="18" cy="13" rx="6" ry="2.6" fill="#fff" opacity=".45"/>`,
+    calendar: `${SH}<rect x="6" y="8" width="36" height="33" rx="5" fill="url(#fl-paper)" stroke="#c3c8d6"/><path d="M6 13a5 5 0 0 1 5-5h26a5 5 0 0 1 5 5v5H6z" fill="url(#fl-red)"/><rect x="14" y="4" width="4" height="8" rx="2" fill="#7b8194"/><rect x="30" y="4" width="4" height="8" rx="2" fill="#7b8194"/><text x="24" y="35" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="800" fill="#3b3550">${new Date().getDate()}</text>`
+  };
+  const icon3d = (name, cls = '') => `<svg class="i3d ${cls}" viewBox="0 0 48 48" aria-hidden="true" focusable="false">${I3D[name] || ''}</svg>`;
+
   // Cantaloupe/muskmelon: netted tan rind with an orange flesh wedge (flat fills, no ids so it can repeat safely).
   const melonSvg = '<svg class="melon-svg" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><circle cx="18" cy="21" r="14" fill="#e3c97a" stroke="#9a7a2c" stroke-width="1.4"/><path d="M8 13q10 6 20 0M5 21q13 6 26 0M7 29q11 5 22 0M12 9q-4 12 2 25M18 7q-3 14 0 28M24 9q4 12-2 25" fill="none" stroke="#fbf0c8" stroke-width="1.1" opacity=".95"/><path d="M22 23 37 19a15 15 0 0 1-8 16z" fill="#f7913b" stroke="#b9621b" stroke-width="1.2" stroke-linejoin="round"/><path d="M24.5 24.5 34.5 22a11 11 0 0 1-5.5 10.5z" fill="#ffb066"/><circle cx="28" cy="26" r=".9" fill="#fff3d6"/><circle cx="30.5" cy="28.5" r=".9" fill="#fff3d6"/><circle cx="27.5" cy="29.5" r=".9" fill="#fff3d6"/><path d="M17 7q-1-4 3-5" fill="none" stroke="#5b8b35" stroke-width="2" stroke-linecap="round"/><path d="M19 5q5-3 7 1-4 2-7-1z" fill="#78ab43"/></svg>';
   // Small, plump brinjal (replaces the long eggplant emoji).
@@ -940,6 +994,7 @@
    * Shell
    * ------------------------------------------------------------------ */
   const NAV = [['dashboard', 'home', 'Overview'], ['entry', 'plus', 'Daily entry'], ['records', 'list', 'Records'], ['reports', 'report', 'Reports'], ['tools', 'more', 'More']];
+  const NAV3D = { dashboard: 'home', entry: 'entry', records: 'records', reports: 'reports', tools: 'more' };
   const VIEW_TITLES = { dashboard: 'Overview', entry: 'Daily entry', records: 'Records', reports: 'Monthly statement', tools: 'More', settings: 'Settings', profile: 'Farm profile' };
   function renderShell() {
     const b = document.body;
@@ -969,7 +1024,7 @@
     pt.setAttribute('aria-checked', String(isM)); pt.setAttribute('aria-label', `Business: ${CFG[activeProduct].name}. Switch to ${isM ? 'Brinjal' : 'Muskmelon'}`);
     const knob = $('#ptKnob'); if (knob.dataset.p !== activeProduct) { knob.dataset.p = activeProduct; knob.innerHTML = productIcon(activeProduct); }
     const navActive = ['settings', 'profile'].includes(activeView) ? 'tools' : activeView;
-    $('#mainNav').innerHTML = NAV.map(([v, ic, label]) => `<button class="nav-btn ${navActive === v ? 'active' : ''}" type="button" data-nav="${v}" ${navActive === v ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`).join('');
+    $('#mainNav').innerHTML = NAV.map(([v, ic, label]) => `<button class="nav-btn ${navActive === v ? 'active' : ''}" type="button" data-nav="${v}" ${navActive === v ? 'aria-current="page"' : ''}>${icon3d(NAV3D[v])}<span>${label}</span></button>`).join('');
     document.title = `${VIEW_TITLES[activeView] || 'Overview'} · ${CFG[activeProduct].name} · FieldLedger`;
     renderStatus();
     renderBanner();
@@ -985,7 +1040,9 @@
    * Shared view parts
    * ------------------------------------------------------------------ */
   function kpi(label, value, ic, note = '', cls = '') {
-    return `<div class="card kpi tilt ${cls}"><div class="kpi-top"><span>${label}</span><span class="kpi-icon">${ic.startsWith('<') ? ic : icon(ic)}</span></div><div class="kpi-value mono">${value}</div><div class="kpi-note">${note}</div></div>`;
+    const map3d = { bag: 'bag', scale: 'scale', trend: 'trend', receipt: 'receipt', users: 'people', sparkle: 'coin' };
+    const glyph = ic.startsWith('<') ? ic : map3d[ic] ? icon3d(map3d[ic]) : icon(ic);
+    return `<div class="card kpi tilt ${cls}"><div class="kpi-top"><span>${label}</span><span class="kpi-icon">${glyph}</span></div><div class="kpi-value mono">${value}</div><div class="kpi-note">${note}</div></div>`;
   }
   function monthNav(id, label = 'Month') {
     return `<div class="month-nav" role="group" aria-label="${esc(label)}"><button class="icon-btn" type="button" data-action="month-prev" aria-label="Previous month">${icon('chevL')}</button><label class="sr-only" for="${id}">${esc(label)}</label><input id="${id}" class="month-input" type="month" value="${esc(month)}"><button class="icon-btn" type="button" data-action="month-next" aria-label="Next month">${icon('chevR')}</button></div>`;
@@ -1108,7 +1165,7 @@
     ensureDraft();
     const d = draft; const isB = d.product === 'brinjal'; const editing = !!d.id; const w = productWages(d.product);
     const head = `<div class="entry-head"><h2>${editing ? 'Edit entry' : 'Daily entry'}</h2>
-      <label class="date-pill" title="Change date">${icon('calendar')}<span id="datePillText">${esc(datePillText(d.date))}</span>${icon('chevR', 'pill-chev')}<input id="entryDate" type="date" data-field="date" value="${esc(d.date)}" aria-label="Entry date"></label></div>`;
+      <label class="date-pill" title="Change date">${icon3d('calendar', 'sm')}<span id="datePillText">${esc(datePillText(d.date))}</span>${icon('chevR', 'pill-chev')}<input id="entryDate" type="date" data-field="date" value="${esc(d.date)}" aria-label="Entry date"></label></div>`;
     const rate = `<div class="field f-o3"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's rate" value="${esc(d.ratePerKg)}"></div>`;
     const wastage = `<div class="field f-o4"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Not priced.</div></div>`;
     const top = isB
@@ -1119,12 +1176,12 @@
     const legacy = d.legacyLabour ? `<div class="legacy-box"><span>${icon('alert')} Earlier record: ${fmt(d.legacyLabour.workers)} workers · ${money(d.legacyLabour.salary)} (men/women not recorded).</span><button class="btn small-btn" type="button" data-action="legacy-remove">Use men/women instead</button></div>`
       : (d.removedLegacy ? `<div class="legacy-box"><span>The earlier labour amount will be removed when you save.</span><button class="btn small-btn" type="button" data-action="legacy-undo">Undo</button></div>` : '');
     const wageHint = (v, def) => num(v) === def ? `Default from Settings` : `This entry only · default ${money(def)}`;
-    const labour = `<div class="form-section"><div class="section-title"><h3>${icon('users')} Labour</h3><span class="tag" id="labourTotalInline"></span></div>
+    const labour = `<div class="form-section"><div class="section-title"><h3>${icon3d('people', 'sm')} Labour</h3><span class="tag" id="labourTotalInline"></span></div>
       <div class="labour-grid">
         <div class="labour-card"><div class="labour-title"><span>Men</span><span class="subtotal" id="menSubtotal"></span></div>${stepper('menCount', d.menCount, 'men')}<div class="field"><label for="menWage">Wage per man (₹/day)</label><input id="menWage" type="number" inputmode="decimal" min="0" step="1" data-field="menWage" value="${esc(d.menWage)}"><div class="field-hint" id="menWageHint">${wageHint(d.menWage, w.men)}</div></div></div>
         <div class="labour-card"><div class="labour-title"><span>Women</span><span class="subtotal" id="womenSubtotal"></span></div>${stepper('womenCount', d.womenCount, 'women')}<div class="field"><label for="womenWage">Wage per woman (₹/day)</label><input id="womenWage" type="number" inputmode="decimal" min="0" step="1" data-field="womenWage" value="${esc(d.womenWage)}"><div class="field-hint" id="womenWageHint">${wageHint(d.womenWage, w.women)}</div></div></div>
       </div>${legacy}</div>`;
-    const expenses = `<div class="form-section"><div class="section-title"><h3>${icon('receipt')} Expenses</h3></div>
+    const expenses = `<div class="form-section"><div class="section-title"><h3>${icon3d('receipt', 'sm')} Expenses</h3></div>
       <button class="detail-edit" type="button" data-action="open-expenses"><span><strong>${d.expenseItems.length ? 'View / edit expenses' : 'Add expenses'}</strong></span>${icon(d.expenseItems.length ? 'edit' : 'plus')}</button>
       <div id="expenseSummary" style="margin-top:8px">${expenseSummary(d.expenseItems)}</div></div>`;
     const strip = `<div class="calc-strip six" aria-live="polite">
@@ -1505,7 +1562,7 @@
       </section>
 `;
   }
-  const exportButtons = compact => `<button class="btn small-btn" type="button" data-action="export-pdf">${icon('file')} PDF</button><button class="btn small-btn" type="button" data-action="export-xlsx">${icon('table')} Excel</button><button class="btn small-btn" type="button" data-action="export-png">${icon('image')} PNG</button>${compact ? `<button class="btn small-btn" type="button" data-action="export-csv">${icon('list')} CSV</button>` : ''}`;
+  const exportButtons = compact => `<button class="btn small-btn" type="button" data-action="export-pdf">${icon3d('pdf', 'sm')} PDF</button><button class="btn small-btn" type="button" data-action="export-xlsx">${icon3d('xlsx', 'sm')} Excel</button><button class="btn small-btn" type="button" data-action="export-png">${icon3d('png', 'sm')} Image</button>${compact ? `<button class="btn small-btn" type="button" data-action="export-csv">${icon3d('csv', 'sm')} CSV</button>` : ''}`;
 
   /* ------------------------------------------------------------------
    * More / tools, settings, profile
@@ -1513,12 +1570,12 @@
   function toolsView() {
     const nb = dataset('brinjal').length, nm = dataset('muskmelon').length;
     return `<div class="grid equal">
-      <section class="card"><div class="card-head"><h2>Export ${esc(CFG[activeProduct].name)} statement</h2></div>
+      <section class="card"><div class="card-head"><h2 class="h-ico">${icon3d('reports')} Export ${esc(CFG[activeProduct].name)} statement</h2></div>
         <div style="margin-bottom:12px">${monthNav('toolsMonth', 'Export month')}</div>
-        <div class="quick-grid cols-2">${quick('data-action="export-pdf"', 'file', 'PDF', 'Print → Save as PDF')}${quick('data-action="export-xlsx"', 'table', 'Excel', '.xlsx')}${quick('data-action="export-csv"', 'list', 'CSV', 'Data file')}${quick('data-action="export-png"', 'image', 'Image', 'PNG')}</div>
-        <div style="height:12px"></div><div class="quick-grid cols-2">${quick('data-nav="settings"', 'settings', 'Settings', 'Wages, types, theme')}${quick('data-nav="profile"', 'user', 'Farm profile', 'Name & location')}</div></section>
-      <section class="card"><div class="card-head"><h2>Backup &amp; restore</h2></div>
-        <div class="btn-row"><button class="btn primary" type="button" data-action="export-json">${icon('download')} Export backup</button><button class="btn" type="button" data-action="import-json">${icon('upload')} Restore backup…</button></div>
+        <div class="quick-grid cols-2">${quick('data-action="export-pdf"', icon3d('pdf'), 'PDF', 'Print → Save as PDF')}${quick('data-action="export-xlsx"', icon3d('xlsx'), 'Excel', '.xlsx')}${quick('data-action="export-csv"', icon3d('csv'), 'CSV', 'Data file')}${quick('data-action="export-png"', icon3d('png'), 'Image', 'PNG')}</div>
+        <div style="height:12px"></div><div class="quick-grid cols-2">${quick('data-nav="settings"', icon3d('gear'), 'Settings', 'Wages, types, theme')}${quick('data-nav="profile"', icon3d('farmer'), 'Farm profile', 'Name & location')}</div></section>
+      <section class="card"><div class="card-head"><h2 class="h-ico">${icon3d('backup')} Backup &amp; restore</h2></div>
+        <div class="btn-row"><button class="btn primary" type="button" data-action="export-json">${icon3d('backup', 'sm')} Export backup</button><button class="btn" type="button" data-action="import-json">${icon3d('restore', 'sm')} Restore backup…</button></div>
         <div id="importStatus" class="small" role="status" style="margin-top:10px">${importStatus}</div>
         <div class="report-summary" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:14px"><div class="report-tile"><span>Brinjal records</span><strong>${fmt(nb)}</strong></div><div class="report-tile"><span>Muskmelon records</span><strong>${fmt(nm)}</strong></div></div>
         ${cloud.session() ? '' : `<div class="form-section"><button class="btn danger" type="button" data-action="reset-demo">${icon('restore')} Restore sample data</button></div>`}</section></div>
@@ -1527,10 +1584,10 @@
   function updatesCard() {
     const ni = nativeInfo();
     if (!ni) {
-      return `<section class="card section-gap"><div class="card-head"><div><h2>App version</h2><div class="muted small">Web app v${APP_VERSION}</div></div><span class="kpi-icon">${icon('restore')}</span></div><div class="notice">The web version always opens the latest published build — reload the page to get updates. On Android, install the FieldLedger APK; it checks for new versions and installs them from inside the app (More → App updates).</div></section>`;
+      return `<section class="card section-gap"><div class="card-head"><div><h2 class="h-ico">${icon3d('update')} App version</h2><div class="muted small">Web app v${APP_VERSION}</div></div></div><div class="notice">The web version always opens the latest published build — reload the page to get updates. On Android, install the FieldLedger APK; it checks for new versions and installs them from inside the app (More → App updates).</div></section>`;
     }
-    return `<section class="card section-gap" id="updatesCard"><div class="card-head"><div><h2>App updates</h2><div class="muted small">Installed: v${esc(ni.versionName)} (build ${esc(ni.versionCode)})${ni.lastCheck ? ' · last checked ' + esc(ni.lastCheck) : ''}</div></div><span class="kpi-icon">${icon('restore')}</span></div>
-      <div class="btn-row"><button class="btn primary" type="button" data-action="check-updates">${icon('download')} Check for updates</button></div>
+    return `<section class="card section-gap" id="updatesCard"><div class="card-head"><div><h2 class="h-ico">${icon3d('update')} App updates</h2><div class="muted small">Installed: v${esc(ni.versionName)} (build ${esc(ni.versionCode)})${ni.lastCheck ? ' · last checked ' + esc(ni.lastCheck) : ''}</div></div></div>
+      <div class="btn-row"><button class="btn primary" type="button" data-action="check-updates">${icon3d('update', 'sm')} Check for updates</button></div>
       <div id="updateStatus" class="small" role="status" style="margin-top:10px">${esc(updateStatus)}</div>
       <p class="muted small" style="margin-top:8px">The app checks automatically each time it opens. If an update will not install, <a href="https://github.com/tharun1343/Field_ledger_Surya/tree/HEAD/release" rel="noopener">download the latest APK</a> and open it.</p>
       <details style="margin-top:12px"><summary class="muted small">Update source (advanced)</summary><form id="updateUrlForm" novalidate style="margin-top:10px"><div class="field"><label for="updateUrl">Update manifest URL</label><input id="updateUrl" type="url" inputmode="url" value="${esc(ni.updateUrl)}" placeholder="https://…/version.json"></div><div class="form-actions"><span class="muted small">The app downloads updates only from this address (HTTPS) and installs them only if they are signed with the same key.</span><button class="btn" type="submit">${icon('check')} Save source</button></div></form></details></section>`;
@@ -1554,17 +1611,17 @@
     const types = s.brinjalTypes.map((t, i) => `<span class="type-pill">${i === 0 ? `<span class="tag">recent</span>` : ''}<span>${esc(t)}</span><span class="muted small">${usage[t] ? usage[t] + ' days' : ''}</span><button type="button" title="Remove ${esc(t)}" aria-label="Remove brinjal type ${esc(t)}" data-action="remove-type" data-type="${esc(t)}">${icon('x')}</button></span>`).join('');
     const wageRow = p => `<div class="wage-row"><strong>${productIcon(p)} ${CFG[p].name}</strong><div class="field"><label for="wage-${p}-men">Men (₹/day)</label><input id="wage-${p}-men" type="number" inputmode="decimal" min="0" step="1" value="${esc(s.wages[p].men)}"></div><div class="field"><label for="wage-${p}-women">Women (₹/day)</label><input id="wage-${p}-women" type="number" inputmode="decimal" min="0" step="1" value="${esc(s.wages[p].women)}"></div></div>`;
     return `<div class="settings-layout">
-      <section class="card"><div class="card-head"><h2>Appearance</h2></div>
-        <div class="field" style="margin-bottom:16px"><span class="field-label" id="themeLbl">Theme</span><div class="setting-choice" role="group" aria-labelledby="themeLbl"><button class="choice ${s.theme === 'light' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'light'}" data-action="set-theme" data-value="light">${icon('sun')} Light</button><button class="choice ${s.theme === 'dark' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'dark'}" data-action="set-theme" data-value="dark">${icon('moon')} Dark</button></div></div>
+      <section class="card"><div class="card-head"><h2 class="h-ico">${icon3d('palette')} Appearance</h2></div>
+        <div class="field" style="margin-bottom:16px"><span class="field-label" id="themeLbl">Theme</span><div class="setting-choice" role="group" aria-labelledby="themeLbl"><button class="choice ${s.theme === 'light' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'light'}" data-action="set-theme" data-value="light">${icon3d('sun', 'sm')} Light</button><button class="choice ${s.theme === 'dark' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'dark'}" data-action="set-theme" data-value="dark">${icon3d('moon', 'sm')} Dark</button></div></div>
         <div class="field"><span class="field-label" id="textLbl">Text size</span><div class="setting-choice" role="group" aria-labelledby="textLbl">${['small', 'medium', 'large'].map(v => `<button class="choice ${s.textSize === v ? 'active' : ''}" type="button" aria-pressed="${s.textSize === v}" data-action="set-text" data-value="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}</div></div></section>
-      <section class="card"><div class="card-head"><h2>Account &amp; sync</h2></div>
+      <section class="card"><div class="card-head"><h2 class="h-ico">${icon3d('cloud')} Account &amp; sync</h2></div>
         <div class="sync-line"><span class="status-dot ${st.color}" aria-hidden="true"></span><span>${esc(st.label)}</span></div>
         <p class="muted small" style="margin:8px 0 12px">${sess ? `Signed in as <strong>${esc(sess.email)}</strong>.` : 'Not signed in — records are kept on this device only.'}</p>
-        <button class="btn" type="button" data-action="account">${icon('user')} ${sess ? 'Account & sync' : 'Sign in'}</button></section>
-      <section class="card"><div class="card-head"><h2>Labour wages</h2></div>
+        <button class="btn" type="button" data-action="account">${icon3d('cloud', 'sm')} ${sess ? 'Account & sync' : 'Sign in'}</button></section>
+      <section class="card"><div class="card-head"><h2 class="h-ico">${icon3d('people')} Labour wages</h2></div>
         <form id="wagesForm" novalidate>${PRODUCTS.map(wageRow).join('')}
         <div class="form-actions"><span class="muted small">Filled in for every new entry. You can still change them on a single day's entry.</span><button class="btn primary" type="submit">${icon('check')} Save wages</button></div></form></section>
-      <section class="card"><div class="card-head"><h2>Brinjal types</h2></div>
+      <section class="card"><div class="card-head"><h2 class="h-ico">${brinjalSvg} Brinjal types</h2></div>
         <form id="typeForm" novalidate><div class="field"><label for="newBrinjalType">Add a type</label><div class="inline-action"><input id="newBrinjalType" name="type" maxlength="50" placeholder="e.g. Green long" autocomplete="off"><button class="btn primary" type="submit">${icon('plus')} Add</button></div></div></form>
         <div class="type-list">${types}</div>
         <p class="muted small" style="margin-top:12px">Most recently used first. Types typed as “New type…” in Daily entry are added here. Removing a type keeps it on past entries.</p></section>
@@ -2071,11 +2128,11 @@
       <div class="modal-head"><div><h2 id="accountTitle">${s ? esc(s.email) : 'Not signed in'}</h2><div class="sync-line"><span class="status-dot ${st.color}" aria-hidden="true"></span><span id="syncStatusText">${esc(st.label)}</span></div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
       <div class="modal-body">
         ${s ? `<div class="detail-list"><div class="report-tile"><span>Last synced</span><strong style="font-size:14px">${esc(last)}</strong></div><div class="report-tile"><span>Waiting</span><strong style="font-size:14px">${cloud.pending()} change(s)</strong></div></div>
-          <div class="btn-row"><button class="btn primary" type="button" data-action="sync-now">${icon('restore')} Sync now</button><button class="btn danger" type="button" data-action="sign-out">Sign out</button></div>`
+          <div class="btn-row"><button class="btn primary" type="button" data-action="sync-now">${icon3d('update', 'sm')} Sync now</button><button class="btn danger" type="button" data-action="sign-out">Sign out</button></div>`
         : cloud.available() ? `<p class="muted small">Records are saved on this phone only. Sign in to back them up and use them on other phones.</p><button class="btn primary" type="button" data-action="go-login">${icon('user')} Sign in or create account</button>`
         : `<p class="muted small">This page cannot reach the cloud. Records stay in this browser. Use the Android app or the hosted web app to sign in.</p>`}
         <div class="legend"><span><span class="status-dot green"></span>Online & synced</span><span><span class="status-dot orange"></span>Syncing / waiting / not signed in</span><span><span class="status-dot red"></span>Offline</span></div>
-        <div class="btn-row" style="margin-top:12px"><button class="btn" type="button" data-nav="settings">${icon('settings')} Settings</button><button class="btn" type="button" data-nav="profile">${icon('user')} Farm profile</button></div>
+        <div class="btn-row" style="margin-top:12px"><button class="btn" type="button" data-nav="settings">${icon3d('gear', 'sm')} Settings</button><button class="btn" type="button" data-nav="profile">${icon3d('farmer', 'sm')} Farm profile</button></div>
       </div></section>`, '[data-modal-close]');
   }
 
@@ -2330,6 +2387,7 @@
     try { history.replaceState(null, '', location.pathname); } catch (_) { /* ignore */ }
     if (cloud.configured()) cloud.adoptLink(authLink).then(() => { showToast('Signed in from the email link.'); render(); }).catch(e => showToast(e.message, true));
   }
+  document.body.insertAdjacentHTML('afterbegin', i3dDefs());
   const initial = readHash();
   if (initial) { activeProduct = initial.product; activeView = initial.view; }
   if (!lsGet(STORAGE_KEY) && storageOK) saveState();
