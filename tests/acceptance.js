@@ -326,14 +326,18 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     check('Bad project URL is rejected with a message', /Project URL/.test(await A.p.locator('#loginStatus').innerText()));
     await A.p.locator('#cloudUrl').fill(cloudUrl); await A.p.locator('#cloudKey').fill('anon-key-for-tests-0123456789'); await A.p.locator('#cloudSetupForm button[type="submit"]').click();
     await A.p.waitForSelector('#loginForm');
-    await A.p.locator('#loginEmail').fill('farmer@example.com'); await A.p.locator('#loginPassword').fill('secret123');
-    await A.p.locator('#loginForm [type="submit"]').click();
-    await A.p.waitForFunction(() => /Invalid login/.test(document.querySelector('#loginStatus').textContent));
-    check('Wrong credentials show the server message', true);
-    await A.p.locator('[data-action="signup"]').click();
+    check('Sign-in asks only for an email (no password field)', (await A.p.locator('input[type="password"]').count()) === 0);
+    await A.p.locator('#loginEmail').fill('farmer@example.com'); await A.p.locator('#loginForm [type="submit"]').click();
+    await A.p.waitForSelector('#otpCode');
+    check('“Send code” emails a 6-digit code and shows the code field', /^\d{6}$/.test(mock.codes.get('farmer@example.com') || '') && (await A.p.locator('#otpCode').getAttribute('autocomplete')) === 'one-time-code');
+    check('Resend is locked for 60 seconds', await A.p.locator('#otpResend').isDisabled() && /Resend in/.test(await A.p.locator('#otpResend').innerText()));
+    await A.p.locator('#otpCode').fill('000000'); await A.p.locator('#otpForm [type="submit"]').click();
+    await A.p.waitForFunction(() => /wrong or has expired/.test(document.querySelector('#loginStatus').textContent));
+    check('A wrong code shows a clear message', true);
+    await A.p.locator('#otpCode').fill(mock.codes.get('farmer@example.com'));   // 6 digits auto-submit
     await A.p.waitForSelector('#viewContainer .kpi');
     await A.p.waitForFunction(() => document.querySelector('#statusDot').classList.contains('green'), null, { timeout: 8000 });
-    check('Create account signs in; status dot turns green when synced', true);
+    check('Correct code creates the account, signs in, and the dot turns green', mock.users.size === 1);
     let sA = await A.h.st();
     check('Sample records are removed once an account is used', sA.data.brinjal.length === 0 && sA.data.muskmelon.length === 0);
     // Add an entry on phone A
@@ -349,7 +353,8 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     // Phone B signs in and gets it
     const B = await mkDevice('phoneB');
     await B.p.locator('#cloudUrl').fill(cloudUrl); await B.p.locator('#cloudKey').fill('anon-key-for-tests-0123456789'); await B.p.locator('#cloudSetupForm button[type="submit"]').click();
-    await B.p.locator('#loginEmail').fill('farmer@example.com'); await B.p.locator('#loginPassword').fill('secret123'); await B.p.locator('#loginForm [type="submit"]').click();
+    await B.p.locator('#loginEmail').fill('Farmer@Example.com'); await B.p.locator('#loginForm [type="submit"]').click();
+    await B.p.waitForSelector('#otpCode'); await B.p.locator('#otpCode').fill(mock.codes.get('farmer@example.com'));
     await B.p.waitForSelector('#viewContainer .kpi');
     await B.p.waitForFunction(() => window.FieldLedger.getState().data.brinjal.length === 1, null, { timeout: 8000 });
     check('Second phone signs in and receives the entry', true);
@@ -390,12 +395,11 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await A.p.locator('#accountChip').click(); await A.p.locator('[data-action="sign-out"]').click(); await A.h.settle();
     await A.p.waitForSelector('#loginForm');
     check('Sign out returns to the sign-in screen and clears this phone’s copy', (await A.h.st()).data.brinjal.length === 0);
-    // Password reset link from the email (Site URL#access_token=…&type=recovery)
-    const tok = await (await fetch(cloudUrl + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: 'k', 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'farmer@example.com', password: 'secret123' }) })).json();
-    await B.p.goto('about:blank'); await B.p.goto(base + '/index.html#access_token=' + tok.access_token + '&type=recovery'); await B.p.waitForSelector('#newPasswordForm');
-    await B.p.locator('#newPassword').fill('newsecret456'); await B.p.locator('#newPasswordForm [type="submit"]').click();
-    await B.p.waitForFunction(() => !document.querySelector('#newPasswordForm'));
-    check('Password-reset link shows “Set a new password” and changes it', mock.users.get('farmer@example.com').password === 'newsecret456');
+    // Fallback: someone taps the magic link in the email instead of typing the code
+    const link = mock.session(mock.users.get('farmer@example.com'));
+    await B.p.goto('about:blank'); await B.p.goto(`${base}/index.html#access_token=${link.access_token}&refresh_token=${link.refresh_token}&expires_in=3600&type=magiclink`);
+    await B.p.waitForFunction(() => window.FieldLedger.getState().data.brinjal.length === 1 && !location.hash.includes('access_token'), null, { timeout: 8000 });
+    check('Tapping the email link instead of typing the code also signs in (token removed from address bar)', true);
     check('No errors on either phone', A.h.errors.length === 0 && B.h.errors.length === 0, [...A.h.errors, ...B.h.errors].join(' | '));
     await A.p.screenshot({ path: path.join(OUT, 'mobile-login.png') });
     await A.ctx.close(); await B.ctx.close();

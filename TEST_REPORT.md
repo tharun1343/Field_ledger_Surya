@@ -1,9 +1,9 @@
 # FieldLedger: Acceptance Test Report
 
-- **Build tested:** `index.html` v2.2.0, the claude.ai page variant, and a simulated Android shell.
+- **Build tested:** `index.html` v2.3.0, the claude.ai page variant, and a simulated Android shell.
 - **How:** `npm test` (`tests/acceptance.js`) drives the real app in headless Chromium 141 (Playwright 1.56).
   - Sign-in and sync run against `tests/mock-supabase.js`, an in-memory stand-in for Supabase Auth + PostgREST. The real Supabase service was **not** used.
-- **Result:** **98 / 98 automated checks passed** (run 2026-10-20).
+- **Result:** **101 / 101 automated checks passed** (run 2026-10-20).
 
 ## Not tested
 
@@ -134,8 +134,11 @@
 | Result | Check | Observed |
 |---|---|---|
 | ✅ Pass | Bad project URL is rejected with a message |  |
-| ✅ Pass | Wrong credentials show the server message |  |
-| ✅ Pass | Create account signs in; status dot turns green when synced |  |
+| ✅ Pass | Sign-in asks only for an email (no password field) |  |
+| ✅ Pass | “Send code” emails a 6-digit code and shows the code field |  |
+| ✅ Pass | Resend is locked for 60 seconds |  |
+| ✅ Pass | A wrong code shows a clear message |  |
+| ✅ Pass | Correct code creates the account, signs in, and the dot turns green |  |
 | ✅ Pass | Sample records are removed once an account is used |  |
 | ✅ Pass | Entry uploaded to the account (row with user_id, product, data) | 1 |
 | ✅ Pass | Second phone signs in and receives the entry |  |
@@ -146,7 +149,7 @@
 | ✅ Pass | Delete on phone A removes the entry on phone B |  |
 | ✅ Pass | Settings (wages, types) come with the account |  |
 | ✅ Pass | Sign out returns to the sign-in screen and clears this phone’s copy |  |
-| ✅ Pass | Password-reset link shows “Set a new password” and changes it |  |
+| ✅ Pass | Tapping the email link instead of typing the code also signs in (token removed from address bar) |  |
 | ✅ Pass | No errors on either phone |  |
 
 ### Migration from earlier versions

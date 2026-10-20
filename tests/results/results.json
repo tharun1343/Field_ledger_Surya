@@ -1,7 +1,7 @@
 {
-  "ranAt": "2026-10-20T08:03:31.626Z",
-  "passed": 98,
-  "total": 98,
+  "ranAt": "2026-10-20T08:30:21.664Z",
+  "passed": 101,
+  "total": 101,
   "results": [
     {
       "group": "Sign-in screen and local mode",
@@ -371,13 +371,31 @@
     },
     {
       "group": "Cloud sign-in and sync (mock Supabase)",
-      "name": "Wrong credentials show the server message",
+      "name": "Sign-in asks only for an email (no password field)",
       "pass": true,
       "detail": ""
     },
     {
       "group": "Cloud sign-in and sync (mock Supabase)",
-      "name": "Create account signs in; status dot turns green when synced",
+      "name": "“Send code” emails a 6-digit code and shows the code field",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Cloud sign-in and sync (mock Supabase)",
+      "name": "Resend is locked for 60 seconds",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Cloud sign-in and sync (mock Supabase)",
+      "name": "A wrong code shows a clear message",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Cloud sign-in and sync (mock Supabase)",
+      "name": "Correct code creates the account, signs in, and the dot turns green",
       "pass": true,
       "detail": ""
     },
@@ -443,7 +461,7 @@
     },
     {
       "group": "Cloud sign-in and sync (mock Supabase)",
-      "name": "Password-reset link shows “Set a new password” and changes it",
+      "name": "Tapping the email link instead of typing the code also signs in (token removed from address bar)",
       "pass": true,
       "detail": ""
     },

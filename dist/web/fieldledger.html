@@ -315,6 +315,7 @@
   .login-card form { display:grid; gap:12px; }
   .login-brand { text-align:center; display:grid; gap:6px; }
   .login-brand h2 { font-size:calc(24px * var(--fs)); margin-top:6px; }
+  .otp-input { text-align:center; font-size:calc(26px * var(--fs)); font-weight:800; letter-spacing:.5em; font-variant-numeric:tabular-nums; }
   .login-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .login-divider { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:calc(12px * var(--fs)); }
   .login-divider::before, .login-divider::after { content:""; flex:1; height:1px; background:var(--line); }
@@ -1836,14 +1837,21 @@
       if (!r.hasSettings) queueSettings();
       await syncNow(false);
     }
-    async function signIn(email, password) { storeSession(await req('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password }, auth: false })); await afterLogin(); }
-    async function signUp(email, password) {
-      const d = await req('/auth/v1/signup', { method: 'POST', body: { email, password }, auth: false });
-      if (storeSession(d)) { await afterLogin(); return 'signed-in'; }
-      return 'confirm-email';
+    // Passwordless sign-in: Supabase emails a 6-digit code (the email template must contain {{ .Token }}).
+    // create_user:true makes the first code also create the account, so there is no separate sign-up.
+    const sendOtp = email => req('/auth/v1/otp', { method: 'POST', body: { email, create_user: true }, auth: false });
+    async function verifyOtp(email, token) {
+      storeSession(await req('/auth/v1/verify', { method: 'POST', body: { type: 'email', email, token }, auth: false }));
+      await afterLogin();
     }
-    const resetPassword = email => req('/auth/v1/recover', { method: 'POST', body: { email }, auth: false });
-    const updatePassword = (token, password) => req('/auth/v1/user', { method: 'PUT', body: { password }, token });
+    /** Fallback when someone taps a magic link instead of typing the code: #access_token=…&refresh_token=… */
+    async function adoptLink(p) {
+      let claims = {};
+      try { claims = JSON.parse(atob(p.access_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); } catch (_) { /* not a JWT */ }
+      if (!claims.sub) throw new Error('This sign-in link is not valid. Request a new code.');
+      storeSession({ access_token: p.access_token, refresh_token: p.refresh_token, expires_in: Number(p.expires_in) || 3600, user: { id: claims.sub, email: claims.email } });
+      await afterLogin();
+    }
     async function signOut() {
       try { await req('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* token may already be invalid */ }
       cfg.session = null; cfg.lastPull = ''; cfg.outbox = {}; cfg.lastSyncAt = ''; cfg.lastError = ''; cfg.settingsUpdatedAt = ''; persist();
@@ -1862,7 +1870,7 @@
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') schedule(500); });
     setInterval(() => { if (document.visibilityState === 'visible' && session()) syncNow(false); }, 60000);
     return {
-      available, configured, session, pending, status, syncNow, signIn, signUp, signOut, resetPassword, updatePassword, setServer, useLocally, wantLogin, queueEntry, queueSettings,
+      available, configured, session, pending, status, syncNow, sendOtp, verifyOtp, adoptLink, signOut, setServer, useLocally, wantLogin, queueEntry, queueSettings,
       needsLogin: () => available() && !session() && !cfg.localOnly,
       server: () => cfg.url, lastSyncAt: () => cfg.lastSyncAt,
       clearServer: () => { cfg.url = ''; cfg.anonKey = ''; cfg.session = null; persist(); },
@@ -1881,51 +1889,62 @@
     const live = $('#syncStatusText'); if (live) live.textContent = st.label;
   }
 
-  // Links in Supabase emails come back as #access_token=…&type=recovery|signup on the page set as the Site URL.
-  const authLink = (() => { try { const q = new URLSearchParams(location.hash.replace(/^#/, '')); const type = q.get('type'); return q.get('access_token') && type ? { type, token: q.get('access_token') } : null; } catch (_) { return null; } })();
-  let recoveryToken = authLink && authLink.type === 'recovery' ? authLink.token : '';
-  function resetPasswordView() {
-    return `<section class="card login-card"><div class="login-brand"><div class="brand-mark big" aria-hidden="true"><span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span></div><h2>Set a new password</h2></div>
-      <form id="newPasswordForm" novalidate><div class="field"><label for="newPassword">New password</label><input id="newPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
-      <button class="btn primary wide" type="submit">${icon('check')} Save new password</button></form><div id="loginStatus" class="small" role="status" style="text-align:center"></div></section>`;
-  }
+  // A tapped magic link returns as #access_token=…&refresh_token=…&type=magiclink|signup.
+  const authLink = (() => { try { const q = new URLSearchParams(location.hash.replace(/^#/, '')); return q.get('access_token') && q.get('refresh_token') ? Object.fromEntries(q) : null; } catch (_) { return null; } })();
+  let otpEmail = '', otpCooldownUntil = 0, otpTimer = null;
   function loginView() {
     const host = (() => { try { return new URL(cloud.server()).host; } catch (_) { return ''; } })();
-    const setup = !cloud.configured();
-    return `<section class="card login-card">
-      <div class="login-brand"><div class="brand-mark big" aria-hidden="true"><span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span></div><h2>FieldLedger</h2><p class="muted">Sign in to keep your records safe and use them on every phone.</p></div>
-      ${setup ? `<form id="cloudSetupForm" novalidate><div class="notice">First time: connect your Supabase project (Project Settings → API). The setup guide explains each step.</div>
+    const brand = `<div class="login-brand"><div class="brand-mark big" aria-hidden="true"><span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span></div><h2>FieldLedger</h2><p class="muted">${otpEmail ? `Enter the 6-digit code sent to <strong>${esc(otpEmail)}</strong>.` : 'Sign in with your email. We send a 6-digit code — no password needed.'}</p></div>`;
+    let body;
+    if (!cloud.configured()) {
+      body = `<form id="cloudSetupForm" novalidate><div class="notice">First time: connect your Supabase project (Project Settings → API).</div>
         <div class="field"><label for="cloudUrl">Project URL</label><input id="cloudUrl" type="url" inputmode="url" placeholder="https://xxxx.supabase.co" autocomplete="off"></div>
-        <div class="field"><label for="cloudKey">Anon public key</label><input id="cloudKey" type="text" placeholder="eyJhbGciOi…" autocomplete="off" spellcheck="false"></div>
-        <button class="btn primary wide" type="submit">${icon('check')} Connect</button></form>`
-      : `<form id="loginForm" novalidate>
+        <div class="field"><label for="cloudKey">Anon / publishable key</label><input id="cloudKey" type="text" placeholder="eyJhbGciOi… or sb_publishable_…" autocomplete="off" spellcheck="false"></div>
+        <button class="btn primary wide" type="submit">${icon('check')} Connect</button></form>`;
+    } else if (!otpEmail) {
+      body = `<form id="loginForm" novalidate>
         <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
-        <div class="field"><label for="loginPassword">Password</label><div class="inline-action"><input id="loginPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"><button class="btn" type="button" data-action="toggle-password" aria-label="Show password">${icon('eye')}</button></div></div>
-        <button class="btn primary wide" type="submit" id="loginSubmit">${icon('check')} Sign in</button>
-        <div class="login-links"><button class="btn" type="button" data-action="signup">Create account</button><button class="btn" type="button" data-action="forgot-password">Forgot password?</button></div>
-        <div class="muted small" style="text-align:center">Server: ${esc(host)} · <button class="link-btn" type="button" data-action="change-server">Change</button></div></form>`}
+        <button class="btn primary wide" type="submit">${icon('check')} Send code</button>
+        <div class="muted small" style="text-align:center">New here? The same code creates your account.<br>Server: ${esc(host)} · <button class="link-btn" type="button" data-action="change-server">Change</button></div></form>`;
+    } else {
+      body = `<form id="otpForm" novalidate>
+        <div class="field"><label for="otpCode">6-digit code</label><input id="otpCode" class="otp-input" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="6" placeholder="••••••"></div>
+        <button class="btn primary wide" type="submit">${icon('check')} Verify and sign in</button>
+        <div class="login-links"><button class="btn" type="button" data-action="otp-resend" id="otpResend">Resend code</button><button class="btn" type="button" data-action="otp-change-email">Change email</button></div></form>`;
+    }
+    return `<section class="card login-card">${brand}${body}
       <div class="login-divider"><span>or</span></div>
       <button class="btn wide" type="button" data-action="local-only">${icon('user')} Use without an account (this phone only)</button>
       <div id="loginStatus" class="small" role="status" style="margin-top:10px;text-align:center"></div></section>`;
   }
+  function tickResend() {
+    clearInterval(otpTimer);
+    const upd = () => { const b = $('#otpResend'); if (!b) { clearInterval(otpTimer); return; } const left = Math.ceil((otpCooldownUntil - Date.now()) / 1000); b.disabled = left > 0; b.textContent = left > 0 ? `Resend in ${left}s` : 'Resend code'; if (left <= 0) clearInterval(otpTimer); };
+    upd(); otpTimer = setInterval(upd, 1000);
+  }
   function setLoginStatus(msg, bad) { const el = $('#loginStatus'); if (el) { el.textContent = msg; el.className = 'small ' + (bad ? 'negative' : 'muted'); } }
-  async function loginAction(kind) {
-    const email = str($('#loginEmail') && $('#loginEmail').value, 200), pw = ($('#loginPassword') && $('#loginPassword').value) || '';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return markInvalid($('#loginEmail'), 'Enter a valid email address.');
-    if (kind !== 'forgot' && pw.length < 6) return markInvalid($('#loginPassword'), 'Password must be at least 6 characters.');
-    $$('#loginForm button').forEach(b => { b.disabled = true; });
-    setLoginStatus(kind === 'signin' ? 'Signing in…' : kind === 'signup' ? 'Creating account…' : 'Sending reset email…');
+  const authErr = e => (e.network ? 'No internet connection. Try again when you are online.'
+    : /expired|invalid/i.test(e.message) ? 'That code is wrong or has expired. Check the latest email or tap “Resend code”.'
+    : e.status === 429 ? 'Too many requests. Wait a minute, then try again.' : e.message);
+  async function sendCode(email) {
+    setLoginStatus('Sending code…');
+    $$('.login-card button').forEach(b => { b.disabled = true; });
     try {
-      if (kind === 'signin') { await cloud.signIn(email, pw); showToast('Signed in. Your records are syncing.'); render(); return; }
-      if (kind === 'signup') {
-        const r = await cloud.signUp(email, pw);
-        if (r === 'signed-in') { showToast('Account created. You are signed in.'); render(); return; }
-        setLoginStatus('Account created. Open the confirmation email, then sign in here.');
-      }
-      if (kind === 'forgot') { await cloud.resetPassword(email); setLoginStatus('If that email has an account, a password-reset link is on its way.'); }
-    } catch (e) {
-      setLoginStatus(e.network ? 'No internet connection. Try again when you are online.' : e.message, true);
-    } finally { $$('#loginForm button').forEach(b => { b.disabled = false; }); }
+      await cloud.sendOtp(email);
+      otpEmail = email; otpCooldownUntil = Date.now() + 60000;
+      render(); setLoginStatus('Code sent. It may take a minute — check spam too.'); tickResend();
+      const c = $('#otpCode'); if (c) c.focus();
+    } catch (e) { setLoginStatus(authErr(e), true); $$('.login-card button').forEach(b => { b.disabled = false; }); }
+  }
+  async function verifyCode() {
+    const code = String($('#otpCode').value).replace(/\D/g, '');
+    if (code.length !== 6) return markInvalid($('#otpCode'), 'Enter the 6-digit code from the email.');
+    setLoginStatus('Checking code…');
+    $$('.login-card button').forEach(b => { b.disabled = true; });
+    try {
+      await cloud.verifyOtp(otpEmail, code);
+      otpEmail = ''; showToast('Signed in. Your records are syncing.'); render();
+    } catch (e) { setLoginStatus(authErr(e), true); $$('.login-card button').forEach(b => { b.disabled = false; }); tickResend(); $('#otpCode').select(); }
   }
   function openAccountSheet() {
     const s = cloud.session(); const st = cloud.status();
@@ -1992,10 +2011,6 @@
     catch (_) { delete root.dataset.vt; update(); }
   }
   function render() {
-    if (recoveryToken && cloud.configured()) {
-      document.body.classList.add('login-mode'); renderShell(); document.body.dataset.view = 'login';
-      $('#viewContainer').innerHTML = resetPasswordView(); return;
-    }
     if (cloud.needsLogin()) {
       document.body.classList.add('login-mode'); renderShell(); document.body.dataset.view = 'login';
       $('#viewContainer').innerHTML = loginView(); return;
@@ -2046,9 +2061,8 @@
       case 'sync-now': cloud.syncNow(true); break;
       case 'go-login': if (modalOpen()) closeModal(); cloud.wantLogin(); render(); break;
       case 'local-only': cloud.useLocally(); render(); showToast('Using FieldLedger on this phone only. Sign in any time from the account button.'); break;
-      case 'signup': loginAction('signup'); break;
-      case 'forgot-password': loginAction('forgot'); break;
-      case 'toggle-password': { const pw = $('#loginPassword'); pw.type = pw.type === 'password' ? 'text' : 'password'; break; }
+      case 'otp-resend': if (Date.now() >= otpCooldownUntil) sendCode(otpEmail); break;
+      case 'otp-change-email': otpEmail = ''; render(); break;
       case 'change-server': if (await ask('Change the cloud server?\n\nYou will need the Project URL and anon key again.', { ok: 'Change' })) { cloud.clearServer(); render(); } break;
       case 'sign-out': {
         if (cloud.pending()) await cloud.syncNow(false);
@@ -2124,6 +2138,7 @@
     if (e.target.id === 'recordsMonth') { recordsFilter.month = isMonth(e.target.value) ? e.target.value : ''; $('#recordsList').innerHTML = recordsList(); }
   });
   $('#viewContainer').addEventListener('input', e => {
+    if (e.target.id === 'otpCode') { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 6); if (e.target.value.length === 6) verifyCode(); return; }
     if (e.target.id === 'recordsSearch') { recordsFilter.q = e.target.value.slice(0, 80); $('#recordsList').innerHTML = recordsList(); }
   });
   $('#viewContainer').addEventListener('submit', e => {
@@ -2152,17 +2167,13 @@
       catch (err) { setLoginStatus(err.message, true); }
       return;
     }
-    if (e.target.id === 'loginForm') { e.preventDefault(); loginAction('signin'); return; }
-    if (e.target.id === 'newPasswordForm') {
+    if (e.target.id === 'loginForm') {
       e.preventDefault();
-      const pw = $('#newPassword').value;
-      if (pw.length < 6) return markInvalid($('#newPassword'), 'Password must be at least 6 characters.');
-      cloud.updatePassword(recoveryToken, pw).then(() => {
-        recoveryToken = ''; try { history.replaceState(null, '', location.pathname); } catch (_) { /* ignore */ }
-        showToast('Password changed. Sign in with your new password.'); render();
-      }).catch(err => setLoginStatus(err.network ? 'No internet connection.' : err.message, true));
-      return;
+      const email = str($('#loginEmail').value, 200).toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return markInvalid($('#loginEmail'), 'Enter a valid email address.');
+      sendCode(email); return;
     }
+    if (e.target.id === 'otpForm') { e.preventDefault(); verifyCode(); return; }
     if (e.target.id === 'updateUrlForm' && NATIVE) {
       e.preventDefault();
       const msg = NATIVE.setUpdateUrl($('#updateUrl').value.trim());
@@ -2197,7 +2208,10 @@
   /* ------------------------------------------------------------------
    * Boot
    * ------------------------------------------------------------------ */
-  if (authLink && authLink.type !== 'recovery') { startupNotice = ''; setTimeout(() => showToast('Email confirmed. You can sign in now.'), 300); try { history.replaceState(null, '', location.pathname); } catch (_) { /* ignore */ } }
+  if (authLink) {
+    try { history.replaceState(null, '', location.pathname); } catch (_) { /* ignore */ }
+    if (cloud.configured()) cloud.adoptLink(authLink).then(() => { showToast('Signed in from the email link.'); render(); }).catch(e => showToast(e.message, true));
+  }
   const initial = readHash();
   if (initial) { activeProduct = initial.product; activeView = initial.view; }
   if (!lsGet(STORAGE_KEY) && storageOK) saveState();

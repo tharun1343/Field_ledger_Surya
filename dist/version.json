@@ -1,8 +1,8 @@
 {
-  "versionCode": 220,
-  "versionName": "2.2.0",
-  "apkUrl": "https://raw.githubusercontent.com/tharun1343/fieldledger-releases/main/FieldLedger-2.2.0.apk",
-  "sha256": "32f58eb22a9245d8c96e342f09f8b160c3087a3084212228039cf21151613aab",
+  "versionCode": 230,
+  "versionName": "2.3.0",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.3.0.apk",
+  "sha256": "52e02a4299e41364cd5c7c6e9148bf9dd223e18ae5e512148851c0d9543dc094",
   "size": 304905,
-  "notes": "Sign-in and cloud sync (Supabase), simpler daily entry, typed bag count, one brinjal type per day, labour for Muskmelon, default wages in Settings, glass buttons, smooth transitions, new icon."
+  "notes": "Sign in with a 6-digit email code (no password). Updates now come from the FieldLedger repository."
 }

@@ -12,8 +12,14 @@ DIST="$ROOT/dist"
 
 # shellcheck disable=SC1091
 source <(grep -E '^[A-Z_]+=' "$HERE/version.properties")
-# shellcheck disable=SC1091
-source <(grep -E '^[A-Z_]+=' "$HERE/keystore/keystore.properties")
+# Signing password: never committed. Either keep it in android/keystore/keystore.properties (git-ignored)
+# or export FIELDLEDGER_KEYSTORE_PASSWORD before building.
+STORE_FILE=fieldledger-release-2026.jks; KEY_ALIAS=fieldledger; STORE_PASSWORD="${FIELDLEDGER_KEYSTORE_PASSWORD:-}"
+if [ -f "$HERE/keystore/keystore.properties" ]; then
+  # shellcheck disable=SC1091
+  source <(grep -E '^[A-Z_]+=' "$HERE/keystore/keystore.properties")
+fi
+if [ -z "$STORE_PASSWORD" ]; then echo "Set FIELDLEDGER_KEYSTORE_PASSWORD (signing key password) first." >&2; exit 1; fi
 APK_NAME="FieldLedger-${VERSION_NAME}.apk"
 
 echo "==> FieldLedger ${VERSION_NAME} (code ${VERSION_CODE})"
@@ -60,6 +66,9 @@ json.dump({"versionCode": ${VERSION_CODE}, "versionName": "${VERSION_NAME}",
            "apkUrl": "${RELEASE_BASE_URL}/${APK_NAME}", "sha256": "${SHA}", "size": ${SIZE},
            "notes": """${NOTES}"""}, open(sys.argv[1], "w"), indent=2)
 PY
-echo "==> Built $DIST/$APK_NAME ($SIZE bytes)"
+# Publish into release/ (served from this public repository: raw.githubusercontent.com/<owner>/<repo>/HEAD/release/)
+mkdir -p "$ROOT/release"; rm -f "$ROOT"/release/FieldLedger-*.apk
+cp "$DIST/$APK_NAME" "$DIST/version.json" "$ROOT/release/"
+echo "==> Built $DIST/$APK_NAME ($SIZE bytes) and copied it with version.json to release/"
 echo "    sha256 $SHA"
-echo "==> Publish: upload $APK_NAME and version.json to ${RELEASE_BASE_URL}/"
+echo "==> Commit and push release/ — phones then find the update at ${UPDATE_URL}"
