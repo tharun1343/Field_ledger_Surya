@@ -534,7 +534,7 @@
   const NEW_BAG_KG = 32;
   const MAX_BAGS = 60;
   const MAX_WORKERS = 50;
-  const APP_VERSION = '2.4.0';
+  const APP_VERSION = '2.4.1';
   // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
   const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
   // Running as a published claude.ai page: downloads go through the host's "downloads" capability
@@ -1532,6 +1532,7 @@
     return `<section class="card section-gap" id="updatesCard"><div class="card-head"><div><h2>App updates</h2><div class="muted small">Installed: v${esc(ni.versionName)} (build ${esc(ni.versionCode)})${ni.lastCheck ? ' · last checked ' + esc(ni.lastCheck) : ''}</div></div><span class="kpi-icon">${icon('restore')}</span></div>
       <div class="btn-row"><button class="btn primary" type="button" data-action="check-updates">${icon('download')} Check for updates</button></div>
       <div id="updateStatus" class="small" role="status" style="margin-top:10px">${esc(updateStatus)}</div>
+      <p class="muted small" style="margin-top:8px">The app checks automatically each time it opens. If an update will not install, <a href="https://github.com/tharun1343/Field_ledger_Surya/tree/HEAD/release" rel="noopener">download the latest APK</a> and open it.</p>
       <details style="margin-top:12px"><summary class="muted small">Update source (advanced)</summary><form id="updateUrlForm" novalidate style="margin-top:10px"><div class="field"><label for="updateUrl">Update manifest URL</label><input id="updateUrl" type="url" inputmode="url" value="${esc(ni.updateUrl)}" placeholder="https://…/version.json"></div><div class="form-actions"><span class="muted small">The app downloads updates only from this address (HTTPS) and installs them only if they are signed with the same key.</span><button class="btn" type="submit">${icon('check')} Save source</button></div></form></details></section>`;
   }
   let updateStatus = '';

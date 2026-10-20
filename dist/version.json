@@ -1,8 +1,8 @@
 {
-  "versionCode": 240,
-  "versionName": "2.4.0",
-  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.4.0.apk",
-  "sha256": "94ce0ef89a24a229f6475e5ec4ba5b9c052fecdf4458ad5ec061cfa4dcd18905",
+  "versionCode": 241,
+  "versionName": "2.4.1",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.4.1.apk",
+  "sha256": "21c91f46751bcdffeb20e493f72c27e73f1517c81bc912b0a245c20efd9b7ce6",
   "size": 309001,
-  "notes": "New Brinjal/Muskmelon switch, current business shown top-left, opens on Brinjal, sending/verifying indicators for the sign-in code, button hover fix and phone layout improvements."
+  "notes": "Checks for updates every time the app opens, with a backup update address."
 }

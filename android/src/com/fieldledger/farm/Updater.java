@@ -40,7 +40,8 @@ import java.util.Date;
  */
 class Updater {
     private static final String PREFS = "fieldledger-updater";
-    private static final long AUTO_INTERVAL_MS = 12L * 60 * 60 * 1000;
+    // Automatic checks run when the app opens or returns to the screen, at most this often.
+    private static final long AUTO_INTERVAL_MS = 30L * 60 * 1000;
     private static final long MAX_APK_BYTES = 150L * 1024 * 1024;
 
     private final MainActivity act;
@@ -82,10 +83,24 @@ class Updater {
     }
 
     // ------------------------------------------------------------------ check
+    private long lastAutoAttempt = 0;
     void autoCheck() {
-        long last = prefs.getLong("lastCheck", 0);
-        if (System.currentTimeMillis() - last < AUTO_INTERVAL_MS) return;
-        ui.postDelayed(new Runnable() { @Override public void run() { check(false); } }, 4000);
+        long now = System.currentTimeMillis();
+        if (now - lastAutoAttempt < AUTO_INTERVAL_MS) return;
+        lastAutoAttempt = now;
+        ui.postDelayed(new Runnable() { @Override public void run() { check(false); } }, 3000);
+    }
+
+    /** Main manifest first; if that fails, the GitHub Pages copy (only when the default source is in use). */
+    private JSONObject fetchManifest() throws Exception {
+        String url = getUpdateUrl();
+        try {
+            return new JSONObject(new String(httpGet(url, 256 * 1024), "UTF-8"));
+        } catch (Exception first) {
+            if (!url.equals(Config.UPDATE_URL) || Config.UPDATE_MIRROR_URL.isEmpty()) throw first;
+            try { return new JSONObject(new String(httpGet(Config.UPDATE_MIRROR_URL, 256 * 1024), "UTF-8")); }
+            catch (Exception second) { throw first; }
+        }
     }
 
     void check(final boolean manual) {
@@ -95,7 +110,7 @@ class Updater {
         new Thread(new Runnable() {
             @Override public void run() {
                 try {
-                    JSONObject m = new JSONObject(new String(httpGet(getUpdateUrl(), 256 * 1024), "UTF-8"));
+                    JSONObject m = fetchManifest();
                     prefs.edit().putLong("lastCheck", System.currentTimeMillis()).apply();
                     final int latest = m.getInt("versionCode");
                     final String name = m.optString("versionName", String.valueOf(latest));
@@ -245,7 +260,8 @@ class Updater {
 
     /** Called from MainActivity.onResume: continue an install that was waiting for permission. */
     void onResume() {
-        if (pendingInstall != null && pendingInstall.isFile() && canInstall()) install(pendingInstall);
+        if (pendingInstall != null && pendingInstall.isFile() && canInstall()) { install(pendingInstall); return; }
+        autoCheck();
     }
 
     // ---------------------------------------------------------------- helpers
