@@ -66,6 +66,7 @@ async function helpers(page, ctxName) {
       const [dl] = await Promise.all([page.waitForEvent('download', { timeout: 10000 }), page.locator(`[data-action="${action}"]:visible`).first().click()]);
       const file = path.join(OUT, filenameOut || dl.suggestedFilename()); await dl.saveAs(file); return file;
     },
+    rates: async (s, m, l) => { await page.locator('#rateS').fill(String(s)); await page.locator('#rateM').fill(String(m ?? s)); await page.locator('#rateL').fill(String(l ?? s)); },
     setBags: async n => { await page.locator('#bagCount').fill(String(n)); await page.locator('#bagCount').dispatchEvent('change'); }
   };
   return h;
@@ -83,7 +84,7 @@ async function helpers(page, ctxName) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, acceptDownloads: true, reducedMotion: 'reduce' });
   const page = await context.newPage();
   const H = await helpers(page, 'main');
-  const { st, text, settle, nav, product, setMonth, download, setBags } = H;
+  const { st, text, settle, nav, product, setMonth, download, setBags, rates } = H;
 
   await page.goto(base + '/index.html');
   await page.evaluate(() => localStorage.clear());
@@ -180,7 +181,7 @@ async function helpers(page, ctxName) {
     await page.locator('#menWage').fill('700'); await page.locator('#menWage').dispatchEvent('input');
     check('Changed wage is marked “this entry only”', /This entry only/.test(await text('#menWageHint')));
     check('Labour = 5 × ₹700 + 5 × ₹450 = ₹5,750', (await text('#calcLabour')) === '₹5,750', await text('#calcLabour'));
-    await page.locator('#entryRate').fill('20'); await page.locator('#entryWastage').fill('4.5');
+    await rates(20); await page.locator('#entryWastage').fill('4.5');
     await page.locator('[data-action="open-expenses"]').click();
     await page.locator('#expenseDate0').fill('2026-10-15'); await page.locator('#expensePurpose0').fill('Transport'); await page.locator('#expenseAmount0').fill('150');
     await page.locator('[data-exp-add]').click();
@@ -212,6 +213,109 @@ async function helpers(page, ctxName) {
     check('Editing keeps it selected (shown as not in list)', (await page.locator('#entryType').inputValue()) === 'Green round' && /not in list/.test(await page.locator('#entryType option:checked').innerText()));
     check('Editing loads the entry’s own wage (₹700)', (await page.locator('#menWage').inputValue()) === '700');
     await nav('records');
+  }
+
+  group('Brinjal: Small / Medium / Large prices and size cards');
+  {
+    await nav('entry');
+    await page.locator('#entryDate').fill('2026-10-16'); await page.locator('#entryDate').dispatchEvent('input');
+    check('Daily entry starts with today’s price for each size', (await page.locator('.price-panel #rateS, .price-panel #rateM, .price-panel #rateL').count()) === 3);
+    await rates(20, 15, 10);
+    await setBags(3); await page.waitForSelector('#saveBagModal');
+    for (const [i, w, z] of [[0, 10, 'S'], [1, 20, 'M'], [2, 30, 'L']]) { await page.locator('#bagWeight' + i).fill(String(w)); await page.locator('#bagSize' + i).selectOption(z); }
+    await page.locator('#saveBagModal').click();
+    check('Gross = 10 kg × ₹20 + 20 kg × ₹15 + 30 kg × ₹10 = ₹800', (await text('#calcGross')) === '₹800', await text('#calcGross'));
+    const cards = await page.locator('#sizeCards .size-card').allInnerTexts();
+    check('Three coloured size cards: bags, weight, rate and amount', cards.length === 3 && /₹200/.test(cards[0]) && /₹300/.test(cards[1]) && /₹300/.test(cards[2]) && /₹800/.test(await text('#sizeCards .size-total')), cards.join(' | ').replace(/\n/g, ' '));
+    await page.locator('#rateL').fill('');
+    await page.locator('#entryForm button[type="submit"]').click();
+    check('A size with bags needs its price before saving', (await page.locator('#rateL').getAttribute('aria-invalid')) === 'true' && (await H.view()) === 'entry');
+    await page.locator('#rateL').fill('10');
+    await page.locator('#entryForm button[type="submit"]').click();
+    await page.waitForFunction(() => document.body.dataset.view === 'records');
+    const rec = (await st()).data.brinjal.find(r => r.date === '2026-10-16');
+    check('Saved with the three prices; average rate kept for older apps', rec && rec.sizeRates.S === 20 && rec.sizeRates.M === 15 && rec.sizeRates.L === 10 && Math.abs(rec.ratePerKg - 800 / 60) < 1e-9, rec && JSON.stringify(rec.sizeRates));
+    await page.locator('tr[data-record-row]').filter({ hasText: '16 Oct' }).locator('[data-action="view-record"]').click();
+    check('Record view shows the size cards', (await page.locator('.modal-panel .size-card').count()) === 3);
+    await page.keyboard.press('Escape'); await settle();
+    await nav('reports'); await setMonth('2026-10');
+    check('Monthly report has a “Sales by size” section', (await page.locator('#printArea .size-grid .size-card').count()) === 3 && /Rate S \/ M \/ L/i.test(await text('#reportTable thead')));
+    await nav('dashboard');
+    check('Home has bar charts: daily sales by size, size bars, money in vs out, bills to pay', (await page.locator('.vstack').count()) > 0 && (await page.locator('.hbar-row').count()) === 3 && (await page.locator('.vgroup').count()) > 0 && /Bills to pay/.test(await text('#viewContainer')));
+  }
+
+  group('Ledger: bills, part payments and bill photos');
+  {
+    await nav('ledger');
+    check('Ledger totals: ₹2,500 still to pay (7 Oct unpaid, 8 Oct ₹500 of ₹1,500 paid)', /₹2,500/.test(await text('.ls-tile.due')), await text('.ls-tile.due'));
+    check('Filter chips with counts; “Not settled” shows 2 bills', (await page.locator('.bill-list .bill-card').count()) === 2 && /Not settled\s*2/.test(await text('.chips')));
+    await page.locator('.bill-card').filter({ hasText: '7 Oct' }).click();
+    await page.locator('[data-bill-action="pay"]').click();
+    check('Record payment suggests the full balance', (await page.locator('#payAmount').inputValue()) === '1500');
+    await page.locator('#payAmount').fill('600'); await page.locator('#payNote').fill('Cash');
+    await page.locator('#payForm button[type="submit"]').click();
+    await page.waitForSelector('.pay-row');
+    const b1 = (await st()).data.brinjal.find(r => r.date === '2026-10-07').expenseItems[0];
+    check('Part payment saved: paid ₹600, balance ₹900, status part paid', b1.paid === 600 && b1.payments.length === 1 && /Part paid/.test(await text('.modal-panel .st-pill')) && /₹900/.test(await text('.modal-panel .ls-tile.due')));
+    await page.locator('[data-bill-action="settle"]').click(); await settle(); await page.waitForTimeout(100);
+    const b2 = (await st()).data.brinjal.find(r => r.date === '2026-10-07').expenseItems[0];
+    check('“Mark fully paid” settles the bill and records the last ₹900', b2.paid === 1500 && b2.payments.length === 2 && /Settled/.test(await text('.modal-panel .st-pill')));
+    const png = path.join(OUT, 'bill-fixture.png'); fs.writeFileSync(png, Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAIAAABLbSncAAAAEklEQVR4nGP4z8CAFWEXHbQSACj/P8Fu7N9hAAAAAElFTkSuQmCC', 'base64'));
+    const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.locator('[data-bill-photo-add]').click()]);
+    await fc.setFiles(png);
+    await page.waitForFunction(() => { const i = document.querySelector('.modal-panel .thumb img'); return i && /^data:image\/jpeg/.test(i.src); }, null, { timeout: 8000 });
+    const b3 = (await st()).data.brinjal.find(r => r.date === '2026-10-07').expenseItems[0];
+    check('Bill photo attached (shrunk to JPEG and shown as a thumbnail)', b3.bills.length === 1);
+    await page.locator('.modal-panel [data-bill-view]').first().click({ position: { x: 10, y: 50 } });
+    check('Tapping the photo opens it full screen', (await page.locator('.viewer-layer img').count()) === 1);
+    await page.locator('.viewer-layer').click(); await page.keyboard.press('Escape'); await settle();
+    await nav('ledger');
+    check('Ledger now shows ₹1,000 still to pay', /₹1,000/.test(await text('.ls-tile.due')), await text('.ls-tile.due'));
+    // Expense entered as part paid in the daily entry
+    await nav('entry');
+    await page.locator('#entryDate').fill('2026-10-17'); await page.locator('#entryDate').dispatchEvent('input');
+    await rates(15); await setBags(1); await page.waitForSelector('#saveBagModal'); await page.locator('#saveBagModal').click();
+    await page.locator('[data-action="open-expenses"]').click();
+    await page.locator('#expensePurpose0').fill('Fertiliser'); await page.locator('#expenseAmount0').fill('300'); await page.locator('#expenseParty0').fill('Agro store');
+    await page.locator('[data-pay-mode="part"][data-i="0"]').click(); await page.locator('#expensePaid0').fill('100');
+    await page.locator('#saveExpenseModal').click();
+    await page.locator('#entryForm button[type="submit"]').click(); await page.waitForFunction(() => document.body.dataset.view === 'records');
+    const fx = (await st()).data.brinjal.find(r => r.date === '2026-10-17').expenseItems[0];
+    check('Expense saved as part paid: ₹100 of ₹300, paid to Agro store', fx.paid === 100 && fx.party === 'Agro store' && fx.payments.length === 1);
+    await nav('ledger');
+    check('It appears in the ledger with a ₹200 balance', /Balance ₹200/.test(await page.locator('.bill-card').filter({ hasText: 'Fertiliser' }).innerText()));
+    // Backup round trip keeps payments and photos
+    await nav('tools'); const backupFile = await download('export-json', 'backup-with-photo.json');
+    const bj = JSON.parse(fs.readFileSync(backupFile, 'utf8'));
+    check('Backup includes payments and the bill photo', Object.keys(bj.files || {}).length === 1 && bj.data.brinjal.find(r => r.date === '2026-10-07').expenseItems[0].payments.length === 2);
+    const rctx = await browser.newContext({ viewport: { width: 400, height: 860 }, reducedMotion: 'reduce' });
+    const rp = await rctx.newPage(); const RH = await helpers(rp, 'restore');
+    await rp.addInitScript(() => { if (!localStorage.getItem('fieldledger-cloud')) localStorage.setItem('fieldledger-cloud', JSON.stringify({ localOnly: true })); });
+    await rp.goto(base + '/index.html#/brinjal/tools'); await rp.waitForSelector('[data-action="import-json"]');
+    await rp.setInputFiles('#importFile', backupFile); await RH.settle();
+    await rp.waitForFunction(() => window.FieldLedger.getState().data.brinjal.some(r => r.date === '2026-10-17'));
+    await rp.evaluate(() => { location.hash = '#/brinjal/ledger'; }); await rp.waitForSelector('.bill-card');
+    await rp.locator('[data-ledger-filter="all"]').click();
+    await rp.locator('.bill-card').filter({ hasText: '7 Oct' }).click();
+    await rp.waitForFunction(() => { const i = document.querySelector('.modal-panel .thumb img'); return i && /^data:image/.test(i.src); }, null, { timeout: 8000 });
+    check('Restoring the backup on another browser brings back records, payments and the photo', true);
+    check('No errors while restoring', RH.errors.length === 0, RH.errors.join(' | '));
+    await rctx.close();
+  }
+
+  group('Account sheet → Settings');
+  {
+    for (const from of ['dashboard', 'settings']) {
+      if (from === 'settings') { await nav('tools'); await page.locator('.quick-card[data-nav="settings"]').click(); await page.waitForFunction(() => document.body.dataset.view === 'settings'); } else await nav(from);
+      await page.locator('#accountChip').click(); await page.waitForSelector('.modal-panel');
+      await page.locator('#modalRoot [data-nav="settings"]').click(); await page.waitForTimeout(150);
+      check(`From ${from === 'settings' ? 'Settings itself' : 'Home'}: the sheet closes and Settings is shown`, (await H.view()) === 'settings' && (await page.locator('#modalRoot .modal-layer').count()) === 0);
+    }
+    check('Settings has the App updates card', (await page.locator('h2', { hasText: /App (updates|version)/ }).count()) === 1);
+    // Remove the two extra test days so the statement checks below keep the source-sheet totals.
+    await nav('records');
+    for (const d of ['16 Oct', '17 Oct']) { await page.locator('tr[data-record-row]').filter({ hasText: d }).locator('[data-action="delete-record"]').click(); await settle(); }
+    check('Extra test days removed', !(await st()).data.brinjal.some(r => r.date === '2026-10-16' || r.date === '2026-10-17'));
   }
 
   group('Muskmelon: labour, wastage, monthly-first overview');
@@ -252,7 +356,7 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     check('PNG statement is a real image', pr.fmt === 'PNG' && pr.w >= 2000, JSON.stringify(pr));
     await product('brinjal'); await nav('reports'); await setMonth('2026-10');
     const bcsv = fs.readFileSync(await download('export-csv'), 'utf8').replace(/^﻿/, '').trim().split(/\r\n/);
-    check('Brinjal CSV has Type column and TOTAL 99 bags / 3168 kg / ₹48,320', /^Date,Type,Bags/.test(bcsv[0]) && /^TOTAL,,99,3168,4.5,,48320,12400,5,5,29,20250,15670$/.test(bcsv[bcsv.length - 1]), bcsv[bcsv.length - 1]);
+    check('Brinjal CSV has Type, size and TOTAL 99 bags / 3168 kg / ₹48,320', /^Date,Type,Bags,Small \(kg\),Medium \(kg\),Large \(kg\)/.test(bcsv[0]) && /^TOTAL,,99,0,3136,32,3168,4.5,,,48320,12400,5,5,29,20250,15670$/.test(bcsv[bcsv.length - 1]), bcsv[bcsv.length - 1]);
     fs.copyFileSync(await download('export-png'), path.join(OUT, 'export-brinjal-statement.png'));
     await page.evaluate(() => { window.__printCalls = 0; window.print = () => { window.__printCalls++; window.__printClass = document.body.classList.contains('printing-report'); }; });
     await page.locator('[data-action="export-pdf"]:visible').first().click();
@@ -275,7 +379,7 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
   {
     const before = JSON.stringify(await st());
     await page.setInputFiles('#importFile', { name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{ nope') });
-    await page.waitForFunction(() => /not valid JSON/.test(document.querySelector('#importStatus').textContent));
+    await page.waitForFunction(() => /not a FieldLedger backup/.test(document.querySelector('#importStatus').textContent));
     check('Malformed JSON rejected; nothing changed', JSON.stringify(await st()) === before);
     H.dialogQueue.push('dismiss');
     await page.setInputFiles('#importFile', path.join(OUT, 'backup.json'));
@@ -308,15 +412,27 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     const tp = await tctx.newPage();
     await tp.addInitScript(() => { localStorage.setItem('fieldledger-cloud', JSON.stringify({ localOnly: true })); });
     await tp.goto(base + '/index.html'); await tp.waitForSelector('.kpi');
-    await tp.evaluate(() => { window.__vt = []; new MutationObserver(() => { const v = document.documentElement.dataset.vt; if (v) window.__vt.push(v); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-vt'] }); });
-    await tp.locator('.nav [data-nav="records"]').click(); await tp.waitForTimeout(500);
-    await tp.locator('.nav [data-nav="dashboard"]').click(); await tp.waitForTimeout(500);
-    await tp.locator('#productToggle').click(); await tp.waitForTimeout(500);
-    await tp.locator('#quickThemeBtn').click(); await tp.waitForTimeout(700);
-    const vt = await tp.evaluate(() => window.__vt);
-    check('Tabs slide forward/back, product cross-fades, theme reveals (View Transitions)', ['forward', 'back', 'product', 'theme'].every(k => vt.includes(k)), vt.join(','));
-    await tp.waitForTimeout(800);
-    check('No transition left running', !(await tp.evaluate(() => document.documentElement.dataset.vt)), await tp.evaluate(() => document.documentElement.dataset.vt));
+    await tp.evaluate(() => {
+      window.__vt = 0; window.__enter = [];
+      const orig = document.startViewTransition && document.startViewTransition.bind(document);
+      document.startViewTransition = cb => { window.__vt++; return orig ? orig(cb) : (cb(), { finished: Promise.resolve() }); };
+      new MutationObserver(() => { const c = document.querySelector('#viewContainer').className; if (/enter/.test(c)) window.__enter.push(c); }).observe(document.querySelector('#viewContainer'), { attributes: true, attributeFilter: ['class'] });
+    });
+    await tp.locator('.nav [data-nav="records"]').click(); await tp.waitForTimeout(400);
+    await tp.locator('.nav [data-nav="dashboard"]').click(); await tp.waitForTimeout(400);
+    await tp.locator('#productToggle').click(); await tp.waitForTimeout(400);
+    const enters = await tp.evaluate(() => window.__enter);
+    check('Tabs and business switch animate only the content (GPU slide/fade, no full-page snapshot)', enters.some(c => /enter-side/.test(c)) && enters.some(c => /(^| )enter( |$)/.test(c)) && (await tp.evaluate(() => window.__vt)) === 0, enters.join(','));
+    await tp.locator('#quickThemeBtn').click(); await tp.waitForTimeout(500);
+    check('Theme change is one cross-fade and does not rebuild the screen', (await tp.evaluate(() => window.__vt)) === 1 && (await tp.evaluate(() => document.body.dataset.theme)) === 'dark');
+    const perf = await tp.evaluate(() => { const cs = getComputedStyle(document.body); const card = getComputedStyle(document.querySelector('.card')); return { attach: cs.backgroundAttachment, cardTrans: card.transitionProperty }; });
+    check('No fixed-background repaint and no colour transitions on every card', perf.attach !== 'fixed' && !/background-color/.test(perf.cardTrans), JSON.stringify(perf));
+    await tp.locator('#quickThemeBtn').click(); await tp.waitForTimeout(400);
+    const touch = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+    const tt = await touch.newPage(); await tt.addInitScript(() => localStorage.setItem('fieldledger-cloud', JSON.stringify({ localOnly: true })));
+    await tt.goto(base + '/index.html'); await tt.waitForSelector('.kpi');
+    check('Phones: no live blur (backdrop-filter) on buttons and bars', await tt.evaluate(() => ['.nav', '.btn', '.icon-btn'].every(sel => { const el = document.querySelector(sel); const v = getComputedStyle(el).backdropFilter; return !v || v === 'none'; })));
+    await touch.close();
     await tctx.close();
   }
 
@@ -363,7 +479,7 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await A.p.locator('.nav [data-nav="entry"]').click();
     await A.p.locator('#bagCount').fill('2'); await A.p.locator('#bagCount').dispatchEvent('change'); await A.p.waitForSelector('#saveBagModal');
     await A.p.locator('#bagWeight0').fill('30'); await A.p.locator('#bagWeight1').fill('31'); await A.p.locator('#saveBagModal').click();
-    await A.p.locator('#entryRate').fill('18'); await A.p.locator('#entryForm button[type="submit"]').click();
+    await A.h.rates(18); await A.p.locator('#entryForm button[type="submit"]').click();
     await A.p.waitForFunction(() => document.body.dataset.view === 'records');
     await A.p.waitForFunction(() => document.querySelector('#statusDot').classList.contains('green'), null, { timeout: 8000 });
     const userId = [...mock.users.values()][0].id;
@@ -380,8 +496,8 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     // Edit on B, sync on A
     const id = (await B.h.st()).data.brinjal[0].id;
     await B.p.evaluate(() => { location.hash = '#/brinjal/records'; }); await B.p.waitForSelector('.record-card [data-action="edit-record"]');
-    await B.p.locator('.record-card [data-action="edit-record"]').first().click(); await B.p.waitForSelector('#entryRate');
-    await B.p.locator('#entryRate').fill('25'); await B.p.locator('#entryForm button[type="submit"]').click();
+    await B.p.locator('.record-card [data-action="edit-record"]').first().click(); await B.p.waitForSelector('#rateM');
+    await B.h.rates(25); await B.p.locator('#entryForm button[type="submit"]').click();
     await B.p.waitForFunction(() => document.querySelector('#statusDot').classList.contains('green'), null, { timeout: 8000 });
     await A.p.locator('#accountChip').click(); await A.p.locator('[data-action="sync-now"]').click();
     await A.p.waitForFunction(id => (window.FieldLedger.getState().data.brinjal.find(r => r.id === id) || {}).ratePerKg === 25, id, { timeout: 8000 });
@@ -394,7 +510,7 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await A.p.locator('.nav [data-nav="entry"]').click();
     await A.p.locator('#entryDate').fill('2026-10-21'); await A.p.locator('#entryDate').dispatchEvent('input');
     await A.p.locator('#bagCount').fill('1'); await A.p.locator('#bagCount').dispatchEvent('change'); await A.p.waitForSelector('#saveBagModal'); await A.p.locator('#saveBagModal').click();
-    await A.p.locator('#entryRate').fill('19'); await A.p.locator('#entryForm button[type="submit"]').click();
+    await A.h.rates(19); await A.p.locator('#entryForm button[type="submit"]').click();
     await A.p.waitForFunction(() => document.body.dataset.view === 'records');
     check('Saving offline works and is queued', /waiting/.test(await A.p.locator('#accountChip').getAttribute('title')), await A.p.locator('#accountChip').getAttribute('title'));
     await A.ctx.setOffline(false); await A.p.evaluate(() => window.dispatchEvent(new Event('online')));
@@ -451,19 +567,19 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await m.goto(base + '/index.html'); await m.waitForSelector('.kpi');
     const overflow = () => m.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
     const bad = [];
-    for (const p of ['brinjal', 'muskmelon']) for (const v of ['dashboard', 'entry', 'records', 'reports', 'tools', 'settings', 'profile']) {
+    for (const p of ['brinjal', 'muskmelon']) for (const v of ['dashboard', 'entry', 'records', 'ledger', 'reports', 'tools', 'settings', 'profile']) {
       await m.evaluate(([p, v]) => { location.hash = `#/${p}/${v}`; }, [p, v]); await m.waitForTimeout(120);
       const o = await overflow(); if (o > 0) bad.push(`${p}/${v}:+${o}px`);
       if (['dashboard', 'entry', 'reports'].includes(v)) await m.screenshot({ path: path.join(OUT, `mobile360-${p}-${v}.png`), fullPage: true });
     }
-    check('No horizontal overflow at 360px on any screen', bad.length === 0, bad.join(', ') || '14 screens fit');
+    check('No horizontal overflow at 360px on any screen', bad.length === 0, bad.join(', ') || '16 screens fit');
     const top = await m.evaluate(() => { const r = el => document.querySelector(el).getBoundingClientRect(); return { brand: r('.brand').right, toggle: r('#productToggle').left, acct: r('#accountChip').right, vw: innerWidth }; });
     check('Top bar fits at 360px (brand, toggle, theme, account on one row)', top.brand <= top.toggle && top.acct <= top.vw, JSON.stringify(top));
     await m.evaluate(() => { location.hash = '#/brinjal/dashboard'; }); await m.waitForTimeout(100);
     check('Recent entries show as a tappable list on phones (no sideways table)', (await m.locator('.recent-list .recent-row').count()) === 5 && (await m.locator('.records-table').first().isHidden()));
     await m.evaluate(() => { location.hash = '#/brinjal/entry'; }); await m.waitForTimeout(100);
-    const rw = await m.evaluate(() => { const a = document.querySelector('#entryRate').getBoundingClientRect(), b = document.querySelector('#entryWastage').getBoundingClientRect(); return Math.abs(a.top - b.top) < 2 && a.right < b.left; });
-    check('Rate and Wastage share one row on phones', rw);
+    const rw = await m.evaluate(() => { const r = k => document.querySelector('#rate' + k).getBoundingClientRect(); return Math.abs(r('S').top - r('L').top) < 2 && r('S').right < r('M').left && r('M').right < r('L').left && r('L').right <= innerWidth; });
+    check('Small / Medium / Large prices sit side by side on phones', rw);
     await m.evaluate(() => { location.hash = '#/brinjal/dashboard'; }); await m.waitForTimeout(100);
     const navBox = await m.locator('.nav').boundingBox();
     check('Bottom navigation fixed and on-screen', navBox.y + navBox.height <= 740 && navBox.y > 600, JSON.stringify(navBox));
@@ -494,7 +610,9 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
       window.FieldLedgerAndroid = {
         getAppInfo: () => JSON.stringify({ versionName: '2.2.0', versionCode: 220, updateUrl: 'https://example.invalid/version.json', lastCheck: '' }),
         saveFile: (name, mime, b64) => { window.__native.saved.push({ name, mime, text: mime.startsWith('text') ? atob(b64) : '' }); return 'Saved to Downloads/FieldLedger/' + name + '.'; },
-        print: name => window.__native.prints.push(name), setThemeColor: () => {}, checkForUpdates: m => window.__native.checks.push(m), setUpdateUrl: () => 'saved'
+        print: name => window.__native.prints.push(name), setThemeColor: () => {}, checkForUpdates: m => window.__native.checks.push(m),
+        startUpdate: () => window.__native.checks.push('start'), cancelUpdate: () => window.__native.checks.push('cancel'), openInstallPermission: () => {},
+        pickFile: kind => window.__native.checks.push('pick:' + kind), putFile: () => 'ok', getFile: () => '', deleteFile: () => {}
       };
     });
     const a = await actx.newPage(); const aerr = []; a.on('pageerror', e => aerr.push(e.message));
@@ -503,14 +621,33 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
     await a.locator('[data-action="export-csv"]:visible').first().click();
     await a.waitForFunction(() => window.__native.saved.length === 1);
     const saved = await a.evaluate(() => window.__native.saved[0]);
-    check('Exports are handed to the Android shell', saved.name === 'fieldledger-brinjal-2026-10.csv' && /TOTAL,,94,3008/.test(saved.text), saved.name);
+    check('Exports are handed to the Android shell', saved.name === 'fieldledger-brinjal-2026-10.csv' && /TOTAL,,94,0,3008,0,3008/.test(saved.text), saved.name);
     await a.locator('[data-action="export-pdf"]:visible').first().click();
     await a.waitForFunction(() => window.__native.prints.length === 1);
     check('PDF uses the Android print dialog', (await a.evaluate(() => window.__native.prints[0])) === 'fieldledger-brinjal-2026-10');
     await a.evaluate(() => window.FieldLedgerNativeEvent('print-finished', ''));
     await a.evaluate(() => { location.hash = '#/brinjal/tools'; }); await a.waitForSelector('#updatesCard');
     await a.locator('[data-action="check-updates"]').click();
-    check('Check for updates calls the shell', (await a.evaluate(() => window.__native.checks)).join() === 'true');
+    check('Check for updates calls the shell and shows “Checking…”', (await a.evaluate(() => window.__native.checks)).join() === 'true' && /Checking/.test(await a.locator('#updatesCard').innerText()));
+    check('No update-address editing (just one clear button)', (await a.locator('#updateUrl, #updateUrlForm').count()) === 0 && (await a.locator('#updatesCard button').count()) === 1);
+    await a.evaluate(() => window.FieldLedgerNativeEvent('update', JSON.stringify({ state: 'available', versionCode: 260, versionName: '2.6.0', notes: 'New things', size: 340000, auto: false })));
+    await a.waitForSelector('[data-upd="now"]');
+    check('Update found → sheet with “Update later” and “Update now”', /Update available/.test(await a.locator('.modal-panel').innerText()) && (await a.locator('[data-upd="later"]').count()) === 1);
+    await a.locator('[data-upd="now"]').click();
+    await a.evaluate(() => window.FieldLedgerNativeEvent('update', JSON.stringify({ state: 'progress', done: 170000, total: 340000 })));
+    check('“Update now” downloads inside the app with a progress bar', (await a.evaluate(() => window.__native.checks)).includes('start') && /50%/.test(await a.locator('.modal-panel').innerText()));
+    await a.evaluate(() => window.FieldLedgerNativeEvent('update', JSON.stringify({ state: 'confirm' })));
+    check('Then installs from inside the app (Android confirm step explained)', /Installing version 2\.6\.0/.test(await a.locator('.modal-panel').innerText()));
+    await a.locator('[data-upd="later"]').click();
+    await a.evaluate(() => window.FieldLedgerNativeEvent('update', JSON.stringify({ state: 'available', versionCode: 260, versionName: '2.6.0', auto: true })));
+    await a.waitForTimeout(150);
+    check('After “later”, the automatic check does not ask again for the same version', (await a.locator('[data-upd="now"]').count()) === 0);
+    const backupText = JSON.stringify({ app: 'FieldLedger', schemaVersion: 2, settings: {}, profile: {}, data: { brinjal: [], muskmelon: [{ id: 'mx1', date: '2026-10-03', kg: 100, ratePerKg: 10, expenseItems: [] }] } });
+    await a.locator('[data-action="import-json"]').click();
+    check('Restore backup uses the phone’s own file picker', (await a.evaluate(() => window.__native.checks)).includes('pick:backup'));
+    await a.evaluate(t => window.FieldLedgerNativeEvent('file-picked', JSON.stringify({ kind: 'backup', name: 'fieldledger-backup.json', text: t })), backupText);
+    await a.waitForFunction(() => window.FieldLedger.getState().data.muskmelon.length === 1, null, { timeout: 5000 });
+    check('Backup chosen on the phone is restored', (await a.evaluate(() => window.FieldLedger.getState().data.brinjal.length)) === 0);
     await a.evaluate(() => { location.hash = '#/brinjal/entry'; }); await a.waitForSelector('#bagCount');
     await a.locator('#bagCount').fill('2'); await a.locator('#bagCount').dispatchEvent('change'); await a.waitForSelector('.modal-layer');
     const handled = await a.evaluate(() => window.FieldLedgerBack()); await a.waitForTimeout(150);
@@ -538,9 +675,9 @@ print(json.dumps({'sheets':wb.sheetnames,'total':[r for r in rows if r and r[0]=
   {
     await page.evaluate(() => localStorage.setItem('fieldledger-cloud', JSON.stringify({ localOnly: true })));
     const dead = [];
-    for (const p of ['brinjal', 'muskmelon']) for (const v of ['dashboard', 'entry', 'records', 'reports', 'tools', 'settings', 'profile']) {
+    for (const p of ['brinjal', 'muskmelon']) for (const v of ['dashboard', 'entry', 'records', 'ledger', 'reports', 'tools', 'settings', 'profile']) {
       await page.goto(`${base}/index.html#/${p}/${v}`); await page.waitForSelector('#viewContainer > *');
-      const d = await page.evaluate(() => Array.from(document.querySelectorAll('button')).filter(b => b.offsetParent !== null && !b.matches('[data-nav],[data-action],[data-product-tab],[data-month-report],[data-step],[type="submit"],#quickThemeBtn')).map(b => b.outerHTML.slice(0, 80)));
+      const d = await page.evaluate(() => Array.from(document.querySelectorAll('button')).filter(b => b.offsetParent !== null && !b.matches('[data-nav],[data-action],[data-product-tab],[data-month-report],[data-step],[type="submit"],#quickThemeBtn,[data-bill],[data-ledger-filter]')).map(b => b.outerHTML.slice(0, 80)));
       if (d.length) dead.push(`${p}/${v}: ${d.join(' ')}`);
     }
     check('Every visible button has a wired action', dead.length === 0, dead.join(' | '));

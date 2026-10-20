@@ -14,8 +14,8 @@ import java.io.FileNotFoundException;
 import java.util.List;
 
 /**
- * Minimal read-only file provider (no AndroidX available in this build) that exposes
- * cache/updates/* (downloaded update APKs, to the package installer) and cache/exports/* (shared exports).
+ * Minimal file provider (no AndroidX available in this build) that exposes
+ * cache/updates/* (downloaded update APKs, to the package installer) and cache/exports/* (shared exports) and cache/captures/* (camera writes the bill photo here).
  */
 public class FilesProvider extends ContentProvider {
     static final String AUTHORITY = "com.fieldledger.farm.files";
@@ -26,7 +26,7 @@ public class FilesProvider extends ContentProvider {
         List<String> seg = uri.getPathSegments();
         if (seg.size() != 2) throw new FileNotFoundException("bad path");
         String dir = seg.get(0), name = seg.get(1);
-        if (!("updates".equals(dir) || "exports".equals(dir)) || name.contains("/") || name.startsWith(".")) throw new FileNotFoundException("not allowed");
+        if (!("updates".equals(dir) || "exports".equals(dir) || "captures".equals(dir)) || name.contains("/") || name.startsWith(".")) throw new FileNotFoundException("not allowed");
         File f = new File(new File(getContext().getCacheDir(), dir), name);
         if (!f.isFile()) throw new FileNotFoundException(name);
         return f;
@@ -34,7 +34,13 @@ public class FilesProvider extends ContentProvider {
 
     @Override
     public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {
-        return ParcelFileDescriptor.open(resolve(uri), ParcelFileDescriptor.MODE_READ_ONLY);
+        File f = resolve(uri);
+        // Only the camera's output file (captures/) may be written to.
+        if (mode != null && mode.contains("w")) {
+            if (!"captures".equals(uri.getPathSegments().get(0))) throw new FileNotFoundException("read-only");
+            return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_WRITE | ParcelFileDescriptor.MODE_TRUNCATE);
+        }
+        return ParcelFileDescriptor.open(f, ParcelFileDescriptor.MODE_READ_ONLY);
     }
 
     @Override

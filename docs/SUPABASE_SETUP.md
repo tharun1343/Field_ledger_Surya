@@ -12,7 +12,8 @@ Your progress so far:
 | 2. Custom SMTP (email sending) | ✅ Done |
 | 3. Switch emails from links to 6-digit codes | ⬜ Below |
 | 4. Make the repo public + turn on GitHub Pages | ⬜ Below |
-| 5. Connect the app to your project | ⬜ Below |
+| 5. Connect the app to your project | ✅ Done (built into the app) |
+| 7. Storage bucket for bill photos (optional, new in 2.5) | ⬜ Below |
 
 ---
 
@@ -86,7 +87,8 @@ What is published from this repository:
 
 The app checks `https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/version.json`.
 - `HEAD` means "the default branch", so the address keeps working if you rename the branch.
-- On the phone: **More → App updates → Check for updates**. The app also checks by itself every 12 hours.
+- On the phone: **Settings → App updates → Check for updates** (also under **More**). The app also checks by itself each time it is opened (at most every 30 minutes).
+- The app asks the GitHub Releases API first, then `raw.githubusercontent.com`, then GitHub Pages, so one blocked address does not stop updates. The APK is downloaded inside the app from the first address that works (GitHub Releases, raw, jsDelivr or Pages), checked against its SHA-256, and installed with Android's installer session.
 
 > **If you make the repo private again:**
 > - Phones can't download updates. The app says "No update has been published", and nothing else breaks.
@@ -127,9 +129,36 @@ The dot on the account button shows the sync state:
 - **Sample data:** demo records are never uploaded. They are removed when you first sign in.
 - **Signing out:** removes this phone's copy. Your records stay in your account.
 
+## 7. Bill photos in your account (optional)
+
+Bill photos attached to expenses are always saved **on the phone** and inside **JSON backups**. To also keep them in your Supabase account (so a second phone can see them), create a private storage bucket once.
+
+Open **SQL Editor → New query**, paste this and click **Run**:
+
+```sql
+-- Private bucket for bill photos: <user id>/<photo id>.jpg
+insert into storage.buckets (id, name, public)
+values ('bills', 'bills', false)
+on conflict (id) do nothing;
+
+-- Each account can read, add, replace and delete only the files in its own folder.
+create policy "bills: read own"   on storage.objects for select to authenticated
+  using (bucket_id = 'bills' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "bills: add own"    on storage.objects for insert to authenticated
+  with check (bucket_id = 'bills' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "bills: update own" on storage.objects for update to authenticated
+  using (bucket_id = 'bills' and (storage.foldername(name))[1] = auth.uid()::text);
+create policy "bills: delete own" on storage.objects for delete to authenticated
+  using (bucket_id = 'bills' and (storage.foldername(name))[1] = auth.uid()::text);
+```
+
+Check it worked: **Storage** shows a bucket named **bills** marked *Private*.
+
+Without this step everything still works; the account sheet just notes that bill photos stay on the phone.
+
 ## Do I need to change the SQL?
 
-**No.** The tables and row-level security you created already work with code sign-in:
+**No** for records and sign-in (step 7 is only for bill photos). The tables and row-level security you created already work with code sign-in, and the new 2.5 fields (size prices, payments, photo ids) are stored inside the existing `data` column:
 - each account still gets a user id;
 - `ledger_entries` and `ledger_settings` still allow each account to read and write only its own rows.
 
@@ -145,4 +174,6 @@ To double-check, open **Table Editor**: `ledger_entries` and `ledger_settings` s
 | No email arrives | Check spam. In Supabase open **Logs → Auth** to see SMTP errors. Re-check host, port, username and password in SMTP Settings. |
 | "Signups not allowed for otp" | In Authentication → Sign In / Providers, allow new users to sign up. |
 | Orange dot with "relation … does not exist" | The SQL was run in a different project than the app is connected to. |
-| "No update has been published at the update address yet" | The repo is private, or `release/version.json` isn't pushed yet (step 4). |
+| "No update has been published yet" | The repo is private, or `release/version.json` isn't pushed yet (step 4). |
+| "Could not reach the update server" | The phone is offline, or all GitHub addresses are blocked on this network. Try Wi-Fi or mobile data. |
+| Account sheet says bill photos stay on this phone | Create the **bills** bucket (step 7). |

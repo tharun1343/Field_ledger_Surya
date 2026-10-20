@@ -36,6 +36,7 @@ package com.fieldledger.farm;
 final class Config {
     static final String UPDATE_URL = "${UPDATE_URL}";
     static final String UPDATE_MIRROR_URL = "${UPDATE_MIRROR_URL:-}";
+    static final String GITHUB_REPO = "${GITHUB_REPO:-}";
     private Config() { }
 }
 JAVA
@@ -63,8 +64,18 @@ SIZE=$(stat -c %s "$DIST/$APK_NAME")
 NOTES="${RELEASE_NOTES:-FieldLedger ${VERSION_NAME}}"
 python3 - "$DIST/version.json" <<PY
 import json, sys
-json.dump({"versionCode": ${VERSION_CODE}, "versionName": "${VERSION_NAME}",
-           "apkUrl": "${RELEASE_BASE_URL}/${APK_NAME}", "sha256": "${SHA}", "size": ${SIZE},
+repo = "${GITHUB_REPO:-}"; v = "${VERSION_NAME}"; apk = "${APK_NAME}"
+urls = []
+if repo:
+    urls.append(f"https://github.com/{repo}/releases/download/v{v}/{apk}")
+urls.append("${RELEASE_BASE_URL}/" + apk)
+if repo:
+    urls.append(f"https://cdn.jsdelivr.net/gh/{repo}@v{v}/release/{apk}")
+mirror = "${UPDATE_MIRROR_URL:-}"
+if mirror:
+    urls.append(mirror.rsplit("/", 1)[0] + "/" + apk)
+json.dump({"versionCode": ${VERSION_CODE}, "versionName": v,
+           "apkUrl": "${RELEASE_BASE_URL}/" + apk, "apkUrls": urls, "sha256": "${SHA}", "size": ${SIZE},
            "notes": """${NOTES}"""}, open(sys.argv[1], "w"), indent=2)
 PY
 # Publish into release/ (served from this public repository: raw.githubusercontent.com/<owner>/<repo>/HEAD/release/)

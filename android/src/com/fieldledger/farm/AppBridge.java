@@ -24,6 +24,7 @@ import android.webkit.WebView;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
@@ -45,8 +46,7 @@ public class AppBridge {
             JSONObject o = new JSONObject();
             o.put("versionName", updater.versionName());
             o.put("versionCode", updater.versionCode());
-            o.put("updateUrl", updater.getUpdateUrl());
-            o.put("lastCheck", updater.lastCheckLabel());
+            o.put("lastCheck", updater.lastCheck());
             o.put("android", Build.VERSION.RELEASE);
             return o.toString();
         } catch (Exception e) {
@@ -131,6 +131,7 @@ public class AppBridge {
                     if (!dark && Build.VERSION.SDK_INT >= 26) flags |= 0x00000010; // SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
                     else flags &= ~0x00000010;
                     decor.setSystemUiVisibility(flags);
+                    web.setBackgroundColor(dark ? Color.parseColor("#111018") : Color.parseColor("#f5f5fb"));
                 } catch (Exception ignored) { }
             }
         });
@@ -142,9 +143,51 @@ public class AppBridge {
     }
 
     @JavascriptInterface
-    public String setUpdateUrl(String url) {
-        return updater.setUpdateUrl(url);
+    public void startUpdate() { activity.runOnUiThread(new Runnable() { @Override public void run() { updater.start(); } }); }
+
+    @JavascriptInterface
+    public void cancelUpdate() { updater.cancel(); }
+
+    @JavascriptInterface
+    public void openInstallPermission() { activity.runOnUiThread(new Runnable() { @Override public void run() { updater.openInstallPermission(); } }); }
+
+    /** kind = "backup" (JSON text) or "image" (camera or gallery, returned as a small JPEG). Result: event "file-picked". */
+    @JavascriptInterface
+    public void pickFile(String kind) { activity.pickFile("image".equals(kind) ? "image" : "backup"); }
+
+    // Bill photos: app-private storage files/bills/<id>.jpg (removed with the app, included in JSON backups).
+    private File billFile(String id) {
+        if (id == null || !id.matches("[A-Za-z0-9_-]{4,60}")) throw new IllegalArgumentException("bad photo id");
+        File dir = new File(activity.getFilesDir(), "bills");
+        if (!dir.exists()) dir.mkdirs();
+        return new File(dir, id + ".jpg");
     }
+
+    @JavascriptInterface
+    public String putFile(String id, String base64) {
+        try {
+            byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
+            if (bytes.length == 0 || bytes.length > 12 * 1024 * 1024) return "photo is empty or too large";
+            FileOutputStream out = new FileOutputStream(billFile(id));
+            try { out.write(bytes); } finally { out.close(); }
+            return "ok";
+        } catch (Exception e) { return "could not store the photo: " + e.getMessage(); }
+    }
+
+    @JavascriptInterface
+    public String getFile(String id) {
+        try {
+            File f = billFile(id);
+            if (!f.isFile()) return "";
+            byte[] b = new byte[(int) f.length()];
+            FileInputStream in = new FileInputStream(f);
+            try { int off = 0, n; while (off < b.length && (n = in.read(b, off, b.length - off)) > 0) off += n; } finally { in.close(); }
+            return Base64.encodeToString(b, Base64.NO_WRAP);
+        } catch (Exception e) { return ""; }
+    }
+
+    @JavascriptInterface
+    public void deleteFile(String id) { try { billFile(id).delete(); } catch (Exception ignored) { } }
 
     static String safeName(String name) {
         String n = name == null ? "" : name.replaceAll("[^A-Za-z0-9._-]", "_");

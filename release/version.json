@@ -1,8 +1,14 @@
 {
-  "versionCode": 242,
-  "versionName": "2.4.2",
-  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.4.2.apk",
-  "sha256": "9023c39511d08bcaca59ab6fd5aef6398131b797e0785a11faf136f0edd7ab16",
-  "size": 313097,
-  "notes": "FieldLedger 2.4.2"
+  "versionCode": 250,
+  "versionName": "2.5.0",
+  "apkUrl": "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.5.0.apk",
+  "apkUrls": [
+    "https://github.com/tharun1343/Field_ledger_Surya/releases/download/v2.5.0/FieldLedger-2.5.0.apk",
+    "https://raw.githubusercontent.com/tharun1343/Field_ledger_Surya/HEAD/release/FieldLedger-2.5.0.apk",
+    "https://cdn.jsdelivr.net/gh/tharun1343/Field_ledger_Surya@v2.5.0/release/FieldLedger-2.5.0.apk",
+    "https://tharun1343.github.io/Field_ledger_Surya/release/FieldLedger-2.5.0.apk"
+  ],
+  "sha256": "89e33e6f5b4e4b5ce6cf3fc922af325ffdebf3e48c0c3f41fbc008027d91af96",
+  "size": 333577,
+  "notes": "New: Ledger for bills (settled, part paid, to pay) with payments and bill photos \u00b7 Small/Medium/Large prices for brinjal with size cards \u00b7 bar charts on Home \u00b7 smoother theme and screen changes \u00b7 updates download and install inside the app \u00b7 backup restore fixed on Android"
 }

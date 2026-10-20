@@ -2,17 +2,50 @@
 
 A mobile-first daily ledger for two separate farm businesses:
 
-- **Brinjal / கத்திரிக்காய்** (violet). Bag-by-bag weights with type and size, a daily rate per kg, separate men's and women's labour, and itemised expenses.
+- **Brinjal / கத்திரிக்காய்** (violet). Bag-by-bag weights with type and size, daily prices per kg for Small, Medium and Large, separate men's and women's labour, and itemised expenses.
 - **Muskmelon / முலாம்பழம்** (yellow/amber). Daily quantity in kg, rate per kg and itemised expenses, with a **monthly-first** overview.
 
 You record production, sales, labour and expenses each day, review month-wise statements, and export them as PDF, Excel, CSV or PNG, plus a full JSON backup.
 
-> **Latest runnable build: [`index.html`](index.html)** (v2.4.2). It is a single standalone file with no build step and no dependencies.
-> **Android app:** `release/FieldLedger-2.4.2.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
+> **Latest runnable build: [`index.html`](index.html)** (v2.5.0). It is a single standalone file with no build step and no dependencies.
+> **Android app:** `release/FieldLedger-2.5.0.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
 > **Web link:** https://claude.ai/artifact/D9nAx8srHFF4tJuNo5epya, the same app published on claude.ai. It is private until shared from its Share menu.
 > The original prototype is kept unchanged at [`original/farm_business_ledger_prototype.html`](original/farm_business_ledger_prototype.html).
 
 ---
+
+## What's new in 2.5.0
+
+- **Brinjal prices by size.** Daily entry starts with **Today's price per kg** for Small, Medium and Large.
+  - Gross = each bag's weight × the price of its size.
+  - Coloured **size cards** (teal Small, blue Medium, orange Large) show bags, weight, price and amount, plus a grand total. They appear in Daily entry (live), in each record and in the monthly report.
+  - Excel gets a **By size** sheet; the CSV and the statement table show kg per size and the S/M/L prices.
+  - Older entries keep their single rate for all sizes.
+- **Ledger tab.** Every expense bill with its status: **Settled**, **Part paid** or **To pay**.
+  - Shows total, paid and still-to-pay amounts, filter chips and search.
+  - Tap a bill to **record a payment** (amount, date, note), **mark it fully paid**, see the payment history, or add **bill photos** (camera or gallery).
+  - When adding an expense, choose **Paid fully / Part paid / Not paid yet** and add who it was **paid to**.
+  - Expenses saved before 2.5 count as paid.
+- **Home charts:**
+  - Daily sales by size (stacked bars).
+  - Sales by size (bars).
+  - Money in vs out for the last 6 months (sales, expenses and labour per month, with net above each).
+  - A **Bills to pay** card.
+- **Smoother:**
+  - The theme switch is one short cross-fade.
+  - Tab changes slide only the content.
+  - The fixed page background no longer repaints on scroll.
+  - No live blur on phones.
+  - Tapped tabs highlight at once.
+  - Measured on a phone-sized screen at 4× CPU slow-down: slow frames during theme switches fell from 41 to 6, and during tab changes from 23 to 5.
+- **App updates:**
+  - Updates are in **Settings** (and More), with a single **Check for updates** button.
+  - When a version is found: **Update later / Update now**. The update downloads inside the app with a progress bar, is checksum-verified, and installs through Android's installer session.
+  - Android shows only its short "Update this app?" confirmation. On Android 12+, later updates can install without it.
+  - Checks the GitHub Releases API, raw.githubusercontent.com and GitHub Pages, so one blocked address does not stop updates.
+  - The APK has four download mirrors.
+- **Backup restore fixed on Android.** The app now uses the phone's own file picker and reads the file natively, so a backup from Downloads restores reliably. Backups now include bill photos.
+- **Settings from the account sheet** always closes the sheet and opens Settings, even if Settings was already open.
 
 ## What's new in 2.4.2
 
@@ -113,7 +146,7 @@ You record production, sales, labour and expenses each day, review month-wise st
 - The **status bar** follows the product colour.
 
 ### Install
-1. Copy `FieldLedger-2.4.2.apk` to the phone and open it.
+1. Copy `FieldLedger-2.5.0.apk` to the phone and open it.
 2. Allow "install unknown apps" for the app you opened it from (Files, Chrome, WhatsApp) when Android asks.
 3. Google Play Protect may warn that the app is from an unknown developer, because it isn't on the Play Store. Choose **Install anyway**.
 

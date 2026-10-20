@@ -1,7 +1,7 @@
 {
-  "ranAt": "2026-10-20T09:26:36.481Z",
-  "passed": 109,
-  "total": 109,
+  "ranAt": "2026-10-20T10:44:30.442Z",
+  "passed": 143,
+  "total": 143,
   "results": [
     {
       "group": "Sign-in screen and local mode",
@@ -97,13 +97,13 @@
       "group": "Sample data reconciles with the source sheet",
       "name": "Muskmelon Oct 2026: 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹0 labour, net ₹1,12,500",
       "pass": true,
-      "detail": "{\"records\":6,\"bags\":0,\"kg\":10900,\"wastage\":0,\"gross\":130500,\"expenses\":18000,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":112500,\"avgRate\":11.972477064220184}"
+      "detail": "{\"records\":6,\"bags\":0,\"kg\":10900,\"wastage\":0,\"gross\":130500,\"expenses\":18000,\"men\":0,\"women\":0,\"legacyWorkers\":0,\"workers\":0,\"labour\":0,\"net\":112500,\"avgRate\":11.972477064220184,\"paid\":18000,\"due\":0}"
     },
     {
       "group": "Sample data reconciles with the source sheet",
       "name": "Report TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620",
       "pass": true,
-      "detail": "TOTAL — 94 3,008 0 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620"
+      "detail": "TOTAL — 94 0 3,008 0 3,008 0 — — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620"
     },
     {
       "group": "Settings: text size, default labour wages, brinjal types",
@@ -262,6 +262,156 @@
       "detail": ""
     },
     {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Daily entry starts with today’s price for each size",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Gross = 10 kg × ₹20 + 20 kg × ₹15 + 30 kg × ₹10 = ₹800",
+      "pass": true,
+      "detail": "₹800"
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Three coloured size cards: bags, weight, rate and amount",
+      "pass": true,
+      "detail": "S Small 1 bags 10 kg ₹20 per kg Amount ₹200 | M Medium 1 bags 20 kg ₹15 per kg Amount ₹300 | L Large 1 bags 30 kg ₹10 per kg Amount ₹300"
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "A size with bags needs its price before saving",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Saved with the three prices; average rate kept for older apps",
+      "pass": true,
+      "detail": "{\"S\":20,\"M\":15,\"L\":10}"
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Record view shows the size cards",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Monthly report has a “Sales by size” section",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Brinjal: Small / Medium / Large prices and size cards",
+      "name": "Home has bar charts: daily sales by size, size bars, money in vs out, bills to pay",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Ledger totals: ₹2,500 still to pay (7 Oct unpaid, 8 Oct ₹500 of ₹1,500 paid)",
+      "pass": true,
+      "detail": "To pay\n₹2,500"
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Filter chips with counts; “Not settled” shows 2 bills",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Record payment suggests the full balance",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Part payment saved: paid ₹600, balance ₹900, status part paid",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "“Mark fully paid” settles the bill and records the last ₹900",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Bill photo attached (shrunk to JPEG and shown as a thumbnail)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Tapping the photo opens it full screen",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Ledger now shows ₹1,000 still to pay",
+      "pass": true,
+      "detail": "To pay\n₹1,000"
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Expense saved as part paid: ₹100 of ₹300, paid to Agro store",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "It appears in the ledger with a ₹200 balance",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Backup includes payments and the bill photo",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "Restoring the backup on another browser brings back records, payments and the photo",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Ledger: bills, part payments and bill photos",
+      "name": "No errors while restoring",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Account sheet → Settings",
+      "name": "From Home: the sheet closes and Settings is shown",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Account sheet → Settings",
+      "name": "From Settings itself: the sheet closes and Settings is shown",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Account sheet → Settings",
+      "name": "Settings has the App updates card",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Account sheet → Settings",
+      "name": "Extra test days removed",
+      "pass": true,
+      "detail": ""
+    },
+    {
       "group": "Muskmelon: labour, wastage, monthly-first overview",
       "name": "Product theme switches to amber",
       "pass": true,
@@ -295,7 +445,7 @@
       "group": "Muskmelon: labour, wastage, monthly-first overview",
       "name": "Month: 11,900 kg, 50 kg wastage, ₹1,42,500 gross, ₹1,520 labour, net ₹1,22,980",
       "pass": true,
-      "detail": "{\"records\":7,\"bags\":0,\"kg\":11900,\"wastage\":50,\"gross\":142500,\"expenses\":18000,\"men\":2,\"women\":1,\"legacyWorkers\":0,\"workers\":3,\"labour\":1520,\"net\":122980,\"avgRate\":11.974789915966387}"
+      "detail": "{\"records\":7,\"bags\":0,\"kg\":11900,\"wastage\":50,\"gross\":142500,\"expenses\":18000,\"men\":2,\"women\":1,\"legacyWorkers\":0,\"workers\":3,\"labour\":1520,\"net\":122980,\"avgRate\":11.974789915966387,\"paid\":18000,\"due\":0}"
     },
     {
       "group": "Muskmelon: labour, wastage, monthly-first overview",
@@ -323,9 +473,9 @@
     },
     {
       "group": "Exports",
-      "name": "Brinjal CSV has Type column and TOTAL 99 bags / 3168 kg / ₹48,320",
+      "name": "Brinjal CSV has Type, size and TOTAL 99 bags / 3168 kg / ₹48,320",
       "pass": true,
-      "detail": "TOTAL,,99,3168,4.5,,48320,12400,5,5,29,20250,15670"
+      "detail": "TOTAL,,99,0,3136,32,3168,4.5,,,48320,12400,5,5,29,20250,15670"
     },
     {
       "group": "Exports",
@@ -377,13 +527,25 @@
     },
     {
       "group": "Smooth transitions",
-      "name": "Tabs slide forward/back, product cross-fades, theme reveals (View Transitions)",
+      "name": "Tabs and business switch animate only the content (GPU slide/fade, no full-page snapshot)",
       "pass": true,
-      "detail": "forward,back,product,theme"
+      "detail": "view enter-side,view enter-side,view enter"
     },
     {
       "group": "Smooth transitions",
-      "name": "No transition left running",
+      "name": "Theme change is one cross-fade and does not rebuild the screen",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Smooth transitions",
+      "name": "No fixed-background repaint and no colour transitions on every card",
+      "pass": true,
+      "detail": "{\"attach\":\"scroll\",\"cardTrans\":\"all\"}"
+    },
+    {
+      "group": "Smooth transitions",
+      "name": "Phones: no live blur (backdrop-filter) on buttons and bars",
       "pass": true,
       "detail": ""
     },
@@ -535,7 +697,7 @@
       "group": "Phone layout (360px), tablet and desktop",
       "name": "No horizontal overflow at 360px on any screen",
       "pass": true,
-      "detail": "14 screens fit"
+      "detail": "16 screens fit"
     },
     {
       "group": "Phone layout (360px), tablet and desktop",
@@ -551,7 +713,7 @@
     },
     {
       "group": "Phone layout (360px), tablet and desktop",
-      "name": "Rate and Wastage share one row on phones",
+      "name": "Small / Medium / Large prices sit side by side on phones",
       "pass": true,
       "detail": ""
     },
@@ -605,7 +767,49 @@
     },
     {
       "group": "Android app bridge (simulated native shell)",
-      "name": "Check for updates calls the shell",
+      "name": "Check for updates calls the shell and shows “Checking…”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "No update-address editing (just one clear button)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "Update found → sheet with “Update later” and “Update now”",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "“Update now” downloads inside the app with a progress bar",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "Then installs from inside the app (Android confirm step explained)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "After “later”, the automatic check does not ask again for the same version",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "Restore backup uses the phone’s own file picker",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "group": "Android app bridge (simulated native shell)",
+      "name": "Backup chosen on the phone is restored",
       "pass": true,
       "detail": ""
     },

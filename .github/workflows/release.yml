@@ -26,9 +26,12 @@ jobs:
           APK="release/FieldLedger-$V.apk"
           test -f "$APK"
           cp "$APK" FieldLedger.apk
-          printf '%s\n\n**Install:** on your Android phone, download **FieldLedger.apk** below and open it. It installs over earlier versions and keeps your records. Installed apps also update themselves (More → App updates).\n' "$(jq -r .notes release/version.json)" > notes.md
+          printf '%s\n\n**Install:** on your Android phone, download **FieldLedger.apk** below and open it. It installs over earlier versions and keeps your records. Installed apps update themselves (Settings → App updates).\n' "$(jq -r .notes release/version.json)" > notes.md
+          # The app reads this hidden line (version, checksum, mirrors) through the GitHub Releases API.
+          printf '\n<!-- fl-manifest %s -->\n' "$(jq -c . release/version.json)" >> notes.md
           if gh release view "v$V" >/dev/null 2>&1; then
             gh release upload "v$V" "$APK" FieldLedger.apk --clobber
+            gh release edit "v$V" --notes-file notes.md
           else
             gh release create "v$V" "$APK" FieldLedger.apk --title "FieldLedger $V" --notes-file notes.md --target "$GITHUB_SHA" --latest
           fi

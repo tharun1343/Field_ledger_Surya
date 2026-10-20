@@ -1,18 +1,21 @@
 # FieldLedger: Acceptance Test Report
 
-- **Build tested:** `index.html` v2.4.2, the claude.ai page variant, and a simulated Android shell.
+- **Build tested:** `index.html` v2.5.0, the claude.ai page variant, and a simulated Android shell.
 - **How:** `npm test` (`tests/acceptance.js`) drives the real app in headless Chromium 141 (Playwright 1.56).
   - Sign-in and sync run against `tests/mock-supabase.js`, an in-memory stand-in for Supabase Auth + PostgREST. The real Supabase service was **not** used.
-- **Result:** **109 / 109 automated checks passed** (run 2026-10-20).
+- **Result:** **143 / 143 automated checks passed** (run 2026-10-20).
 
 ## Not tested
 
 - **The APK on a phone or emulator.** None was available here. Install, file saving, printing and in-app update still need checking on a real phone.
 - **The APK structure was verified:** `aapt dump badging`, `apksigner verify`, `zipalign -c`, and the same signing certificate as 2.1.0.
+- **Not tested on a real phone:** the in-app installer session, camera capture and the native file picker. The web side of each is tested against a simulated Android shell.
+- **Smoothness** was measured in headless Chromium at a phone-sized viewport with 4× CPU slow-down (frames over 34 ms). Theme switches: 41 → 6 slow frames. Tab changes: 23 → 5. Real devices will differ.
 - **A real Supabase project.** The SQL in `docs/SUPABASE_SETUP.md` was not run against Supabase from here.
 - **Firefox and Safari.**
 
 ## All checks
+
 
 ### Sign-in screen and local mode
 
@@ -27,7 +30,7 @@
 
 | Result | Check | Observed |
 |---|---|---|
-| ✅ Pass | Top bar order: product toggle → theme → account | product-toggle / icon-btn / account-chip |
+| ✅ Pass | Top bar order: product toggle → theme → account | product-toggle \| icon-btn \| account-chip |
 | ✅ Pass | Text-size button removed from the top bar |  |
 | ✅ Pass | Large page title / emblem block removed |  |
 | ✅ Pass | Small brinjal SVG icon used instead of the eggplant emoji |  |
@@ -43,8 +46,8 @@
 |---|---|---|
 | ✅ Pass | Brinjal Oct 2026: 8 rows, 94 bags, 3,008 kg, ₹45,120, ₹12,000, ₹14,500 labour, 29 workers, net ₹18,620 | {"bags":94,"kg":3008,"net":18620} |
 | ✅ Pass | Brinjal type is one value per day (sample: Local) |  |
-| ✅ Pass | Muskmelon Oct 2026: 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹0 labour, net ₹1,12,500 | {"records":6,"bags":0,"kg":10900,"wastage":0,"gross":130500,"expenses":18000,"men":0,"women":0,"legacyWorkers":0,"worker |
-| ✅ Pass | Report TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620 | TOTAL — 94 3,008 0 — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620 |
+| ✅ Pass | Muskmelon Oct 2026: 10,900 kg, ₹1,30,500 gross, ₹18,000 expenses, ₹0 labour, net ₹1,12,500 | {"records":6,"bags":0,"kg":10900,"wastage":0,"gross":130500,"expenses":18000,"men":0,"women":0,"legacyWorkers":0,"workers":0,"labour":0,"net |
+| ✅ Pass | Report TOTAL row shows ₹45,120 / ₹12,000 / ₹14,500 / ₹18,620 | TOTAL — 94 0 3,008 0 3,008 0 — — ₹45,120 ₹12,000 0 0 29 ₹14,500 ₹18,620 |
 
 ### Settings: text size, default labour wages, brinjal types
 
@@ -87,6 +90,46 @@
 | ✅ Pass | Editing keeps it selected (shown as not in list) |  |
 | ✅ Pass | Editing loads the entry’s own wage (₹700) |  |
 
+### Brinjal: Small / Medium / Large prices and size cards
+
+| Result | Check | Observed |
+|---|---|---|
+| ✅ Pass | Daily entry starts with today’s price for each size |  |
+| ✅ Pass | Gross = 10 kg × ₹20 + 20 kg × ₹15 + 30 kg × ₹10 = ₹800 | ₹800 |
+| ✅ Pass | Three coloured size cards: bags, weight, rate and amount | S Small 1 bags 10 kg ₹20 per kg Amount ₹200 \| M Medium 1 bags 20 kg ₹15 per kg Amount ₹300 \| L Large 1 bags 30 kg ₹10 per kg Amount ₹300 |
+| ✅ Pass | A size with bags needs its price before saving |  |
+| ✅ Pass | Saved with the three prices; average rate kept for older apps | {"S":20,"M":15,"L":10} |
+| ✅ Pass | Record view shows the size cards |  |
+| ✅ Pass | Monthly report has a “Sales by size” section |  |
+| ✅ Pass | Home has bar charts: daily sales by size, size bars, money in vs out, bills to pay |  |
+
+### Ledger: bills, part payments and bill photos
+
+| Result | Check | Observed |
+|---|---|---|
+| ✅ Pass | Ledger totals: ₹2,500 still to pay (7 Oct unpaid, 8 Oct ₹500 of ₹1,500 paid) | To pay ₹2,500 |
+| ✅ Pass | Filter chips with counts; “Not settled” shows 2 bills |  |
+| ✅ Pass | Record payment suggests the full balance |  |
+| ✅ Pass | Part payment saved: paid ₹600, balance ₹900, status part paid |  |
+| ✅ Pass | “Mark fully paid” settles the bill and records the last ₹900 |  |
+| ✅ Pass | Bill photo attached (shrunk to JPEG and shown as a thumbnail) |  |
+| ✅ Pass | Tapping the photo opens it full screen |  |
+| ✅ Pass | Ledger now shows ₹1,000 still to pay | To pay ₹1,000 |
+| ✅ Pass | Expense saved as part paid: ₹100 of ₹300, paid to Agro store |  |
+| ✅ Pass | It appears in the ledger with a ₹200 balance |  |
+| ✅ Pass | Backup includes payments and the bill photo |  |
+| ✅ Pass | Restoring the backup on another browser brings back records, payments and the photo |  |
+| ✅ Pass | No errors while restoring |  |
+
+### Account sheet → Settings
+
+| Result | Check | Observed |
+|---|---|---|
+| ✅ Pass | From Home: the sheet closes and Settings is shown |  |
+| ✅ Pass | From Settings itself: the sheet closes and Settings is shown |  |
+| ✅ Pass | Settings has the App updates card |  |
+| ✅ Pass | Extra test days removed |  |
+
 ### Muskmelon: labour, wastage, monthly-first overview
 
 | Result | Check | Observed |
@@ -96,7 +139,7 @@
 | ✅ Pass | Muskmelon entry has labour section with Settings defaults (₹550 / ₹420) |  |
 | ✅ Pass | Labour = 2 × ₹550 + 1 × ₹420 = ₹1,520 |  |
 | ✅ Pass | Net = 12,000 − 0 − 1,520 = ₹10,480 | ₹10,480 |
-| ✅ Pass | Month: 11,900 kg, 50 kg wastage, ₹1,42,500 gross, ₹1,520 labour, net ₹1,22,980 | {"records":7,"bags":0,"kg":11900,"wastage":50,"gross":142500,"expenses":18000,"men":2,"women":1,"legacyWorkers":0,"worke |
+| ✅ Pass | Month: 11,900 kg, 50 kg wastage, ₹1,42,500 gross, ₹1,520 labour, net ₹1,22,980 | {"records":7,"bags":0,"kg":11900,"wastage":50,"gross":142500,"expenses":18000,"men":2,"women":1,"legacyWorkers":0,"workers":3,"labour":1520, |
 | ✅ Pass | Brinjal totals unaffected (₹48,320 gross) | 48320 |
 
 ### Exports
@@ -106,7 +149,7 @@
 | ✅ Pass | Muskmelon CSV has labour columns and correct TOTAL | TOTAL,11900,50,,142500,18000,2,1,1520,122980 |
 | ✅ Pass | XLSX opens with Statement + Expense items and numeric totals | ["TOTAL",11900,50,null,142500,18000,2,1,1520,122980] |
 | ✅ Pass | PNG statement is a real image | {"fmt":"PNG","w":2432} |
-| ✅ Pass | Brinjal CSV has Type column and TOTAL 99 bags / 3168 kg / ₹48,320 | TOTAL,,99,3168,4.5,,48320,12400,5,5,29,20250,15670 |
+| ✅ Pass | Brinjal CSV has Type, size and TOTAL 99 bags / 3168 kg / ₹48,320 | TOTAL,,99,0,3136,32,3168,4.5,,,48320,12400,5,5,29,20250,15670 |
 | ✅ Pass | PDF opens the print dialog in statement print mode |  |
 | ✅ Pass | Printed PDF contains the statement and totals only |  |
 | ✅ Pass | JSON backup has both products, wages and types |  |
@@ -130,8 +173,10 @@
 
 | Result | Check | Observed |
 |---|---|---|
-| ✅ Pass | Tabs slide forward/back, product cross-fades, theme reveals (View Transitions) | forward,back,product,theme |
-| ✅ Pass | No transition left running |  |
+| ✅ Pass | Tabs and business switch animate only the content (GPU slide/fade, no full-page snapshot) | view enter-side,view enter-side,view enter |
+| ✅ Pass | Theme change is one cross-fade and does not rebuild the screen |  |
+| ✅ Pass | No fixed-background repaint and no colour transitions on every card | {"attach":"scroll","cardTrans":"all"} |
+| ✅ Pass | Phones: no live blur (backdrop-filter) on buttons and bars |  |
 
 ### Cloud sign-in and sync (mock Supabase)
 
@@ -171,10 +216,10 @@
 
 | Result | Check | Observed |
 |---|---|---|
-| ✅ Pass | No horizontal overflow at 360px on any screen | 14 screens fit |
+| ✅ Pass | No horizontal overflow at 360px on any screen | 16 screens fit |
 | ✅ Pass | Top bar fits at 360px (brand, toggle, theme, account on one row) | {"brand":173,"toggle":181,"acct":349,"vw":360} |
 | ✅ Pass | Recent entries show as a tappable list on phones (no sideways table) |  |
-| ✅ Pass | Rate and Wastage share one row on phones |  |
+| ✅ Pass | Small / Medium / Large prices sit side by side on phones |  |
 | ✅ Pass | Bottom navigation fixed and on-screen | {"x":8,"y":664,"width":344,"height":68} |
 | ✅ Pass | 12-bag sheet scrolls and Save stays visible | {"scrollable":true,"bottom":728} |
 | ✅ Pass | 12 bags saved on phone |  |
@@ -188,7 +233,14 @@
 |---|---|---|
 | ✅ Pass | Exports are handed to the Android shell | fieldledger-brinjal-2026-10.csv |
 | ✅ Pass | PDF uses the Android print dialog |  |
-| ✅ Pass | Check for updates calls the shell |  |
+| ✅ Pass | Check for updates calls the shell and shows “Checking…” |  |
+| ✅ Pass | No update-address editing (just one clear button) |  |
+| ✅ Pass | Update found → sheet with “Update later” and “Update now” |  |
+| ✅ Pass | “Update now” downloads inside the app with a progress bar |  |
+| ✅ Pass | Then installs from inside the app (Android confirm step explained) |  |
+| ✅ Pass | After “later”, the automatic check does not ask again for the same version |  |
+| ✅ Pass | Restore backup uses the phone’s own file picker |  |
+| ✅ Pass | Backup chosen on the phone is restored |  |
 | ✅ Pass | Android back closes an open sheet first |  |
 | ✅ Pass | No page errors with the native shell |  |
 
