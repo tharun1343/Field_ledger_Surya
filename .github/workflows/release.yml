@@ -1,0 +1,34 @@
+# Creates a GitHub Release (Releases section on the repo page) for every new app version.
+# Runs when release/version.json changes; attaches the APK twice:
+#   FieldLedger-<version>.apk  and  FieldLedger.apk (fixed name, so this link always gives the newest:
+#   https://github.com/<owner>/<repo>/releases/latest/download/FieldLedger.apk)
+name: GitHub Release
+
+on:
+  push:
+    paths: ['release/version.json', '.github/workflows/release.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          V=$(jq -r .versionName release/version.json)
+          APK="release/FieldLedger-$V.apk"
+          test -f "$APK"
+          cp "$APK" FieldLedger.apk
+          printf '%s\n\n**Install:** on your Android phone, download **FieldLedger.apk** below and open it. It installs over earlier versions and keeps your records. Installed apps also update themselves (More → App updates).\n' "$(jq -r .notes release/version.json)" > notes.md
+          if gh release view "v$V" >/dev/null 2>&1; then
+            gh release upload "v$V" "$APK" FieldLedger.apk --clobber
+          else
+            gh release create "v$V" "$APK" FieldLedger.apk --title "FieldLedger $V" --notes-file notes.md --target "$GITHUB_SHA" --latest
+          fi
