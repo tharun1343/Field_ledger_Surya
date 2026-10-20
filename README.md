@@ -7,12 +7,40 @@ A mobile-first daily ledger for two separate farm businesses:
 
 You record production, sales, labour and expenses each day, review month-wise statements, and export them as PDF, Excel, CSV or PNG, plus a full JSON backup.
 
-> **Latest runnable build: [`index.html`](index.html)** (v2.1.0). It is a single standalone file with no build step and no dependencies.
-> **Android app:** `dist/FieldLedger-2.1.0.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
+> **Latest runnable build: [`index.html`](index.html)** (v2.2.0). It is a single standalone file with no build step and no dependencies.
+> **Android app:** `dist/FieldLedger-2.2.0.apk`, the same app in a native shell with in-app updates (see [Android app](#android-app)).
 > **Web link:** https://claude.ai/artifact/D9nAx8srHFF4tJuNo5epya, the same app published on claude.ai. It is private until shared from its Share menu.
 > The original prototype is kept unchanged at [`original/farm_business_ledger_prototype.html`](original/farm_business_ledger_prototype.html).
 
 ---
+
+## What's new in 2.2
+
+- **Sign-in and cloud sync (Supabase).**
+  - Email and password accounts, with forgot password and set-new-password.
+  - The same records on every phone and on the hosted web link.
+  - Works offline: saves wait in a queue and upload when the connection returns.
+  - If two phones edit the same entry, the newest save wins.
+  - Setup: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md).
+- **Status dot** on the account button: 🟢 online and synced, 🟠 syncing / waiting / not signed in, 🔴 offline.
+- **Simpler screens.**
+  - The big page title block is gone.
+  - Daily entry opens on **today's date**, shown in a tap-to-change date pill.
+  - The overview's duplicate quick-action card is gone.
+- **Top bar:** the Brinjal/Muskmelon switch sits next to the dark-mode button. **Text size** moved to Settings.
+- **Number of bags** is a whole-number field (no dropdown). The bag sheet asks only **weight and size**.
+- **Brinjal type is chosen once per day** on the main form.
+  - **＋ New type…** adds a custom type, which is saved to Settings.
+  - The list is ordered by most recently used; remove types in Settings.
+- **Labour for Muskmelon** too. Net = gross − expenses − labour for both businesses.
+- **Default wages in Settings** for men and women, per business.
+  - They fill every new entry and can be changed for one entry only. The form says "This entry only" when you do.
+- **Visual changes:**
+  - Glass-style buttons.
+  - Smooth slide, cross-fade and circular theme-reveal transitions (off when reduce motion is on).
+  - Small plump brinjal icon.
+  - New app icon combining a brinjal and a muskmelon.
+- **Updates:** a clear message when nothing has been published yet, instead of "Could not check".
 
 ## What's new in 2.1
 
@@ -53,7 +81,7 @@ You record production, sales, labour and expenses each day, review month-wise st
 - The **status bar** follows the product colour.
 
 ### Install
-1. Copy `FieldLedger-2.1.0.apk` to the phone and open it.
+1. Copy `FieldLedger-2.2.0.apk` to the phone and open it.
 2. Allow "install unknown apps" for the app you opened it from (Files, Chrome, WhatsApp) when Android asks.
 3. Google Play Protect may warn that the app is from an unknown developer, because it isn't on the Play Store. Choose **Install anyway**.
 
@@ -163,7 +191,7 @@ The suite drives the real `index.html` in headless Chromium and writes these to 
 | Business | Rule |
 |---|---|
 | Brinjal | `bags = bagDetails.length` · `totalKg = Σ bag.weightKg` · `gross = totalKg × ratePerKg` · `expenses = Σ expenseItem.amount` · `labour = men × menWage + women × womenWage (+ legacy aggregate, see below)` · `net = gross − expenses − labour` |
-| Muskmelon | `gross = kg × ratePerKg` · `expenses = Σ expenseItem.amount` · `net = gross − expenses` |
+| Muskmelon | `gross = kg × ratePerKg` · `expenses = Σ expenseItem.amount` · `labour = men × menWage + women × womenWage` · `net = gross − expenses − labour` |
 
 - Numbers use Indian grouping (`₹1,30,500`). Whole rupees show no decimals; anything else shows 2 decimals. Negatives show as `−₹3,100`.
 - Intermediate values are not rounded. Exports round to 2 decimals.
@@ -227,8 +255,11 @@ state = { app:"FieldLedger", schemaVersion:2,
 | Path | What |
 |---|---|
 | `index.html` | **Latest runnable application** (HTML, CSS and vanilla JS in one file) |
+| `docs/SUPABASE_SETUP.md` | Step-by-step Supabase, GitHub Pages and update-channel setup (SQL included) |
+| `scripts/configure-cloud.py` | Builds your Supabase URL + anon key into the app |
+| `tests/mock-supabase.js` | In-memory Supabase stand-in used by the tests |
 | `android/` | Android WebView shell (Java), icons, manifest, `build-apk.sh`, signing key |
-| `dist/FieldLedger-2.1.0.apk`, `dist/version.json` | Built, signed APK and its update manifest |
+| `dist/FieldLedger-2.2.0.apk`, `dist/version.json` | Built, signed APK and its update manifest |
 | `dist/web/fieldledger.html`, `scripts/build-web.py` | `index.html` reshaped for publishing on claude.ai |
 | `original/farm_business_ledger_prototype.html` | Original prototype, preserved unchanged |
 | `tests/acceptance.js` | Playwright acceptance suite (112 checks) |
@@ -240,10 +271,11 @@ state = { app:"FieldLedger", schemaVersion:2,
 
 ## Known limitations
 
-- **Single device and browser only.** There is no backend, login, cloud sync or automatic backup. Moving data relies on JSON backup and restore.
+- **Cloud sync needs your own Supabase project** (free plan is fine; see the guide). Without it, records stay on the device; use JSON backup/restore to move them. Sync resolves conflicts per entry with "newest save wins".
 - **Android app is a WebView shell.** It runs the same web code with native file saving, printing and updates. It is not on the Play Store, so it is installed by sideloading.
 - **Not tested on a real phone or emulator.** The APK was built, signed and structurally verified, but no emulator was available in the build environment. Test install, save, print and update on a phone before relying on it.
-- **Updates need a public host.** The source repo is private, so phones can't download from it. Until `version.json` and the APK are published somewhere public, "Check for updates" reports that it could not check.
+- **Updates and the sign-in web link need the public `fieldledger-releases` repository** (guide step 4). Files are staged in `dist/release-repo/`.
+- **Previously:** The source repo is private, so phones can't download from it. Until `version.json` and the APK are published somewhere public, "Check for updates" reports that it could not check.
 - **On the claude.ai web link,** exports go through claude.ai's download prompt and PDF printing is unavailable. Records saved there live only in that browser.
 - **PDF goes through the browser print dialog.** The user must pick "Save as PDF". Page layout depends on the browser.
 - **PNG sharing.** Sharing to Gallery depends on the phone browser supporting the Web Share API with files; otherwise the PNG downloads.

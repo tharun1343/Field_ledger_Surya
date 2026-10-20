@@ -63,7 +63,7 @@
   .nav-btn { border:0; background:transparent; color:var(--muted); border-bottom:3px solid transparent; padding:12px 15px 13px; white-space:nowrap; font-weight:750; display:flex; align-items:center; gap:8px; }
   .nav-btn.active { border-bottom-color:var(--primary); color:var(--primary); }
   .view { min-height:330px; }
-  .grid { display:grid; gap:15px; } .grid.kpis { grid-template-columns:repeat(4,minmax(0,1fr)); } .grid.kpis.six { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .grid { display:grid; gap:15px; } .grid.kpis { grid-template-columns:repeat(4,minmax(0,1fr)); } .grid.kpis.six { grid-template-columns:repeat(3,minmax(0,1fr)); } .grid.kpis.five { grid-template-columns:repeat(5,minmax(0,1fr)); }
   .grid.two { grid-template-columns:minmax(0,1.3fr) minmax(300px,.7fr); }
   .grid.equal { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .card { min-width:0; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); }
@@ -254,8 +254,95 @@
   details summary { cursor:pointer; }
   body.hosted [data-action="export-pdf"] { display:none !important; }
   body[data-theme="dark"] { color-scheme: dark; } body[data-theme="light"] { color-scheme: light; }
+
+  /* ===================== v2.2: glass, compact shell, transitions ===================== */
+  :root { --glass: rgba(255,255,255,.55); --glass-strong: rgba(255,255,255,.72); --glass-line: rgba(255,255,255,.75); --glass-shadow: 0 8px 24px -10px rgba(40,24,90,.28); }
+  body[data-theme="dark"] { --glass: rgba(40,36,56,.55); --glass-strong: rgba(48,43,66,.75); --glass-line: rgba(255,255,255,.12); --glass-shadow: 0 8px 24px -10px rgba(0,0,0,.6); }
+  .btn, .icon-btn, .account-chip, .choice, .quick-card, .detail-edit {
+    background: var(--glass); border: 1px solid var(--glass-line);
+    -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.6), var(--glass-shadow); }
+  body[data-theme="dark"] .btn, body[data-theme="dark"] .icon-btn, body[data-theme="dark"] .account-chip, body[data-theme="dark"] .choice, body[data-theme="dark"] .quick-card, body[data-theme="dark"] .detail-edit { box-shadow: inset 0 1px 0 rgba(255,255,255,.08), var(--glass-shadow); }
+  .btn:hover, .icon-btn:hover, .quick-card:hover { background: var(--glass-strong); }
+  .btn:active, .icon-btn:active, .account-chip:active { transform: translateY(1px) scale(.98) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 3px 10px -6px rgba(40,24,90,.3); }
+  .btn.primary { color:#fff; border-color: rgba(255,255,255,.35);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--primary-2) 78%, transparent), color-mix(in srgb, var(--primary) 88%, transparent));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 10px 26px -10px color-mix(in srgb, var(--primary) 70%, transparent); }
+  body[data-product="muskmelon"] .btn.primary { color:#2b1d00; }
+  .btn.primary:active { box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 4px 12px -6px color-mix(in srgb, var(--primary) 60%, transparent); }
+  .btn.danger { color: var(--negative); background: color-mix(in srgb, var(--negative) 10%, var(--glass)); }
+  .btn.soft { color: var(--primary); background: color-mix(in srgb, var(--primary-soft) 70%, transparent); }
+  .btn.icon-only { width:44px; min-width:44px; padding:0; font-size:20px; font-weight:800; }
+  .btn.wide { width:100%; }
+  .choice.active { background: color-mix(in srgb, var(--primary-soft) 80%, transparent); border-color: color-mix(in srgb, var(--primary) 35%, transparent); }
+  .link-btn { border:0; background:none; color:var(--primary); font-weight:750; padding:0; text-decoration:underline; min-height:0; }
+  /* Compact top bar: brand · product switch · theme · account */
+  .topbar { gap:10px; margin-bottom:16px; }
+  .top-actions { gap:8px; min-width:0; }
+  .brand-mark { position:relative; overflow:hidden; font-size:0; transform:none; }
+  .brand-mark .bm-a, .brand-mark .bm-b { position:absolute; display:block; }
+  .brand-mark .bm-a { left:4px; top:5px; } .brand-mark .bm-b { right:3px; bottom:3px; }
+  .brand-mark .melon-svg { width:28px; height:28px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.2)); }
+  .brand-mark.big { width:72px; height:72px; border-radius:24px; margin:0 auto; }
+  .brand-mark.big .melon-svg { width:42px; height:42px; }
+  .product-switch { margin:0; width:auto; padding:4px; gap:4px; border-radius:16px; background: var(--glass); border:1px solid var(--glass-line); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  .product-tab { min-height:40px; padding:6px 12px 6px 6px; gap:6px; font-size:calc(13px * var(--fs)); border-radius:12px; }
+  .product-tab .mini-icon { width:28px; height:28px; border-radius:9px; }
+  .product-tab .melon-svg { width:22px; height:22px; }
+  .account-chip { position:relative; width:44px; min-height:44px; border-radius:14px; display:grid; place-items:center; padding:0; color:var(--text); }
+  .account-chip .avatar { width:28px; height:28px; border-radius:10px; font-weight:800; }
+  .status-dot { display:inline-block; width:10px; height:10px; border-radius:50%; background:#9a95ab; flex:none; box-shadow:0 0 0 2px var(--surface); }
+  .account-chip .status-dot { position:absolute; right:4px; top:4px; }
+  .status-dot.green { background:#1fbf6a; box-shadow:0 0 0 2px var(--surface), 0 0 8px #1fbf6a; }
+  .status-dot.orange { background:#f39a1f; box-shadow:0 0 0 2px var(--surface), 0 0 8px #f39a1f; }
+  .status-dot.red { background:#e2463f; box-shadow:0 0 0 2px var(--surface), 0 0 8px #e2463f; animation: dotPulse 1.6s ease-in-out infinite; }
+  @keyframes dotPulse { 50% { transform: scale(.75); opacity:.7 } }
+  .sync-line { display:flex; align-items:center; gap:8px; margin-top:6px; font-weight:700; font-size:calc(13px * var(--fs)); }
+  .legend { display:flex; flex-wrap:wrap; gap:8px 16px; margin-top:16px; color:var(--muted); font-size:calc(12px * var(--fs)); }
+  .legend > span { display:inline-flex; align-items:center; gap:6px; }
+  .modal-panel.narrow { width:min(480px,100%); }
+  /* Daily entry header with tap-to-change date */
+  .entry-head { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .date-pill { position:relative; display:inline-flex; align-items:center; gap:8px; min-height:44px; padding:8px 12px; border-radius:14px; font-weight:800; color:var(--primary); background: color-mix(in srgb, var(--primary-soft) 75%, transparent); border:1px solid color-mix(in srgb, var(--primary) 25%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); cursor:pointer; }
+  .date-pill .pill-chev { width:1em; height:1em; opacity:.7; }
+  .date-pill input { position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer; min-height:0; padding:0; border:0; }
+  .inline-action { display:flex; gap:8px; align-items:stretch; }
+  .inline-action input { flex:1; min-width:0; }
+  .stepper { display:grid; grid-template-columns:44px minmax(0,1fr) 44px; gap:6px; grid-column:1/-1; }
+  .stepper input { text-align:center; font-weight:800; font-size:calc(16px * var(--fs)); }
+  .labour-card { grid-template-columns:1fr; }
+  .bag-row { display:grid; grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto; gap:10px; align-items:end; }
+  .bag-entry-card { padding:10px 12px; margin-bottom:8px; }
+  .wage-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 0; border-bottom:1px dashed var(--line); }
+  .wage-row > strong { grid-column:1/-1; display:flex; align-items:center; gap:6px; }
+  /* Sign-in screen */
+  body.login-mode .nav, body.login-mode .product-switch, body.login-mode .account-chip, body.login-mode .footer { display:none !important; }
+  .login-card { max-width:440px; margin:4vh auto 0; display:grid; gap:14px; }
+  .login-card form { display:grid; gap:12px; }
+  .login-brand { text-align:center; display:grid; gap:6px; }
+  .login-brand h2 { font-size:calc(24px * var(--fs)); margin-top:6px; }
+  .login-links { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .login-divider { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:calc(12px * var(--fs)); }
+  .login-divider::before, .login-divider::after { content:""; flex:1; height:1px; background:var(--line); }
+  /* Smooth screen and theme transitions (View Transitions API; no-op elsewhere) */
+  .topbar { view-transition-name: fl-topbar; } .nav { view-transition-name: fl-nav; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration:.32s; animation-timing-function:cubic-bezier(.2,.8,.2,1); }
+  html[data-vt="forward"]::view-transition-old(root) { animation-name: vtOutLeft; }
+  html[data-vt="forward"]::view-transition-new(root) { animation-name: vtInRight; }
+  html[data-vt="back"]::view-transition-old(root) { animation-name: vtOutRight; }
+  html[data-vt="back"]::view-transition-new(root) { animation-name: vtInLeft; }
+  html[data-vt="product"]::view-transition-new(root) { animation-name: vtZoomIn; }
+  html[data-vt="theme"]::view-transition-old(root) { animation:none; }
+  html[data-vt="theme"]::view-transition-new(root) { animation: vtReveal .55s cubic-bezier(.3,.7,.2,1) both; }
+  @keyframes vtOutLeft { to { opacity:0; transform: translateX(-28px); } }
+  @keyframes vtInRight { from { opacity:0; transform: translateX(28px); } }
+  @keyframes vtOutRight { to { opacity:0; transform: translateX(28px); } }
+  @keyframes vtInLeft { from { opacity:0; transform: translateX(-28px); } }
+  @keyframes vtZoomIn { from { opacity:0; transform: scale(.985); } }
+  @keyframes vtReveal { from { clip-path: circle(0 at var(--vt-x, 90%) var(--vt-y, 40px)); } to { clip-path: circle(150% at var(--vt-x, 90%) var(--vt-y, 40px)); } }
+  body, .card, .btn, .icon-btn, input, select, .nav { transition: background-color .35s ease, color .35s ease, border-color .35s ease; }
   .hidden { display:none !important; }
-  @media(max-width:960px) { .grid.kpis, .grid.kpis.six { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calc-strip { grid-template-columns:repeat(3,minmax(0,1fr)); } .report-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  @media(max-width:960px) { .grid.kpis, .grid.kpis.six, .grid.kpis.five { grid-template-columns:repeat(2,minmax(0,1fr)); } .grid.two { grid-template-columns:1fr; } .quick-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calc-strip { grid-template-columns:repeat(3,minmax(0,1fr)); } .report-summary { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   @media(max-width:640px) {
     .app-shell { padding:10px 11px calc(96px + env(safe-area-inset-bottom)); }
     .footer { padding-bottom:0; }
@@ -292,6 +379,24 @@
     .ask-layer { align-items:end; padding:12px 12px calc(12px + env(safe-area-inset-bottom)); }
   }
   @media(max-width:380px) { .grid.kpis, .grid.kpis.six { gap:10px; } .kpi-value { font-size:calc(18px * var(--fs)); } .quick-grid.cols-2, .quick-grid { grid-template-columns:1fr; } }
+
+  @media(max-width:640px) {
+    .topbar { margin-bottom:12px; }
+    .brand-title { display:none; }
+    .brand-mark { width:42px; height:42px; border-radius:14px; }
+    .brand-mark .melon-svg { width:24px; height:24px; }
+    .product-switch { flex:1; min-width:0; width:auto; margin:0; }
+    .product-tab { flex-wrap:nowrap; }
+    .product-tab { flex:1 1 0; justify-content:center; padding:5px 6px; min-width:0; }
+    .product-tab .tab-label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .top-actions { flex:1; justify-content:flex-end; }
+    .entry-head h2 { font-size:calc(18px * var(--fs)); }
+    .bag-row { grid-template-columns:auto minmax(0,1fr) minmax(0,1fr) auto; gap:8px; }
+    .ask-actions .btn { min-height:48px; }
+  }
+@media(max-width:640px) { .product-tab { font-size:calc(12px * var(--fs)); padding:4px 6px 4px 4px; gap:4px; } .product-tab .mini-icon { width:24px; height:24px; } .product-tab .melon-svg { width:19px; height:19px; } .footer { display:none; } }
+  @media(max-width:420px) { body:not(.login-mode) .topbar .brand { display:none; } .top-actions { width:100%; } }
+  @media (prefers-reduced-motion:reduce) { .status-dot.red { animation:none; } }
   @media print {
     body { background:white !important; color:#111 !important; font-size:10px !important; }
     body.printing-report * { visibility:hidden !important; }
@@ -314,33 +419,23 @@
 <a href="#viewContainer" class="sr-only">Skip to content</a>
 <div class="app-shell" id="app">
   <header class="topbar">
-    <div class="brand">
-      <div class="brand-mark" aria-hidden="true">🌱</div>
-      <div><div class="brand-title">FieldLedger</div><div class="brand-sub">Your farm business, in one place</div></div>
-    </div>
+    <div class="brand"><div class="brand-mark" aria-hidden="true" id="brandMark"></div><div class="brand-title">FieldLedger</div></div>
     <div class="top-actions">
-      <button class="icon-btn" id="quickThemeBtn" type="button" aria-label="Switch to dark mode" title="Switch light / dark mode"></button>
-      <button class="icon-btn" id="quickTextBtn" type="button" aria-label="Change text size (currently Medium)" title="Change text size">Aa</button>
-      <button class="profile-chip" type="button" data-nav="profile" aria-label="Open farm profile"><span class="avatar" id="avatarInitial" aria-hidden="true">M</span><span class="profile-name" id="profileChipName">My Farm</span><span class="chev" aria-hidden="true">⌄</span></button>
+      <div class="product-switch" role="tablist" aria-label="Choose business">
+        <button class="product-tab active" type="button" data-product-tab="brinjal" role="tab" aria-selected="true" title="Brinjal / கத்திரிக்காய்"><span class="mini-icon" aria-hidden="true" id="brinjalTabIcon"></span><span class="tab-label">Brinjal</span></button>
+        <button class="product-tab" type="button" data-product-tab="muskmelon" role="tab" aria-selected="false" title="Muskmelon / முலாம்பழம்"><span class="mini-icon" aria-hidden="true" id="melonTabIcon"></span><span class="tab-label">Muskmelon</span></button>
+      </div>
+      <button class="icon-btn" id="quickThemeBtn" type="button" aria-label="Switch to dark mode" title="Light / dark mode"></button>
+      <button class="account-chip" id="accountChip" type="button" data-action="account" aria-label="Account and sync"><span class="avatar" id="avatarInitial" aria-hidden="true">M</span><span class="status-dot" id="statusDot" aria-hidden="true"></span></button>
     </div>
   </header>
 
-  <div class="product-switch" role="tablist" aria-label="Choose business">
-    <button class="product-tab active" type="button" data-product-tab="brinjal" role="tab" aria-selected="true"><span class="mini-icon" aria-hidden="true">🍆</span> Brinjal <span class="tamil" lang="ta">/ கத்திரிக்காய்</span></button>
-    <button class="product-tab" type="button" data-product-tab="muskmelon" role="tab" aria-selected="false"><span class="mini-icon melon-tab-icon" aria-hidden="true" id="melonTabIcon"></span> Muskmelon <span class="tamil" lang="ta">/ முலாம்பழம்</span></button>
-  </div>
-
   <div id="bannerArea"></div>
-
-  <div class="context-row">
-    <div class="title-wrap"><div class="emblem" aria-hidden="true"><div class="emblem-coin" id="emblemCoin">🍆</div></div><div><div class="eyebrow" id="pageEyebrow">Overview</div><h1 id="pageTitle">Brinjal business</h1></div></div>
-    <div class="context-actions" id="contextActions"></div>
-  </div>
 
   <nav class="nav" aria-label="Main navigation" id="mainNav"></nav>
 
   <main id="viewContainer" class="view" tabindex="-1"></main>
-  <footer class="footer"><span>FieldLedger · Data is saved only in this browser on this device — export a backup regularly.</span><span id="buildLabel">Web app</span></footer>
+  <footer class="footer"><span>FieldLedger</span><span id="buildLabel">Web app</span></footer>
 </div>
 <input type="file" id="importFile" accept=".json,application/json" class="hidden" aria-hidden="true" tabindex="-1" />
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -366,7 +461,7 @@
   const NEW_BAG_KG = 32;
   const MAX_BAGS = 60;
   const MAX_WORKERS = 50;
-  const APP_VERSION = '2.1.0';
+  const APP_VERSION = '2.2.0';
   // Present only inside the FieldLedger Android app (android/ WebView shell). The web build works without it.
   const NATIVE = (window.FieldLedgerAndroid && typeof window.FieldLedgerAndroid.saveFile === 'function') ? window.FieldLedgerAndroid : null;
   // Running as a published claude.ai page: downloads go through the host's "downloads" capability
@@ -450,7 +545,9 @@
   const icon = (name, cls = '') => `<svg class="ico ${cls}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">${ICONS[name] || ''}</svg>`;
   // Cantaloupe/muskmelon: netted tan rind with an orange flesh wedge (flat fills, no ids so it can repeat safely).
   const melonSvg = '<svg class="melon-svg" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><circle cx="18" cy="21" r="14" fill="#e3c97a" stroke="#9a7a2c" stroke-width="1.4"/><path d="M8 13q10 6 20 0M5 21q13 6 26 0M7 29q11 5 22 0M12 9q-4 12 2 25M18 7q-3 14 0 28M24 9q4 12-2 25" fill="none" stroke="#fbf0c8" stroke-width="1.1" opacity=".95"/><path d="M22 23 37 19a15 15 0 0 1-8 16z" fill="#f7913b" stroke="#b9621b" stroke-width="1.2" stroke-linejoin="round"/><path d="M24.5 24.5 34.5 22a11 11 0 0 1-5.5 10.5z" fill="#ffb066"/><circle cx="28" cy="26" r=".9" fill="#fff3d6"/><circle cx="30.5" cy="28.5" r=".9" fill="#fff3d6"/><circle cx="27.5" cy="29.5" r=".9" fill="#fff3d6"/><path d="M17 7q-1-4 3-5" fill="none" stroke="#5b8b35" stroke-width="2" stroke-linecap="round"/><path d="M19 5q5-3 7 1-4 2-7-1z" fill="#78ab43"/></svg>';
-  const productIcon = p => (p === 'brinjal' ? '<span aria-hidden="true">🍆</span>' : melonSvg);
+  // Small, plump brinjal (replaces the long eggplant emoji).
+  const brinjalSvg = '<svg class="melon-svg" viewBox="0 0 40 40" aria-hidden="true" focusable="false"><path d="M21 13c6.5-.6 12 4.6 11.6 11.6-.4 6.8-6.6 11.2-12.9 10.2-6.6-1-10.4-7-9.2-12.8 1-5 5.3-8.5 10.5-9z" fill="#7a3fc8"/><path d="M15.6 21c1.2-3 3.8-4.6 6.6-4.6" fill="none" stroke="#caa8ff" stroke-width="2.2" stroke-linecap="round" opacity=".85"/><path d="M13.5 15.5c2.5-4.2 9.8-5.2 13.6-1.4-2.6 1.4-4.2.7-6.2 2.6-1.9-1.6-4.5-.6-7.4-1.2z" fill="#5f9e3c"/><path d="M20.5 13.5c-.3-3.2.6-6 2.8-8.2" fill="none" stroke="#4c8030" stroke-width="2.6" stroke-linecap="round"/></svg>';
+  const productIcon = p => (p === 'brinjal' ? brinjalSvg : melonSvg);
   const CFG = {
     brinjal: { name: 'Brinjal', tamil: 'கத்திரிக்காய்', themeColor: '#6d45d9' },
     muskmelon: { name: 'Muskmelon', tamil: 'முலாம்பழம்', themeColor: '#d49b17' }
@@ -479,7 +576,8 @@
     ].map(([date, bags, rate, exp, workers, salary], i) => ({
       id: `sample-b${i + 1}`, date, ratePerKg: rate,
       // Source sheet weights are all 32 kg per bag (e.g. 320 kg / 10 bags). Type/size are demo values.
-      bagDetails: Array.from({ length: bags }, (_, j) => ({ id: `sample-b${i + 1}-bag${j + 1}`, weightKg: 32, brinjalType: 'Local', size: 'M' })),
+      brinjalType: 'Local',
+      bagDetails: Array.from({ length: bags }, (_, j) => ({ id: `sample-b${i + 1}-bag${j + 1}`, weightKg: 32, size: 'M' })),
       menCount: 0, womenCount: 0, menWage: 500, womenWage: 400, wastageKg: 0,
       legacyLabour: { workers, salary },
       expenseItems: [{ id: `sample-b${i + 1}-exp1`, date, purpose: 'Daily operating expenses (source sheet total)', amount: exp, notes: '' }],
@@ -489,13 +587,13 @@
       ['2026-10-02', 3500, 15, 3000], ['2026-10-04', 2000, 12, 0], ['2026-10-10', 1500, 10, 5000],
       ['2026-10-12', 1200, 10, 2000], ['2026-10-18', 1500, 10, 0], ['2026-10-20', 1200, 10, 8000]
     ].map(([date, kg, rate, exp], i) => ({
-      id: `sample-m${i + 1}`, date, kg, ratePerKg: rate, wastageKg: 0,
+      id: `sample-m${i + 1}`, date, kg, ratePerKg: rate, wastageKg: 0, menCount: 0, womenCount: 0, menWage: 500, womenWage: 400, legacyLabour: null,
       expenseItems: exp ? [{ id: `sample-m${i + 1}-exp1`, date, purpose: 'Operating expenses (source sheet total)', amount: exp, notes: '' }] : [],
       sample: true, createdAt: stamp, updatedAt: stamp
     }));
     return {
       app: 'FieldLedger', schemaVersion: SCHEMA_VERSION,
-      settings: { theme: 'light', textSize: 'medium', brinjalTypes: DEFAULT_TYPES.slice() },
+      settings: { theme: 'light', textSize: 'medium', brinjalTypes: DEFAULT_TYPES.slice(), wages: { brinjal: { men: 500, women: 400 }, muskmelon: { men: 500, women: 400 } } },
       profile: { farmName: 'My Farm', ownerName: '', phone: '', location: '' },
       data: { brinjal, muskmelon }
     };
@@ -510,7 +608,9 @@
     return {
       theme: s.theme === 'dark' ? 'dark' : 'light',
       textSize: ['small', 'medium', 'large'].includes(s.textSize) ? s.textSize : 'medium',
-      brinjalTypes: types.length ? types : DEFAULT_TYPES.slice()
+      brinjalTypes: types.length ? types : DEFAULT_TYPES.slice(),
+      // Default daily wages per person, per business. Prefilled in every new entry; editable per entry.
+      wages: PRODUCTS.reduce((o, p) => { const w = (s.wages && s.wages[p]) || {}; o[p] = { men: parseNonNeg(w.men) ?? 500, women: parseNonNeg(w.women) ?? 400 }; return o; }, {})
     };
   }
   function normProfile(p) {
@@ -541,10 +641,15 @@
     }
     const base = { id: str(r.id, 60) || uid(product === 'brinjal' ? 'b' : 'm'), date: r.date, ratePerKg: rate, wastageKg: wastage, expenseItems: items, createdAt: str(r.createdAt, 40) || nowISO(), updatedAt: str(r.updatedAt, 40) || nowISO() };
     if (r.sample === true) base.sample = true;
+    let legacy = null;
+    if (r.legacyLabour && typeof r.legacyLabour === 'object' && (num(r.legacyLabour.workers) > 0 || num(r.legacyLabour.salary) > 0)) {
+      legacy = { workers: int(r.legacyLabour.workers), salary: num(r.legacyLabour.salary) };
+    }
+    const labour = { menCount: Math.min(int(r.menCount ?? r.men), 999), womenCount: Math.min(int(r.womenCount ?? r.women), 999), menWage: num(r.menWage ?? r.maleWage), womenWage: num(r.womenWage ?? r.femaleWage), legacyLabour: legacy };
     if (product === 'muskmelon') {
       const kg = parseNonNeg(r.kg ?? 0);
       if (kg === null) return { error: 'quantity (kg) must be a non-negative number' };
-      return { value: { ...base, kg } };
+      return { value: { ...base, kg, ...labour } };
     }
     let bags;
     if (Array.isArray(r.bagDetails)) {
@@ -553,18 +658,20 @@
         if (!b || typeof b !== 'object') return { error: 'bag detail is not an object' };
         const w = parseNonNeg(b.weightKg ?? b.weight);
         if (w === null) return { error: `bag weight "${str(b.weightKg ?? b.weight, 20)}" is not a non-negative number` };
-        bags.push({ id: str(b.id, 60) || uid('bag'), weightKg: w, brinjalType: str(b.brinjalType ?? b.type, 50) || types[0], size: SIZES[b.size] ? b.size : 'M' });
+        bags.push({ id: str(b.id, 60) || uid('bag'), weightKg: w, size: SIZES[b.size] ? b.size : 'M' });
       }
     } else {
       // Very old rows had only an aggregate bag count + weight: spread the weight evenly.
       const count = Math.min(int(r.bags), 500); const each = count ? num(r.kg) / count : 0;
-      bags = Array.from({ length: count }, () => ({ id: uid('bag'), weightKg: r2(each), brinjalType: types[0], size: 'M' }));
+      bags = Array.from({ length: count }, () => ({ id: uid('bag'), weightKg: r2(each), size: 'M' }));
     }
-    let legacy = null;
-    if (r.legacyLabour && typeof r.legacyLabour === 'object' && (num(r.legacyLabour.workers) > 0 || num(r.legacyLabour.salary) > 0)) {
-      legacy = { workers: int(r.legacyLabour.workers), salary: num(r.legacyLabour.salary) };
+    // Brinjal type is one value for the whole day. Older data stored it per bag: use the most common one.
+    let brinjalType = str(r.brinjalType, 50);
+    if (!brinjalType && Array.isArray(r.bagDetails)) {
+      const tally = {}; r.bagDetails.forEach(b => { const t = b && str(b.brinjalType ?? b.type, 50); if (t) tally[t] = (tally[t] || 0) + 1; });
+      brinjalType = Object.keys(tally).sort((a, b) => tally[b] - tally[a])[0] || '';
     }
-    return { value: { ...base, bagDetails: bags, menCount: Math.min(int(r.menCount ?? r.men), 999), womenCount: Math.min(int(r.womenCount ?? r.women), 999), menWage: num(r.menWage ?? r.maleWage), womenWage: num(r.womenWage ?? r.femaleWage), legacyLabour: legacy } };
+    return { value: { ...base, brinjalType: brinjalType || types[0], bagDetails: bags, ...labour } };
   }
   /**
    * Validate + normalise a state/backup object.
@@ -651,7 +758,7 @@
     wastage: r => num(r.wastageKg),
     gross: (p, r) => calc.kg(p, r) * num(r.ratePerKg),
     /** Net for a single daily record using the expense items attached to that record. */
-    recordNet: (p, r) => calc.gross(p, r) - calc.expenseTotal(r.expenseItems) - (p === 'brinjal' ? calc.labour(r) : 0)
+    recordNet: (p, r) => calc.gross(p, r) - calc.expenseTotal(r.expenseItems) - calc.labour(r)
   };
 
   /**
@@ -682,12 +789,13 @@
       }
       recs.forEach((r, i) => {
         const e = i === 0 ? exp : 0; const gross = calc.gross(product, r);
-        const labour = product === 'brinjal' ? calc.labour(r) : 0;
+        const labour = calc.labour(r);
         rows.push({
           date, kind: 'record', recordId: r.id, bags: product === 'brinjal' ? r.bagDetails.length : null, kg: calc.kg(product, r), wastage: calc.wastage(r), rate: num(r.ratePerKg), gross, expenses: e,
-          men: product === 'brinjal' ? int(r.menCount) : null, women: product === 'brinjal' ? int(r.womenCount) : null,
-          legacyWorkers: product === 'brinjal' && r.legacyLabour ? int(r.legacyLabour.workers) : null,
-          workers: product === 'brinjal' ? calc.workers(r) : 0, labour, net: gross - e - labour
+          type: product === 'brinjal' ? r.brinjalType : null,
+          men: int(r.menCount), women: int(r.womenCount),
+          legacyWorkers: r.legacyLabour ? int(r.legacyLabour.workers) : null,
+          workers: calc.workers(r), labour, net: gross - e - labour
         });
       });
     });
@@ -701,6 +809,7 @@
     if (st.product === 'brinjal') {
       return [
         { key: 'date', label: 'Date', type: 'date' },
+        { key: 'type', label: 'Type', type: 'text' },
         { key: 'bags', label: 'Bags', type: 'int', total: true },
         { key: 'kg', label: 'Total weight (kg)', type: 'num', total: true },
         { key: 'wastage', label: 'Wastage (kg)', type: 'num', total: true },
@@ -721,10 +830,14 @@
       { key: 'rate', label: 'Rate/kg (₹)', type: 'money' },
       { key: 'gross', label: 'Gross income (₹)', type: 'money', total: true },
       { key: 'expenses', label: 'Operating expenses (₹)', type: 'money', total: true },
-      { key: 'net', label: 'Net after expenses (₹)', type: 'money', total: true }
+      { key: 'men', label: 'Men', type: 'int', total: true },
+      { key: 'women', label: 'Women', type: 'int', total: true },
+      ...(st.hasLegacy ? [{ key: 'legacyWorkers', label: 'Workers, split unknown (legacy)', type: 'int', total: true }] : []),
+      { key: 'labour', label: 'Labour salary (₹)', type: 'money', total: true },
+      { key: 'net', label: 'Net after costs (₹)', type: 'money', total: true }
     ];
   }
-  const cellText = (col, v) => (v == null ? '—' : col.type === 'date' ? dateLabel(v) : col.type === 'money' ? money(v) : fmt(v));
+  const cellText = (col, v) => (v == null || v === '' ? '—' : col.type === 'text' ? String(v) : col.type === 'date' ? dateLabel(v) : col.type === 'money' ? money(v) : fmt(v));
   const fileBase = (product, month) => `fieldledger-${product}-${month}`;
 
   /* ------------------------------------------------------------------
@@ -754,41 +867,25 @@
    * Shell
    * ------------------------------------------------------------------ */
   const NAV = [['dashboard', 'home', 'Overview'], ['entry', 'plus', 'Daily entry'], ['records', 'list', 'Records'], ['reports', 'report', 'Reports'], ['tools', 'more', 'More']];
+  const VIEW_TITLES = { dashboard: 'Overview', entry: 'Daily entry', records: 'Records', reports: 'Monthly statement', tools: 'More', settings: 'Settings', profile: 'Farm profile' };
   function renderShell() {
     const b = document.body;
-    b.dataset.theme = state.settings.theme; b.dataset.product = activeProduct;
+    b.dataset.theme = state.settings.theme; b.dataset.product = activeProduct; b.dataset.view = activeView;
     b.classList.remove('text-small', 'text-medium', 'text-large'); b.classList.add('text-' + state.settings.textSize);
     const themeColor = state.settings.theme === 'dark' ? '#111018' : CFG[activeProduct].themeColor;
     const metaTheme = $('meta[name="theme-color"]'); if (metaTheme) metaTheme.setAttribute('content', themeColor);
     if (NATIVE && typeof NATIVE.setThemeColor === 'function') { try { NATIVE.setThemeColor(themeColor, state.settings.theme === 'dark'); } catch (_) { /* older shell */ } }
-    const ni = nativeInfo(); $('#buildLabel').textContent = ni ? `Android app v${ni.versionName}` : `Web app v${APP_VERSION}`;
     const dark = state.settings.theme === 'dark';
+    const ni = nativeInfo(); $('#buildLabel').textContent = ni ? `Android app v${ni.versionName}` : `Web app v${APP_VERSION}`;
     const tb = $('#quickThemeBtn'); tb.innerHTML = icon(dark ? 'sun' : 'moon'); tb.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
-    $('#quickTextBtn').setAttribute('aria-label', `Change text size (currently ${state.settings.textSize})`);
     const p = state.profile; const initial = (p.farmName || p.ownerName || 'F').trim().charAt(0).toUpperCase() || 'F';
-    $('#avatarInitial').textContent = initial; $('#profileChipName').textContent = p.farmName || 'My Farm';
-    $('#melonTabIcon').innerHTML = melonSvg;
-    const coin = $('#emblemCoin'); if (coin.dataset.p !== activeProduct) { coin.dataset.p = activeProduct; coin.innerHTML = activeProduct === 'brinjal' ? '🍆' : melonSvg; coin.style.animation = 'none'; void coin.offsetWidth; coin.style.animation = ''; }
+    $('#avatarInitial').textContent = cloud.session() ? (cloud.session().email || initial).charAt(0).toUpperCase() : initial;
+    if (!$('#brandMark').firstChild) { $('#brandMark').innerHTML = `<span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span>`; $('#brinjalTabIcon').innerHTML = brinjalSvg; $('#melonTabIcon').innerHTML = melonSvg; }
     $$('.product-tab').forEach(t => { const on = t.dataset.productTab === activeProduct; t.classList.toggle('active', on); t.setAttribute('aria-selected', String(on)); });
     const navActive = ['settings', 'profile'].includes(activeView) ? 'tools' : activeView;
     $('#mainNav').innerHTML = NAV.map(([v, ic, label]) => `<button class="nav-btn ${navActive === v ? 'active' : ''}" type="button" data-nav="${v}" ${navActive === v ? 'aria-current="page"' : ''}>${icon(ic)}<span>${label}</span></button>`).join('');
-    const name = CFG[activeProduct].name;
-    const titles = {
-      dashboard: [`${name} · ${monthLabel(month)}`, `${name} business`],
-      entry: [`${name} · daily record`, draft && draft.id ? 'Edit daily entry' : 'Add daily entry'],
-      records: [`${name} · saved days`, 'Daily records'],
-      reports: [`${name} · ${monthLabel(month)}`, 'Monthly statement'],
-      tools: ['Exports, backup & tools', 'More'],
-      settings: ['Make it work your way', 'Settings'],
-      profile: ['Your workspace', 'Farm profile']
-    };
-    const [eyebrow, title] = titles[activeView] || titles.dashboard;
-    $('#pageEyebrow').textContent = eyebrow; $('#pageTitle').textContent = title;
-    document.title = `${title} · FieldLedger`;
-    const ca = $('#contextActions');
-    ca.innerHTML = ['dashboard', 'records'].includes(activeView)
-      ? `<button class="btn" type="button" data-nav="entry">${icon('plus')} Daily entry</button><button class="btn primary" type="button" data-nav="reports">${icon('report')} Monthly statement</button>`
-      : activeView === 'reports' ? `<button class="btn" type="button" data-nav="entry">${icon('plus')} Daily entry</button>` : '';
+    document.title = `${VIEW_TITLES[activeView] || 'Overview'} · ${CFG[activeProduct].name} · FieldLedger`;
+    renderStatus();
     renderBanner();
   }
   function renderBanner() {
@@ -808,16 +905,6 @@
     return `<div class="month-nav" role="group" aria-label="${esc(label)}"><button class="icon-btn" type="button" data-action="month-prev" aria-label="Previous month">${icon('chevL')}</button><label class="sr-only" for="${id}">${esc(label)}</label><input id="${id}" class="month-input" type="month" value="${esc(month)}"><button class="icon-btn" type="button" data-action="month-next" aria-label="Next month">${icon('chevR')}</button></div>`;
   }
   const quick = (attr, ic, title, sub) => `<button class="quick-card tilt" type="button" ${attr}><span class="quick-icon">${ic.startsWith('<') ? ic : icon(ic)}</span><span><strong>${title}</strong><span>${sub}</span></span></button>`;
-  function quickActions() {
-    return `<div class="quick-grid cols-2">
-      ${quick('data-nav="entry"', 'plus', 'New daily entry', "Add today's numbers")}
-      ${quick('data-nav="reports"', 'report', 'Monthly report', 'Date-wise statement')}
-      ${quick('data-nav="records"', 'list', 'Records', 'View, edit, delete')}
-      ${quick('data-nav="tools"', 'download', 'Export & backup', 'PDF, Excel, CSV, PNG, JSON')}
-      ${quick('data-nav="settings"', 'settings', 'Settings', 'Theme, text, brinjal types')}
-      ${quick('data-nav="profile"', 'user', 'Profile', 'Farm details')}
-    </div>`;
-  }
   const netCls = n => (r2(n) < 0 ? 'negative' : 'positive');
   function fmtShort(n) { n = Number(n || 0); return n >= 100000 ? (n / 100000).toFixed(1).replace(/\.0$/, '') + 'L' : n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k' : fmt(n); }
   function barChart(points, emptyText) {
@@ -847,9 +934,8 @@
         ${kpi('Labour salary', money(t.labour), 'users', `${fmt(t.workers)} worker-days · men + women wages`, 'labour')}
         ${kpi('Net after costs', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross − expenses − labour')}
       </div>
-      <div class="grid two section-gap">
+      <div class="section-gap">
         <section class="card"><div class="card-head"><div><h2>Sales activity</h2><div class="muted small">Daily gross sales · ${esc(ml)}</div></div><span class="tag">${t.records} entries</span></div>${barChart(st.rows.filter(r => r.kind === 'record').map(r => ({ label: dateLabel(r.date), value: r.gross })), `No brinjal records in ${esc(ml)}.`)}<div class="small muted" style="margin-top:12px">Bars show gross sales by date, before expenses and labour.</div></section>
-        <section class="card"><div class="card-head"><div><h2>Quick actions</h2><div class="muted small">Everything you need for today</div></div><span class="kpi-icon">${icon('sparkle')}</span></div>${quickActions()}</section>
       </div>
       <section class="card section-gap"><div class="card-head"><div><h2>Recent entries</h2><div class="muted small">Latest saved days for Brinjal (all months)</div></div><button class="btn small-btn" type="button" data-nav="records">View all ${icon('chevR')}</button></div>
       <div class="table-wrap"><table><thead><tr><th>Date</th><th class="num">Bags</th><th class="num">Weight</th><th class="num">Gross sales</th><th class="num">Labour</th><th class="num">Net (this day)</th><th>Actions</th></tr></thead><tbody>${recentRows}</tbody></table></div></section>`;
@@ -864,21 +950,22 @@
     const months = monthsWithData('muskmelon');
     const monthRows = months.length ? months.map(m => {
       const mt = buildStatement('muskmelon', m).totals;
-      return `<tr class="${m === month ? 'selected' : ''}"><td><strong>${esc(monthLabel(m))}</strong>${m === month ? ' <span class="tag">Selected</span>' : ''}<div class="muted small">${mt.records} daily record${mt.records === 1 ? '' : 's'}</div></td><td class="num">${fmt(mt.kg)} kg</td><td class="num positive">${money(mt.gross)}</td><td class="num negative">${money(mt.expenses)}</td><td class="num ${netCls(mt.net)}">${money(mt.net)}</td><td><button class="btn small-btn" type="button" data-month-report="${esc(m)}">Statement ${icon('chevR')}</button></td></tr>`;
-    }).join('') : `<tr><td colspan="6">${emptyState('No monthly totals yet.', 'Add muskmelon daily records to build monthly performance.', melonSvg)}</td></tr>`;
+      return `<tr class="${m === month ? 'selected' : ''}"><td><strong>${esc(monthLabel(m))}</strong>${m === month ? ' <span class="tag">Selected</span>' : ''}<div class="muted small">${mt.records} daily record${mt.records === 1 ? '' : 's'}</div></td><td class="num">${fmt(mt.kg)} kg</td><td class="num positive">${money(mt.gross)}</td><td class="num negative">${money(mt.expenses)}</td><td class="num">${money(mt.labour)}</td><td class="num ${netCls(mt.net)}">${money(mt.net)}</td><td><button class="btn small-btn" type="button" data-month-report="${esc(m)}">Statement ${icon('chevR')}</button></td></tr>`;
+    }).join('') : `<tr><td colspan="7">${emptyState('No monthly totals yet.', 'Add muskmelon daily records to build monthly performance.', melonSvg)}</td></tr>`;
     const trend = months.slice(0, 6).reverse().map(m => ({ label: monthLabel(m).replace(/ (\d{4})$/, " '$1").replace(/'(\d\d)(\d\d)/, "'$2"), value: buildStatement('muskmelon', m).totals.gross }));
-    return `<section class="card"><div class="month-hero"><div><div class="eyebrow">Monthly focus</div><h2 style="font-size:22px;margin-top:4px">${esc(monthLabel(month))}</h2><div class="big ${netCls(t.net)} mono">${money(t.net)}</div><div class="muted small">Net after expenses · ${t.records} daily record${t.records === 1 ? '' : 's'}${t.kg ? ` · average rate ${money(t.avgRate)}/kg` : ''}</div></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:min(100%,300px)">${monthNav('dashMonth', 'Focus month')}<button class="btn primary" type="button" data-month-report="${esc(month)}">${icon('report')} Open ${esc(monthLabel(month))} statement</button></div></div></section>
-      <div class="grid kpis section-gap">
+    return `<section class="card"><div class="month-hero"><div><div class="eyebrow">Monthly focus</div><h2 style="font-size:22px;margin-top:4px">${esc(monthLabel(month))}</h2><div class="big ${netCls(t.net)} mono">${money(t.net)}</div><div class="muted small">Net after costs · ${t.records} daily record${t.records === 1 ? '' : 's'}${t.kg ? ` · average rate ${money(t.avgRate)}/kg` : ''}</div></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;min-width:min(100%,300px)">${monthNav('dashMonth', 'Focus month')}<button class="btn primary" type="button" data-month-report="${esc(month)}">${icon('report')} Open ${esc(monthLabel(month))} statement</button></div></div></section>
+      <div class="grid kpis five section-gap">
         ${kpi('Quantity this month', fmt(t.kg) + ' kg', 'scale', `Wastage ${fmt(t.wastage)} kg (not priced)`)}
         ${kpi('Gross income', money(t.gross), melonSvg, 'Quantity × daily rate/kg', 'sale')}
-        ${kpi('Operating expenses', money(t.expenses), 'receipt', 'Expense items dated this month', 'expense')}
-        ${kpi('Net after expenses', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross income − expenses')}
+        ${kpi('Expenses', money(t.expenses), 'receipt', 'Dated this month', 'expense')}
+        ${kpi('Labour', money(t.labour), 'users', `${fmt(t.workers)} worker-days`, 'labour')}
+        ${kpi('Net after costs', `<span class="${netCls(t.net)}">${money(t.net)}</span>`, 'sparkle', 'Gross − expenses − labour')}
       </div>
       <div class="grid two section-gap">
         <section class="card"><div class="card-head"><div><h2>Monthly performance</h2><div class="muted small">Every month with muskmelon activity, newest first</div></div><span class="kpi-icon">${melonSvg}</span></div>
-          <div class="table-wrap"><table style="min-width:600px"><thead><tr><th>Month</th><th class="num">Quantity</th><th class="num">Gross income</th><th class="num">Expenses</th><th class="num">Net after expenses</th><th>Daily statement</th></tr></thead><tbody>${monthRows}</tbody></table></div>
-          <div class="small muted" style="margin-top:10px">Muskmelon is summarised month by month. Daily records are still available in Records and in each month's statement.</div></section>
-        <section class="card"><div class="card-head"><div><h2>Gross income by month</h2><div class="muted small">Last ${Math.min(6, months.length) || 0} active month(s)</div></div></div>${barChart(trend, 'No months with data yet.')}<div style="height:14px"></div>${quickActions()}</section>
+          <div class="table-wrap"><table style="min-width:600px"><thead><tr><th>Month</th><th class="num">Quantity</th><th class="num">Gross income</th><th class="num">Expenses</th><th class="num">Labour</th><th class="num">Net</th><th>Statement</th></tr></thead><tbody>${monthRows}</tbody></table></div>
+</section>
+        <section class="card"><div class="card-head"><div><h2>Gross income by month</h2><div class="muted small">Last ${Math.min(6, months.length) || 0} active month(s)</div></div></div>${barChart(trend, 'No months with data yet.')}</section>
       </div>`;
   }
   function emptyState(title, text, ic = icon('list')) {
@@ -888,97 +975,96 @@
   /* ------------------------------------------------------------------
    * Daily entry (draft-based)
    * ------------------------------------------------------------------ */
+  const productWages = p => (state.settings.wages && state.settings.wages[p]) || { men: 500, women: 400 };
   function makeDraft(product, rec) {
-    const latest = sortedDesc(product)[0];
-    const base = { product, id: rec ? rec.id : null, date: rec ? rec.date : todayISO(), ratePerKg: rec ? String(rec.ratePerKg) : (latest ? String(latest.ratePerKg) : ''), wastageKg: rec && rec.wastageKg ? String(rec.wastageKg) : '', expenseItems: clone(rec ? rec.expenseItems : []), createdAt: rec ? rec.createdAt : null, sample: rec ? !!rec.sample : false };
-    if (product === 'muskmelon') return { ...base, kg: rec ? String(rec.kg) : '' };
-    return {
-      ...base, bagDetails: clone(rec ? rec.bagDetails : []),
-      menCount: rec ? rec.menCount : 0, womenCount: rec ? rec.womenCount : 0,
-      menWage: String(rec ? rec.menWage : (latest ? latest.menWage : 500)), womenWage: String(rec ? rec.womenWage : (latest ? latest.womenWage : 400)),
-      legacyLabour: clone(rec ? rec.legacyLabour : null)
+    const latest = sortedDesc(product)[0]; const w = productWages(product);
+    const d = {
+      product, id: rec ? rec.id : null, date: rec ? rec.date : todayISO(),
+      ratePerKg: rec ? String(rec.ratePerKg) : (latest ? String(latest.ratePerKg) : ''),
+      wastageKg: rec && rec.wastageKg ? String(rec.wastageKg) : '',
+      expenseItems: clone(rec ? rec.expenseItems : []), createdAt: rec ? rec.createdAt : null,
+      // Wages start from Settings for a new entry; changing them here affects this entry only.
+      menCount: rec ? int(rec.menCount) : 0, womenCount: rec ? int(rec.womenCount) : 0,
+      menWage: String(rec ? num(rec.menWage) : w.men), womenWage: String(rec ? num(rec.womenWage) : w.women),
+      legacyLabour: clone(rec ? rec.legacyLabour || null : null)
     };
+    if (product === 'muskmelon') d.kg = rec ? String(rec.kg) : '';
+    else { d.bagDetails = clone(rec ? rec.bagDetails : []); d.brinjalType = rec ? rec.brinjalType : (state.settings.brinjalTypes[0] || ''); d.typeMode = ''; d.customType = ''; }
+    return d;
   }
   const ensureDraft = () => { if (!draft || draft.product !== activeProduct) { draft = makeDraft(activeProduct, null); draftDirty = false; } };
+  const datePillText = iso => {
+    if (!isISODate(iso)) return 'Choose date';
+    const d = new Date(iso + 'T12:00:00');
+    return `${iso === todayISO() ? 'Today' : d.toLocaleDateString('en-IN', { weekday: 'short' })} · ${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  };
   function bagSummary(items) {
-    if (!items.length) return '<span class="muted small">No bags yet. Choose the number of bags — a form opens with one section per bag.</span>';
-    const mix = {}; items.forEach(b => { const k = `${b.brinjalType || 'Type not set'} · ${b.size || '—'}`; mix[k] = (mix[k] || 0) + 1; });
-    return `<div class="small"><strong>${items.length} bag${items.length === 1 ? '' : 's'} · ${fmt(calc.bagKg(items))} kg total</strong></div><div class="bag-preview">${Object.entries(mix).map(([k, c]) => `<span class="bag-chip">${esc(k)} × ${c}</span>`).join('')}</div>`;
+    if (!items.length) return '<span class="muted small">Type the number of bags — a sheet opens to enter each bag’s weight.</span>';
+    const mix = {}; items.forEach(b => { mix[b.size || 'M'] = (mix[b.size || 'M'] || 0) + 1; });
+    return `<div class="small"><strong>${items.length} bag${items.length === 1 ? '' : 's'} · ${fmt(calc.bagKg(items))} kg</strong></div><div class="bag-preview">${['S', 'M', 'L'].filter(k => mix[k]).map(k => `<span class="bag-chip">${SIZES[k]} × ${mix[k]}</span>`).join('')}</div>`;
   }
   function expenseSummary(items) {
-    if (!items.length) return '<span class="muted small">No expense items added.</span>';
-    return `<div class="small"><strong>${items.length} expense item${items.length === 1 ? '' : 's'} · ${money(calc.expenseTotal(items))}</strong></div><div class="muted small">${items.slice(0, 3).map(x => `${esc(x.purpose)} · ${money(x.amount)}${x.date !== draft.date ? ` (${esc(dateLabel(x.date))})` : ''}`).join(' · ')}${items.length > 3 ? ` · +${items.length - 3} more` : ''}</div>`;
+    if (!items.length) return '<span class="muted small">No expenses added.</span>';
+    return `<div class="small"><strong>${items.length} item${items.length === 1 ? '' : 's'} · ${money(calc.expenseTotal(items))}</strong></div><div class="muted small">${items.slice(0, 3).map(x => `${esc(x.purpose)} · ${money(x.amount)}${x.date !== draft.date ? ` (${esc(dateLabel(x.date))})` : ''}`).join(' · ')}${items.length > 3 ? ` · +${items.length - 3} more` : ''}</div>`;
   }
+  function typeField(d) {
+    const types = state.settings.brinjalTypes; const custom = d.typeMode === 'custom';
+    const extra = d.brinjalType && !types.includes(d.brinjalType) && !custom ? `<option value="${esc(d.brinjalType)}" selected>${esc(d.brinjalType)} (not in list)</option>` : '';
+    return `<div class="field"><label for="entryType">Brinjal type / category</label>
+      <select id="entryType">${extra}${types.map(t => `<option value="${esc(t)}" ${!custom && t === d.brinjalType ? 'selected' : ''}>${esc(t)}</option>`).join('')}<option value="__custom__" ${custom ? 'selected' : ''}>＋ New type…</option></select>
+      <input id="entryTypeCustom" class="${custom ? '' : 'hidden'}" maxlength="50" placeholder="New type, e.g. Green round" value="${esc(d.customType)}" aria-label="New brinjal type" autocomplete="off">
+      <div class="field-hint">For all bags today. A new type is added to Settings.</div></div>`;
+  }
+  const stepper = (field, value, label) => `<div class="stepper"><button type="button" class="btn icon-only" data-step="${field}" data-delta="-1" aria-label="One less ${label}">−</button><input id="${field}" type="number" inputmode="numeric" min="0" max="999" step="1" data-field="${field}" data-int="1" value="${int(value)}" aria-label="Number of ${label}"><button type="button" class="btn icon-only" data-step="${field}" data-delta="1" aria-label="One more ${label}">+</button></div>`;
   function entryView() {
     ensureDraft();
-    const d = draft; const isB = d.product === 'brinjal'; const editing = !!d.id;
-    const head = `<div class="card-head"><div><h2>${editing ? 'Edit' : 'Add'} ${isB ? 'brinjal' : 'muskmelon'} daily entry</h2><div class="muted small">${isB ? 'Record each bag separately — total weight is the sum of the bags.' : 'Enter the day’s quantity and market rate.'}</div></div>${editing ? `<span class="tag">${icon('edit')} Editing ${esc(dateLabel(d.date))}</span>` : `<span class="kpi-icon">${productIcon(d.product)}</span>`}</div>`;
-    const dateRate = `<div class="form-grid${isB ? ' three' : ''}">
-        <div class="field"><label for="entryDate">Date</label><input id="entryDate" type="date" data-field="date" required value="${esc(d.date)}"></div>
-        ${isB ? '' : `<div class="field"><label for="entryKg">Quantity (kg)</label><input id="entryKg" type="number" inputmode="decimal" min="0" step="0.01" data-field="kg" required placeholder="e.g. 1500" value="${esc(d.kg)}"></div>`}
-        <div class="field"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's market rate" value="${esc(d.ratePerKg)}"><div class="field-hint">Market rate can change every day.</div></div>
-        <div class="field"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Unsold / spoiled produce. No price — not added to sales.</div></div>
-      </div>`;
-    const expenses = `<div class="form-section"><div class="section-title"><h3>${icon('receipt')} Operating expenses</h3><span class="muted small">Date · purpose · amount · notes</span></div>
-        <button class="detail-edit" type="button" data-action="open-expenses"><span><strong>${d.expenseItems.length ? 'View / edit expense details' : 'Add expense details'}</strong><span class="muted small" style="display:block;margin-top:3px">Each expense keeps its own date</span></span>${icon(d.expenseItems.length ? 'edit' : 'plus')}</button>
-        <div id="expenseSummary" style="margin-top:8px">${expenseSummary(d.expenseItems)}</div></div>`;
-    let body;
-    if (isB) {
-      const count = d.bagDetails.length;
-      const maxOpt = Math.max(MAX_BAGS, count);
-      const bagOptions = Array.from({ length: maxOpt }, (_, i) => i + 1).map(n => `<option value="${n}" ${count === n ? 'selected' : ''}>${n} bag${n === 1 ? '' : 's'}</option>`).join('');
-      const opts = (sel, max) => Array.from({ length: Math.max(max, sel) + 1 }, (_, i) => `<option value="${i}" ${sel === i ? 'selected' : ''}>${i}</option>`).join('');
-      const legacy = d.legacyLabour ? `<div class="legacy-box" id="legacyBox"><span>${icon('alert')} <strong>Historical labour (split unknown):</strong> ${fmt(d.legacyLabour.workers)} workers · ${money(d.legacyLabour.salary)}. The source sheet did not record men/women separately, so this amount is kept as-is and added to labour salary.</span><button class="btn small-btn" type="button" data-action="legacy-remove">Replace with men/women split</button></div>`
-        : (d.removedLegacy ? `<div class="legacy-box"><span>Historical labour amount will be removed when you save. Enter the men/women split above.</span><button class="btn small-btn" type="button" data-action="legacy-undo">Undo</button></div>` : '');
-      body = `${dateRate}
-        <div class="form-section"><div class="section-title"><h3>${icon('bag')} Bags</h3><span class="muted small">Weight · type · size for every bag</span></div>
-          <div class="form-grid"><div class="field"><label for="bagCount">Number of bags</label><select id="bagCount" required><option value="" ${count ? '' : 'selected'}>Choose bag count</option>${bagOptions}</select><div class="field-hint">Choosing a count opens one numbered section per bag.</div></div>
-          <div class="field"><span class="field-label">Individual bag details</span><button class="detail-edit" type="button" data-action="open-bags"><span><strong>${count ? 'View / edit bag details' : 'Enter bag details'}</strong><span class="muted small" style="display:block;margin-top:3px">Weight (kg) · Brinjal type · Size S / M / L</span></span>${icon('edit')}</button></div></div>
-          <div id="bagSummary" style="margin-top:10px">${bagSummary(d.bagDetails)}</div></div>
-        <div class="form-section"><div class="section-title"><h3>${icon('users')} Labour</h3><span class="muted small">Salary = men × men's wage + women × women's wage</span></div>
-          <div class="labour-grid">
-            <div class="labour-card"><div class="labour-title"><span>Men</span><span class="subtotal" id="menSubtotal"></span></div><div class="field"><label for="menCount">Number of men</label><select id="menCount" data-field="menCount" data-int="1">${opts(int(d.menCount), MAX_WORKERS)}</select></div><div class="field"><label for="menWage">Wage per man (₹/day)</label><input id="menWage" type="number" inputmode="decimal" min="0" step="1" data-field="menWage" value="${esc(d.menWage)}"></div></div>
-            <div class="labour-card"><div class="labour-title"><span>Women</span><span class="subtotal" id="womenSubtotal"></span></div><div class="field"><label for="womenCount">Number of women</label><select id="womenCount" data-field="womenCount" data-int="1">${opts(int(d.womenCount), MAX_WORKERS)}</select></div><div class="field"><label for="womenWage">Wage per woman (₹/day)</label><input id="womenWage" type="number" inputmode="decimal" min="0" step="1" data-field="womenWage" value="${esc(d.womenWage)}"></div></div>
-          </div>${legacy}</div>
-        ${expenses}
-        <div class="calc-strip six" aria-live="polite">
-          <div class="calc-item"><span>Total weight</span><strong id="calcKg">0 kg</strong><small id="calcBags">0 bags</small></div>
-          <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
-          <div class="calc-item sale"><span>Gross sales</span><strong id="calcGross">₹0</strong><small>Weight × rate/kg</small></div>
-          <div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong><small>Sum of expense items</small></div>
-          <div class="calc-item labour"><span>Labour salary</span><strong id="calcLabour">₹0</strong><small>Men + women</small></div>
-          <div class="calc-item net"><span>Net after costs</span><strong id="calcNet">₹0</strong><small>Gross − expenses − labour</small></div>
-        </div>`;
-    } else {
-      body = `${dateRate}${expenses}
-        <div class="calc-strip four-col" aria-live="polite">
-          <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
-          <div class="calc-item sale"><span>Gross income</span><strong id="calcGross">₹0</strong><small>Quantity × rate/kg</small></div>
-          <div class="calc-item expense"><span>Operating expenses</span><strong id="calcExpenses">₹0</strong><small>Sum of expense items</small></div>
-          <div class="calc-item net"><span>Net after expenses</span><strong id="calcNet">₹0</strong><small>Gross − expenses</small></div>
-        </div>`;
-    }
-    return `<section class="card">${head}<form id="entryForm" novalidate>${body}
-      <div class="form-actions"><span class="muted small">${isB ? 'Bag and expense details' : 'Expense details'} stay in this draft until you save the daily entry.</span>
-        <div class="btn-row">${editing ? `<button type="button" class="btn danger" data-action="entry-delete">${icon('trash')} Delete</button>` : ''}<button type="button" class="btn" data-action="entry-cancel">${editing ? 'Cancel' : 'Clear'}</button><button class="btn primary" type="submit">${icon('check')} ${editing ? 'Save changes' : 'Save daily entry'}</button></div></div>
-      </form></section>
-      <div class="notice section-gap"><strong>How it is calculated:</strong> ${isB ? 'Total weight = sum of bag weights. Gross sales = total weight × rate/kg. Labour salary = men × men’s wage + women × women’s wage. Net after costs = gross − operating expenses − labour salary.' : 'Gross income = quantity × rate/kg. Net after expenses = gross income − operating expenses.'} In monthly statements each expense item is counted on its own date.</div>`;
+    const d = draft; const isB = d.product === 'brinjal'; const editing = !!d.id; const w = productWages(d.product);
+    const head = `<div class="entry-head"><h2>${editing ? 'Edit entry' : 'Daily entry'}</h2>
+      <label class="date-pill" title="Change date">${icon('calendar')}<span id="datePillText">${esc(datePillText(d.date))}</span>${icon('chevR', 'pill-chev')}<input id="entryDate" type="date" data-field="date" value="${esc(d.date)}" aria-label="Entry date"></label></div>`;
+    const rate = `<div class="field"><label for="entryRate">Rate per kg (₹)</label><input id="entryRate" type="number" inputmode="decimal" min="0" step="0.01" data-field="ratePerKg" required placeholder="Today's rate" value="${esc(d.ratePerKg)}"></div>`;
+    const wastage = `<div class="field"><label for="entryWastage">Wastage (kg)</label><input id="entryWastage" type="number" inputmode="decimal" min="0" step="0.01" data-field="wastageKg" placeholder="0" value="${esc(d.wastageKg)}"><div class="field-hint">Not priced.</div></div>`;
+    const top = isB
+      ? `<div class="form-grid">${typeField(d)}${rate}
+          <div class="field"><label for="bagCount">Number of bags</label><div class="inline-action"><input id="bagCount" type="number" inputmode="numeric" min="0" max="${MAX_BAGS}" step="1" placeholder="e.g. 10" value="${d.bagDetails.length || ''}"><button type="button" class="btn" data-action="open-bags">${icon('edit')} Weights</button></div><div id="bagSummary" style="margin-top:6px">${bagSummary(d.bagDetails)}</div></div>
+          ${wastage}</div>`
+      : `<div class="form-grid three"><div class="field"><label for="entryKg">Quantity (kg)</label><input id="entryKg" type="number" inputmode="decimal" min="0" step="0.01" data-field="kg" required placeholder="e.g. 1500" value="${esc(d.kg)}"></div>${rate}${wastage}</div>`;
+    const legacy = d.legacyLabour ? `<div class="legacy-box"><span>${icon('alert')} Earlier record: ${fmt(d.legacyLabour.workers)} workers · ${money(d.legacyLabour.salary)} (men/women not recorded).</span><button class="btn small-btn" type="button" data-action="legacy-remove">Use men/women instead</button></div>`
+      : (d.removedLegacy ? `<div class="legacy-box"><span>The earlier labour amount will be removed when you save.</span><button class="btn small-btn" type="button" data-action="legacy-undo">Undo</button></div>` : '');
+    const wageHint = (v, def) => num(v) === def ? `Default from Settings` : `This entry only · default ${money(def)}`;
+    const labour = `<div class="form-section"><div class="section-title"><h3>${icon('users')} Labour</h3><span class="tag" id="labourTotalInline"></span></div>
+      <div class="labour-grid">
+        <div class="labour-card"><div class="labour-title"><span>Men</span><span class="subtotal" id="menSubtotal"></span></div>${stepper('menCount', d.menCount, 'men')}<div class="field"><label for="menWage">Wage per man (₹/day)</label><input id="menWage" type="number" inputmode="decimal" min="0" step="1" data-field="menWage" value="${esc(d.menWage)}"><div class="field-hint" id="menWageHint">${wageHint(d.menWage, w.men)}</div></div></div>
+        <div class="labour-card"><div class="labour-title"><span>Women</span><span class="subtotal" id="womenSubtotal"></span></div>${stepper('womenCount', d.womenCount, 'women')}<div class="field"><label for="womenWage">Wage per woman (₹/day)</label><input id="womenWage" type="number" inputmode="decimal" min="0" step="1" data-field="womenWage" value="${esc(d.womenWage)}"><div class="field-hint" id="womenWageHint">${wageHint(d.womenWage, w.women)}</div></div></div>
+      </div>${legacy}</div>`;
+    const expenses = `<div class="form-section"><div class="section-title"><h3>${icon('receipt')} Expenses</h3></div>
+      <button class="detail-edit" type="button" data-action="open-expenses"><span><strong>${d.expenseItems.length ? 'View / edit expenses' : 'Add expenses'}</strong></span>${icon(d.expenseItems.length ? 'edit' : 'plus')}</button>
+      <div id="expenseSummary" style="margin-top:8px">${expenseSummary(d.expenseItems)}</div></div>`;
+    const strip = `<div class="calc-strip six" aria-live="polite">
+        <div class="calc-item"><span>${isB ? 'Total weight' : 'Quantity'}</span><strong id="calcKg">0 kg</strong><small id="calcBags">${isB ? '0 bags' : 'Sold'}</small></div>
+        <div class="calc-item wastage"><span>Wastage</span><strong id="calcWastage">0 kg</strong><small>Not priced</small></div>
+        <div class="calc-item sale"><span>${isB ? 'Gross sales' : 'Gross income'}</span><strong id="calcGross">₹0</strong></div>
+        <div class="calc-item expense"><span>Expenses</span><strong id="calcExpenses">₹0</strong></div>
+        <div class="calc-item labour"><span>Labour</span><strong id="calcLabour">₹0</strong></div>
+        <div class="calc-item net"><span>Net</span><strong id="calcNet">₹0</strong></div></div>`;
+    return `<section class="card entry-card"><form id="entryForm" novalidate>${head}${top}${labour}${expenses}${strip}
+      <div class="form-actions"><div class="btn-row">${editing ? `<button type="button" class="btn danger" data-action="entry-delete">${icon('trash')} Delete</button>` : ''}<button type="button" class="btn" data-action="entry-cancel">${editing ? 'Cancel' : 'Clear'}</button></div><button class="btn primary" type="submit">${icon('check')} ${editing ? 'Save changes' : 'Save entry'}</button></div>
+      </form></section>`;
   }
   function recalcEntry() {
     if (!draft || activeView !== 'entry') return;
-    const d = draft; const isB = d.product === 'brinjal';
+    const d = draft; const isB = d.product === 'brinjal'; const w = productWages(d.product);
     const kg = isB ? calc.bagKg(d.bagDetails) : num(d.kg);
     const gross = kg * num(d.ratePerKg); const exp = calc.expenseTotal(d.expenseItems);
-    let labour = 0;
-    if (isB) {
-      const men = calc.menSubtotal(d), women = calc.womenSubtotal(d);
-      labour = men + women + calc.legacySalary(d);
-      $('#menSubtotal').textContent = `${int(d.menCount)} × ${money(num(d.menWage))} = ${money(men)}`;
-      $('#womenSubtotal').textContent = `${int(d.womenCount)} × ${money(num(d.womenWage))} = ${money(women)}`;
-      $('#calcKg').textContent = fmt(kg) + ' kg';
-      $('#calcBags').textContent = `${d.bagDetails.length} bag${d.bagDetails.length === 1 ? '' : 's'}`;
-      $('#calcLabour').textContent = money(labour);
-    }
+    const men = calc.menSubtotal(d), women = calc.womenSubtotal(d);
+    const labour = men + women + calc.legacySalary(d);
+    $('#menSubtotal').textContent = `${int(d.menCount)} × ${money(num(d.menWage))} = ${money(men)}`;
+    $('#womenSubtotal').textContent = `${int(d.womenCount)} × ${money(num(d.womenWage))} = ${money(women)}`;
+    $('#labourTotalInline').textContent = money(labour);
+    $('#menWageHint').textContent = num(d.menWage) === w.men ? 'Default from Settings' : `This entry only · default ${money(w.men)}`;
+    $('#womenWageHint').textContent = num(d.womenWage) === w.women ? 'Default from Settings' : `This entry only · default ${money(w.women)}`;
+    $('#calcKg').textContent = fmt(kg) + ' kg';
+    if (isB) $('#calcBags').textContent = `${d.bagDetails.length} bag${d.bagDetails.length === 1 ? '' : 's'}`;
+    $('#calcLabour').textContent = money(labour);
     const net = gross - exp - labour;
     $('#calcGross').textContent = money(gross); $('#calcExpenses').textContent = money(exp);
     $('#calcWastage').textContent = fmt(num(d.wastageKg)) + ' kg';
@@ -987,16 +1073,32 @@
   function wireEntry() {
     const form = $('#entryForm'); if (!form) return;
     form.addEventListener('input', e => {
-      const f = e.target.dataset && e.target.dataset.field; if (!f) return;
-      draft[f] = e.target.dataset.int ? int(e.target.value) : e.target.value;
-      e.target.removeAttribute('aria-invalid');
+      const t = e.target;
+      if (t.id === 'entryTypeCustom') { draft.customType = t.value; draftDirty = true; t.removeAttribute('aria-invalid'); return; }
+      const f = t.dataset && t.dataset.field; if (!f) return;
+      draft[f] = t.dataset.int ? int(t.value) : t.value;
+      t.removeAttribute('aria-invalid');
+      if (f === 'date') $('#datePillText').textContent = datePillText(t.value);
       draftDirty = true; recalcEntry();
     });
     form.addEventListener('change', e => {
-      if (e.target.id === 'bagCount') { onBagCountChange(e.target); return; }
-      const f = e.target.dataset && e.target.dataset.field; if (!f) return;
-      draft[f] = e.target.dataset.int ? int(e.target.value) : e.target.value; draftDirty = true; recalcEntry();
+      const t = e.target;
+      if (t.id === 'bagCount') { onBagCountChange(t); return; }
+      if (t.id === 'entryType') {
+        const custom = t.value === '__custom__'; draft.typeMode = custom ? 'custom' : ''; if (!custom) draft.brinjalType = t.value;
+        const ci = $('#entryTypeCustom'); ci.classList.toggle('hidden', !custom); if (custom) ci.focus();
+        draftDirty = true; return;
+      }
+      const f = t.dataset && t.dataset.field; if (!f) return;
+      draft[f] = t.dataset.int ? int(t.value) : t.value; draftDirty = true; recalcEntry();
     });
+    form.addEventListener('click', e => {
+      const b = e.target.closest('[data-step]'); if (!b) return;
+      const input = $('#' + b.dataset.step); input.value = String(Math.max(0, Math.min(999, int(input.value) + Number(b.dataset.delta))));
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    const dateInput = $('#entryDate');
+    dateInput.addEventListener('click', () => { try { if (dateInput.showPicker) dateInput.showPicker(); } catch (_) { /* not allowed here */ } });
     form.addEventListener('submit', e => { e.preventDefault(); saveEntry(); });
     recalcEntry();
   }
@@ -1007,80 +1109,92 @@
   async function saveEntry() {
     const d = draft; const isB = d.product === 'brinjal';
     if (!isISODate(d.date)) return markInvalid($('#entryDate'), 'Please choose a valid date.');
-    if (isB && !d.bagDetails.length) { showToast('Choose the number of bags and enter each bag’s details.', true); $('#bagCount').setAttribute('aria-invalid', 'true'); $('#bagCount').focus(); return; }
+    let type = '';
+    if (isB) {
+      type = d.typeMode === 'custom' ? str(d.customType, 50) : str(d.brinjalType, 50);
+      if (!type) return markInvalid(d.typeMode === 'custom' ? $('#entryTypeCustom') : $('#entryType'), 'Choose a brinjal type or type a new one.');
+      if (!d.bagDetails.length) return markInvalid($('#bagCount'), 'Enter the number of bags and each bag’s weight.');
+    }
     if (!isB && parseNonNeg(d.kg) === null) return markInvalid($('#entryKg'), 'Quantity must be a number of kg (0 or more).');
     if (parseNonNeg(d.ratePerKg) === null) return markInvalid($('#entryRate'), 'Rate per kg must be a number (0 or more).');
     if (String(d.wastageKg ?? '').trim() !== '' && parseNonNeg(d.wastageKg) === null) return markInvalid($('#entryWastage'), 'Wastage must be a number of kg (0 or more), or left blank.');
-    if (isB) {
-      if (parseNonNeg(d.menWage) === null) return markInvalid($('#menWage'), "Men's wage must be a number (0 or more).");
-      if (parseNonNeg(d.womenWage) === null) return markInvalid($('#womenWage'), "Women's wage must be a number (0 or more).");
-    }
+    if (parseNonNeg(d.menWage) === null) return markInvalid($('#menWage'), "Men's wage must be a number (0 or more).");
+    if (parseNonNeg(d.womenWage) === null) return markInvalid($('#womenWage'), "Women's wage must be a number (0 or more).");
     const arr = dataset(d.product);
     const clash = arr.find(r => r.date === d.date && r.id !== d.id);
     if (clash && !(await ask(`A ${CFG[d.product].name} entry for ${dateLong(d.date)} already exists.\n\nReplace that entry with this one? (The other entry will be deleted.)`))) return;
     const now = nowISO();
-    let rec = { id: d.id || uid(d.product === 'brinjal' ? 'b' : 'm'), date: d.date, ratePerKg: num(d.ratePerKg), wastageKg: num(d.wastageKg), expenseItems: clone(d.expenseItems), createdAt: d.createdAt || now, updatedAt: now };
-    if (isB) rec = { ...rec, bagDetails: clone(d.bagDetails), menCount: int(d.menCount), womenCount: int(d.womenCount), menWage: num(d.menWage), womenWage: num(d.womenWage), legacyLabour: d.legacyLabour ? clone(d.legacyLabour) : null };
-    else rec.kg = num(d.kg);
-    const prev = clone(state.data[d.product]);
+    const rec = { id: d.id || uid(isB ? 'b' : 'm'), date: d.date, ratePerKg: num(d.ratePerKg), wastageKg: num(d.wastageKg), expenseItems: clone(d.expenseItems),
+      menCount: int(d.menCount), womenCount: int(d.womenCount), menWage: num(d.menWage), womenWage: num(d.womenWage), legacyLabour: d.legacyLabour ? clone(d.legacyLabour) : null,
+      createdAt: d.createdAt || now, updatedAt: now };
+    if (isB) { rec.brinjalType = type; rec.bagDetails = clone(d.bagDetails); } else rec.kg = num(d.kg);
+    const prev = clone(state.data[d.product]); const prevTypes = state.settings.brinjalTypes.slice();
     let next = arr.filter(r => !(clash && r.id === clash.id));
     const idx = next.findIndex(r => r.id === rec.id);
     if (idx >= 0) next[idx] = rec; else next.push(rec);
     state.data[d.product] = next;
-    if (!saveState()) { state.data[d.product] = prev; return; }
+    let newType = false;
+    if (isB) {
+      // Most recently used type first; a new custom type is added to the Settings list.
+      const ix = state.settings.brinjalTypes.findIndex(t => t.toLowerCase() === type.toLowerCase());
+      newType = ix < 0;
+      const list = state.settings.brinjalTypes.filter((_, i) => i !== ix);
+      state.settings.brinjalTypes = [ix >= 0 ? prevTypes[ix] : type, ...list];
+      if (ix >= 0) rec.brinjalType = prevTypes[ix];
+    }
+    if (!saveState()) { state.data[d.product] = prev; state.settings.brinjalTypes = prevTypes; return; }
+    cloud.queueEntry(d.product, rec.id);
+    if (clash) cloud.queueEntry(d.product, clash.id, true);
+    if (isB) cloud.queueSettings();
     draft = null; draftDirty = false; month = rec.date.slice(0, 7);
-    showToast(d.id ? 'Changes saved.' : 'Daily entry saved.');
+    showToast(`${d.id ? 'Changes saved.' : 'Entry saved.'}${newType ? ` “${type}” added to your types.` : ''}`);
     go('records', { force: true });
   }
 
   /* --------------------------- Bag modal ---------------------------- */
-  async function onBagCountChange(sel) {
-    const n = int(sel.value); const cur = draft.bagDetails.length;
-    sel.removeAttribute('aria-invalid');
+  async function onBagCountChange(input) {
+    const raw = String(input.value).trim(); const cur = draft.bagDetails.length;
+    input.removeAttribute('aria-invalid');
+    if (raw !== '' && (!/^\d+$/.test(raw) || Number(raw) > MAX_BAGS)) { input.value = cur || ''; markInvalid(input, `Enter a whole number of bags (1–${MAX_BAGS}).`); return; }
+    const n = raw === '' ? 0 : Number(raw);
+    if (n === cur) { if (n) openBagModal(n); return; }
     if (!n) {
       if (cur && (await ask(`Remove all ${cur} bags (${fmt(calc.bagKg(draft.bagDetails))} kg) from this draft?`))) { draft.bagDetails = []; draftDirty = true; refreshEntry(); }
-      else sel.value = cur ? String(cur) : '';
+      else input.value = cur || '';
       return;
     }
     if (n < cur) {
       const removed = draft.bagDetails.slice(n);
-      const ok = (await ask(`Reduce from ${cur} to ${n} bags?\n\n${removed.length === 1 ? `Bag ${n + 1}` : `Bags ${n + 1}–${cur}`} (${fmt(calc.bagKg(removed))} kg) will be removed when you save the bag details. Bags 1–${n} keep their values.`));
-      if (!ok) { sel.value = String(cur); return; }
+      const ok = (await ask(`Reduce from ${cur} to ${n} bags?\n\n${removed.length === 1 ? `Bag ${n + 1}` : `Bags ${n + 1}–${cur}`} (${fmt(calc.bagKg(removed))} kg) will be removed when you save the bag weights. Bags 1–${n} keep their values.`));
+      if (!ok) { input.value = String(cur); return; }
     }
     openBagModal(n);
   }
   function resizeBags(items, n) {
     const out = clone(items).slice(0, n);
     const last = out[out.length - 1];
-    while (out.length < n) out.push({ id: uid('bag'), weightKg: NEW_BAG_KG, brinjalType: last ? last.brinjalType : state.settings.brinjalTypes[0], size: last ? last.size : 'M' });
-    return out.map(b => ({ ...b, weightKg: String(b.weightKg) }));
+    while (out.length < n) out.push({ id: uid('bag'), weightKg: NEW_BAG_KG, size: last ? last.size : 'M' });
+    return out.map(b => ({ id: b.id, weightKg: String(b.weightKg), size: SIZES[b.size] ? b.size : 'M' }));
   }
   function openBagModal(n) {
     const target = n || draft.bagDetails.length;
-    if (!target) { showToast('Choose the number of bags first.'); $('#bagCount') && $('#bagCount').focus(); return; }
+    if (!target) { markInvalid($('#bagCount'), 'Enter the number of bags first.'); return; }
     const items = resizeBags(draft.bagDetails, target);
     const original = JSON.stringify(resizeBags(draft.bagDetails, draft.bagDetails.length));
-    modalCtx = { kind: 'bags', items, isDirty: () => JSON.stringify(modalCtx.items) !== original, onCancel: () => { const s = $('#bagCount'); if (s) s.value = draft.bagDetails.length ? String(draft.bagDetails.length) : ''; } };
+    modalCtx = { kind: 'bags', items, isDirty: () => JSON.stringify(modalCtx.items) !== original, onCancel: () => { const s = $('#bagCount'); if (s) s.value = draft.bagDetails.length || ''; } };
     renderBagModal();
-  }
-  function typeOptions(selected) {
-    const types = state.settings.brinjalTypes.slice();
-    // Keep a historical label selectable even if it was removed from Settings, so editing never silently rewrites it.
-    const extra = selected && !types.includes(selected) ? `<option value="${esc(selected)}" selected>${esc(selected)} (removed from list)</option>` : '';
-    return extra + types.map(t => `<option value="${esc(t)}" ${t === selected ? 'selected' : ''}>${esc(t)}</option>`).join('');
   }
   function renderBagModal(focusSel) {
     const items = modalCtx.items;
-    const cards = items.map((b, i) => `<section class="bag-entry-card" aria-labelledby="bagTitle${i}"><div class="entry-card-head"><div class="entry-card-title" id="bagTitle${i}"><span class="entry-card-number">${i + 1}</span>Bag ${i + 1}</div><button type="button" class="btn small-btn danger" data-bag-remove="${i}" aria-label="Remove bag ${i + 1}">${icon('trash')} Remove</button></div>
-      <div class="form-grid three"><div class="field"><label for="bagWeight${i}">Weight (kg)</label><input id="bagWeight${i}" type="number" inputmode="decimal" min="0" step="0.01" data-bag="${i}" data-key="weightKg" value="${esc(b.weightKg)}" required></div>
-      <div class="field"><label for="bagType${i}">Brinjal type / category</label><select id="bagType${i}" data-bag="${i}" data-key="brinjalType">${typeOptions(b.brinjalType)}</select></div>
-      <div class="field"><label for="bagSize${i}">Size</label><select id="bagSize${i}" data-bag="${i}" data-key="size">${Object.entries(SIZES).map(([k, v]) => `<option value="${k}" ${b.size === k ? 'selected' : ''}>${k} · ${v}</option>`).join('')}</select></div></div></section>`).join('');
+    const cards = items.map((b, i) => `<section class="bag-entry-card" aria-labelledby="bagTitle${i}"><div class="bag-row"><div class="entry-card-title" id="bagTitle${i}"><span class="entry-card-number">${i + 1}</span><span class="sr-only">Bag ${i + 1}</span></div>
+      <div class="field"><label for="bagWeight${i}">Weight (kg)</label><input id="bagWeight${i}" type="number" inputmode="decimal" min="0" step="0.01" data-bag="${i}" data-key="weightKg" value="${esc(b.weightKg)}" required></div>
+      <div class="field"><label for="bagSize${i}">Size</label><select id="bagSize${i}" data-bag="${i}" data-key="size">${Object.entries(SIZES).map(([k, v]) => `<option value="${k}" ${b.size === k ? 'selected' : ''}>${k} · ${v}</option>`).join('')}</select></div>
+      <button type="button" class="btn icon-only danger" data-bag-remove="${i}" aria-label="Remove bag ${i + 1}">${icon('trash')}</button></div></section>`).join('');
     openModal(`<section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="bagModalTitle">
-      <div class="modal-head"><div><div class="eyebrow">Brinjal · bag-by-bag record</div><h2 id="bagModalTitle" style="margin-top:4px">Enter details for ${items.length} bag${items.length === 1 ? '' : 's'}</h2><div class="muted small" style="margin-top:5px">Weight, type and size for every bag. New bags start at ${NEW_BAG_KG} kg — change it as needed.</div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
-      <div class="modal-body">${items.length > 1 ? `<div class="btn-row" style="margin-bottom:12px"><button type="button" class="btn small-btn soft" data-bag-copy>${icon('copy')} Use Bag 1 type & size for all bags</button></div>` : ''}${cards || '<div class="empty">No bags. Add one below.</div>'}
-        <button type="button" class="btn soft" data-bag-add>${icon('plus')} Add another bag</button>
-        <div class="notice" style="margin-top:14px"><strong>Total: <span id="modalBagTotal">${fmt(calc.bagKg(items))} kg</span> · ${items.length} bag${items.length === 1 ? '' : 's'}</strong><br><span class="small">Saving updates the daily-entry draft only. The day is saved when you press “Save daily entry”.</span></div></div>
-      <div class="modal-foot"><button type="button" class="btn" data-modal-close>Cancel</button><button type="button" class="btn primary" id="saveBagModal">${icon('check')} Save bag details</button></div></section>`, focusSel || '#bagWeight0');
+      <div class="modal-head"><div><h2 id="bagModalTitle">${items.length} bag${items.length === 1 ? '' : 's'} · <span id="modalBagTotal">${fmt(calc.bagKg(items))} kg</span></h2><div class="muted small" style="margin-top:4px">${esc(draft.typeMode === 'custom' ? (draft.customType || 'New type') : draft.brinjalType)} · new bags start at ${NEW_BAG_KG} kg</div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
+      <div class="modal-body">${items.length > 1 ? `<div class="btn-row" style="margin-bottom:12px"><button type="button" class="btn small-btn soft" data-bag-copy>${icon('copy')} Same size as Bag 1 for all</button></div>` : ''}${cards || '<div class="empty">No bags. Add one below.</div>'}
+        <button type="button" class="btn soft" data-bag-add>${icon('plus')} Add bag</button></div>
+      <div class="modal-foot"><button type="button" class="btn" data-modal-close>Cancel</button><button type="button" class="btn primary" id="saveBagModal">${icon('check')} Save weights</button></div></section>`, focusSel || '#bagWeight0');
     const root = $('#modalRoot');
     root.addEventListener('input', bagModalInput);
     root.addEventListener('change', bagModalInput);
@@ -1096,12 +1210,11 @@
     for (let i = 0; i < items.length; i++) {
       const w = parseNonNeg(items[i].weightKg);
       if (w === null || w <= 0) { const el = $('#bagWeight' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Bag ${i + 1}: enter a weight greater than 0 kg.`, true); return; }
-      if (!str(items[i].brinjalType)) { const el = $('#bagType' + i); el.setAttribute('aria-invalid', 'true'); el.focus(); showToast(`Bag ${i + 1}: choose a brinjal type.`, true); return; }
       if (!SIZES[items[i].size]) { $('#bagSize' + i).focus(); showToast(`Bag ${i + 1}: choose a size.`, true); return; }
     }
-    draft.bagDetails = items.map(b => ({ id: b.id || uid('bag'), weightKg: num(b.weightKg), brinjalType: str(b.brinjalType, 50), size: b.size }));
+    draft.bagDetails = items.map(b => ({ id: b.id || uid('bag'), weightKg: num(b.weightKg), size: b.size }));
     draftDirty = true; closeModal(); refreshEntry();
-    showToast(`${draft.bagDetails.length} bag${draft.bagDetails.length === 1 ? '' : 's'} saved to this draft · ${fmt(calc.bagKg(draft.bagDetails))} kg.`);
+    showToast(`${draft.bagDetails.length} bag${draft.bagDetails.length === 1 ? '' : 's'} · ${fmt(calc.bagKg(draft.bagDetails))} kg added to this entry.`);
   }
 
   /* ------------------------- Expense modal -------------------------- */
@@ -1218,12 +1331,11 @@
   function recordsView() {
     return `<section class="card"><div class="card-head"><div><h2>${CFG[activeProduct].name} records</h2><div class="muted small">Every saved day, newest first. View, edit or delete.</div></div><button class="btn primary" type="button" data-nav="entry">${icon('plus')} Add entry</button></div>
       <div class="filter-row"><div class="field"><label for="recordsMonth">Month</label><input id="recordsMonth" type="month" value="${esc(recordsFilter.month)}"></div><div class="field"><label for="recordsSearch">Search</label><input id="recordsSearch" type="search" value="${esc(recordsFilter.q)}" placeholder="Date, brinjal type, expense purpose or notes"></div><button class="btn" type="button" data-action="records-clear">${icon('x')} Clear filters</button></div>
-      <div id="recordsList">${recordsList()}</div></section>
-      <div class="notice section-gap">The “Expenses” column shows the expense items attached to each daily record. Monthly statements group expenses by each item’s own date.</div>`;
+      <div id="recordsList">${recordsList()}</div></section>`;
   }
   function recordMatches(r, q) {
     if (!q) return true;
-    const hay = [r.date, dateLabel(r.date), dateLong(r.date), ...(r.bagDetails || []).map(b => b.brinjalType + ' ' + b.size), ...(r.expenseItems || []).map(x => `${x.purpose} ${x.notes}`)].join(' ').toLowerCase();
+    const hay = [r.date, dateLabel(r.date), dateLong(r.date), r.brinjalType || '', ...(r.bagDetails || []).map(b => SIZES[b.size] || ''), ...(r.expenseItems || []).map(x => `${x.purpose} ${x.notes}`)].join(' ').toLowerCase();
     return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
   }
   function recordsList() {
@@ -1233,16 +1345,16 @@
     if (!rows.length) return `<div class="empty"><div class="empty-icon">${icon('list')}</div><strong>No records match these filters.</strong><div class="small">Try another month or clear the search.</div><button class="btn" type="button" data-action="records-clear">Clear filters</button></div>`;
     const isB = activeProduct === 'brinjal';
     const actions = r => `<div class="btn-row"><button class="btn small-btn" type="button" data-action="view-record" data-id="${esc(r.id)}" aria-label="View ${esc(dateLabel(r.date))}">${icon('eye')} View</button><button class="btn small-btn" type="button" data-action="edit-record" data-id="${esc(r.id)}" aria-label="Edit ${esc(dateLabel(r.date))}">${icon('edit')} Edit</button><button class="btn small-btn danger" type="button" data-action="delete-record" data-id="${esc(r.id)}" aria-label="Delete ${esc(dateLabel(r.date))}">${icon('trash')}</button></div>`;
-    const table = `<div class="table-wrap records-table"><table><thead><tr><th>Date</th>${isB ? '<th class="num">Bags</th>' : ''}<th class="num">${isB ? 'Weight' : 'Quantity'} (kg)</th><th class="num">Wastage (kg)</th><th class="num">Rate/kg</th><th class="num">${isB ? 'Gross sales' : 'Gross income'}</th><th class="num">Expenses</th>${isB ? '<th class="num">Men</th><th class="num">Women</th><th class="num">Labour salary</th>' : ''}<th class="num">Net</th><th>Actions</th></tr></thead><tbody>${rows.map(r => {
+    const table = `<div class="table-wrap records-table"><table><thead><tr><th>Date</th>${isB ? '<th>Type</th><th class="num">Bags</th>' : ''}<th class="num">${isB ? 'Weight' : 'Quantity'} (kg)</th><th class="num">Wastage (kg)</th><th class="num">Rate/kg</th><th class="num">${isB ? 'Gross sales' : 'Gross income'}</th><th class="num">Expenses</th><th class="num">Men</th><th class="num">Women</th><th class="num">Labour</th><th class="num">Net</th><th>Actions</th></tr></thead><tbody>${rows.map(r => {
       const net = calc.recordNet(activeProduct, r);
-      return `<tr data-record-row="${esc(r.id)}"><td><strong>${esc(dateLabel(r.date))}</strong> <span class="muted small">${esc(r.date.slice(0, 4))}</span>${r.sample ? ' <span class="tag">sample</span>' : ''}</td>${isB ? `<td class="num">${fmt(r.bagDetails.length)}</td>` : ''}<td class="num">${fmt(calc.kg(activeProduct, r))}</td><td class="num">${fmt(calc.wastage(r))}</td><td class="num">${money(r.ratePerKg)}</td><td class="num positive">${money(calc.gross(activeProduct, r))}</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td>${isB ? `<td class="num">${fmt(r.menCount)}</td><td class="num">${fmt(r.womenCount)}${r.legacyLabour ? ` <span class="tag warn" title="Historical aggregate: men/women split unknown">+${fmt(r.legacyLabour.workers)} legacy</span>` : ''}</td><td class="num">${money(calc.labour(r))}</td>` : ''}<td class="num ${netCls(net)}">${money(net)}</td><td>${actions(r)}</td></tr>`;
+      return `<tr data-record-row="${esc(r.id)}"><td><strong>${esc(dateLabel(r.date))}</strong> <span class="muted small">${esc(r.date.slice(0, 4))}</span>${r.sample ? ' <span class="tag">sample</span>' : ''}</td>${isB ? `<td>${esc(r.brinjalType)}</td><td class="num">${fmt(r.bagDetails.length)}</td>` : ''}<td class="num">${fmt(calc.kg(activeProduct, r))}</td><td class="num">${fmt(calc.wastage(r))}</td><td class="num">${money(r.ratePerKg)}</td><td class="num positive">${money(calc.gross(activeProduct, r))}</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td><td class="num">${fmt(r.menCount)}</td><td class="num">${fmt(r.womenCount)}${r.legacyLabour ? ` <span class="tag warn" title="Earlier record: men/women not recorded">+${fmt(r.legacyLabour.workers)}</span>` : ''}</td><td class="num">${money(calc.labour(r))}</td><td class="num ${netCls(net)}">${money(net)}</td><td>${actions(r)}</td></tr>`;
     }).join('')}</tbody></table></div>`;
     const cards = `<div class="record-cards">${rows.map(r => {
       const net = calc.recordNet(activeProduct, r);
       return `<article class="record-card"><div class="record-card-head"><strong>${esc(dateLong(r.date))}</strong>${r.sample ? '<span class="tag">sample</span>' : ''}</div><dl>
-        ${isB ? `<div><dt>Bags · weight</dt><dd>${fmt(r.bagDetails.length)} · ${fmt(calc.kg('brinjal', r))} kg</dd></div>` : `<div><dt>Quantity</dt><dd>${fmt(r.kg)} kg</dd></div>`}
+        ${isB ? `<div><dt>${esc(r.brinjalType)} · bags</dt><dd>${fmt(r.bagDetails.length)} · ${fmt(calc.kg('brinjal', r))} kg</dd></div>` : `<div><dt>Quantity</dt><dd>${fmt(r.kg)} kg</dd></div>`}
         <div><dt>Wastage</dt><dd>${fmt(calc.wastage(r))} kg</dd></div><div><dt>Rate/kg</dt><dd>${money(r.ratePerKg)}</dd></div><div><dt>${isB ? 'Gross sales' : 'Gross income'}</dt><dd class="positive">${money(calc.gross(activeProduct, r))}</dd></div><div><dt>Expenses</dt><dd>${money(calc.expenseTotal(r.expenseItems))}</dd></div>
-        ${isB ? `<div><dt>Labour</dt><dd>${money(calc.labour(r))}</dd></div>` : ''}<div><dt>Net</dt><dd class="${netCls(net)}">${money(net)}</dd></div></dl>${actions(r)}</article>`;
+        <div><dt>Labour</dt><dd>${money(calc.labour(r))}</dd></div><div><dt>Net</dt><dd class="${netCls(net)}">${money(net)}</dd></div></dl>${actions(r)}</article>`;
     }).join('')}</div>`;
     return `<div class="muted small" style="margin-bottom:8px">Showing ${rows.length} of ${all.length} record${all.length === 1 ? '' : 's'}</div>${table}${cards}`;
   }
@@ -1251,12 +1363,12 @@
     const isB = activeProduct === 'brinjal';
     const tile = (l, v, cls = '') => `<div class="report-tile"><span>${l}</span><strong class="${cls}">${v}</strong></div>`;
     const net = calc.recordNet(activeProduct, r);
-    const bags = isB ? `<h3 style="margin:16px 0 8px">Bags (${r.bagDetails.length})</h3><div class="table-wrap"><table style="min-width:0"><thead><tr><th>#</th><th class="num">Weight (kg)</th><th>Type</th><th>Size</th></tr></thead><tbody>${r.bagDetails.map((b, i) => `<tr><td>${i + 1}</td><td class="num">${fmt(b.weightKg)}</td><td>${esc(b.brinjalType)}</td><td>${esc(b.size)} · ${SIZES[b.size] || ''}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(calc.bagKg(r.bagDetails))}</td><td colspan="2"></td></tr></tfoot></table></div>
-      <h3 style="margin:16px 0 8px">Labour</h3><div class="notice">Men: ${fmt(r.menCount)} × ${money(r.menWage)} = <strong>${money(calc.menSubtotal(r))}</strong><br>Women: ${fmt(r.womenCount)} × ${money(r.womenWage)} = <strong>${money(calc.womenSubtotal(r))}</strong>${r.legacyLabour ? `<br>Historical aggregate (split unknown): ${fmt(r.legacyLabour.workers)} workers = <strong>${money(r.legacyLabour.salary)}</strong>` : ''}<br>Total labour salary: <strong>${money(calc.labour(r))}</strong></div>` : '';
+    const bags = isB ? `<h3 style="margin:16px 0 8px">Bags (${r.bagDetails.length})</h3><div class="table-wrap"><table style="min-width:0"><thead><tr><th>#</th><th class="num">Weight (kg)</th><th>Size</th></tr></thead><tbody>${r.bagDetails.map((b, i) => `<tr><td>${i + 1}</td><td class="num">${fmt(b.weightKg)}</td><td>${esc(b.size)} · ${SIZES[b.size] || ''}</td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="num">${fmt(calc.bagKg(r.bagDetails))}</td><td></td></tr></tfoot></table></div>` : '';
+    const labourBox = `<h3 style="margin:16px 0 8px">Labour</h3><div class="notice">Men: ${fmt(r.menCount)} × ${money(r.menWage)} = <strong>${money(calc.menSubtotal(r))}</strong><br>Women: ${fmt(r.womenCount)} × ${money(r.womenWage)} = <strong>${money(calc.womenSubtotal(r))}</strong>${r.legacyLabour ? `<br>Historical aggregate (split unknown): ${fmt(r.legacyLabour.workers)} workers = <strong>${money(r.legacyLabour.salary)}</strong>` : ''}<br>Total labour salary: <strong>${money(calc.labour(r))}</strong></div>`;
     const exps = `<h3 style="margin:16px 0 8px">Expense items (${r.expenseItems.length})</h3>${r.expenseItems.length ? `<div class="table-wrap"><table style="min-width:0"><thead><tr><th>Date</th><th>What for?</th><th class="num">Amount</th><th>Notes</th></tr></thead><tbody>${r.expenseItems.map(x => `<tr><td>${esc(dateLabel(x.date))}</td><td style="white-space:normal">${esc(x.purpose)}</td><td class="num">${money(x.amount)}</td><td style="white-space:normal">${esc(x.notes) || '—'}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="num">${money(calc.expenseTotal(r.expenseItems))}</td><td></td></tr></tfoot></table></div>` : '<div class="muted small">No expenses recorded for this day.</div>'}`;
     modalCtx = { kind: 'view', isDirty: () => false };
     openModal(`<section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="viewTitle"><div class="modal-head"><div><div class="eyebrow">${CFG[activeProduct].name} · daily record</div><h2 id="viewTitle" style="margin-top:4px">${esc(dateLong(r.date))}</h2></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
-      <div class="modal-body"><div class="detail-list">${isB ? tile('Bags', fmt(r.bagDetails.length)) : ''}${tile(isB ? 'Total weight' : 'Quantity', fmt(calc.kg(activeProduct, r)) + ' kg')}${tile('Wastage (not priced)', fmt(calc.wastage(r)) + ' kg')}${tile('Rate/kg', money(r.ratePerKg))}${tile(isB ? 'Gross sales' : 'Gross income', money(calc.gross(activeProduct, r)), 'positive')}${tile('Expenses', money(calc.expenseTotal(r.expenseItems)), 'negative')}${isB ? tile('Labour salary', money(calc.labour(r))) : ''}${tile('Net', money(net), netCls(net))}</div>${bags}${exps}</div>
+      <div class="modal-body"><div class="detail-list">${isB ? tile('Type', esc(r.brinjalType)) + tile('Bags', fmt(r.bagDetails.length)) : ''}${tile(isB ? 'Total weight' : 'Quantity', fmt(calc.kg(activeProduct, r)) + ' kg')}${tile('Wastage (not priced)', fmt(calc.wastage(r)) + ' kg')}${tile('Rate/kg', money(r.ratePerKg))}${tile(isB ? 'Gross sales' : 'Gross income', money(calc.gross(activeProduct, r)), 'positive')}${tile('Expenses', money(calc.expenseTotal(r.expenseItems)), 'negative')}${tile('Labour salary', money(calc.labour(r)))}${tile('Net', money(net), netCls(net))}</div>${bags}${labourBox}${exps}</div>
       <div class="modal-foot"><button type="button" class="btn danger" data-action="delete-record" data-id="${esc(r.id)}">${icon('trash')} Delete</button><div class="btn-row"><button type="button" class="btn" data-modal-close>Close</button><button type="button" class="btn primary" data-action="edit-record" data-id="${esc(r.id)}">${icon('edit')} Edit</button></div></div></section>`, '[data-modal-close]');
   }
   async function startEdit(id) {
@@ -1272,6 +1384,7 @@
     const prev = state.data[activeProduct];
     state.data[activeProduct] = prev.filter(x => x.id !== id);
     if (!saveState()) { state.data[activeProduct] = prev; return; }
+    cloud.queueEntry(activeProduct, id);
     if (modalOpen()) closeModal();
     if (draft && draft.id === id) { draft = null; draftDirty = false; if (activeView === 'entry') activeView = 'records'; }
     render(); pushHash(); showToast('Entry deleted.');
@@ -1286,14 +1399,13 @@
     const tile = (l, v, cls = '') => `<div class="report-tile"><span>${l}</span><strong class="${cls}">${v}</strong></div>`;
     const tiles = isB
       ? tile('Total bags', fmt(t.bags)) + tile('Total weight', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross sales', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Labour salary', money(t.labour)) + tile('Workers (worker-days)', fmt(t.workers)) + tile('Average rate', t.kg ? money(t.avgRate) + '/kg' : '—') + tile('Net after costs', money(t.net), netCls(t.net))
-      : tile('Total quantity', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross income', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Net after expenses', money(t.net), netCls(t.net));
+      : tile('Total quantity', fmt(t.kg) + ' kg') + tile('Wastage (not priced)', fmt(t.wastage) + ' kg') + tile('Gross income', money(t.gross), 'positive') + tile('Operating expenses', money(t.expenses), 'negative') + tile('Labour salary', money(t.labour)) + tile('Workers (worker-days)', fmt(t.workers)) + tile('Average rate', t.kg ? money(t.avgRate) + '/kg' : '—') + tile('Net after costs', money(t.net), netCls(t.net));
     const body = st.rows.map(r => `<tr${r.kind === 'expense-only' ? ' class="muted"' : ''}>${cols.map(c => c.key === 'date' ? `<td><strong>${esc(dateLabel(r.date))}</strong>${r.kind === 'expense-only' ? ' <span class="tag warn">expenses only</span>' : ''}</td>` : `<td class="num ${c.key === 'net' ? netCls(r.net) : c.key === 'gross' && r.gross ? 'positive' : ''}">${cellText(c, r[c.key])}</td>`).join('')}</tr>`).join('');
     const foot = st.rows.length ? `<tfoot><tr>${cols.map(c => c.key === 'date' ? '<td>TOTAL</td>' : `<td class="num">${c.total ? cellText(c, t[c.key]) : '—'}</td>`).join('')}</tr></tfoot>` : '';
     const notes = [];
-    if (isB && st.hasLegacy) notes.push('<strong>Legacy labour:</strong> some days come from the original sheet, which recorded only the total number of workers and total labour salary. Those workers are shown in a separate “split unknown” column and are not counted as men or women.');
+    if (st.hasLegacy) notes.push('<strong>Legacy labour:</strong> some days come from the original sheet, which recorded only the total number of workers and total labour salary. Those workers are shown in a separate “split unknown” column and are not counted as men or women.');
     if (st.crossDated || st.hasExpenseOnly) notes.push(`<strong>Expense dates:</strong> expenses are counted on their own date. ${st.crossDated} expense item(s) in this month belong to a daily record dated differently${st.hasExpenseOnly ? '; dates marked “expenses only” have no sales record that day' : ''}.`);
-    notes.push('<strong>Wastage:</strong> recorded in kg only. It has no price and is not included in gross sales or net.');
-    if (!isB) notes.push('<strong>Gross vs net:</strong> the original sheet’s “Profit” column is quantity × rate, i.e. gross income before expenses. Net after expenses is shown separately.');
+    notes.push('<strong>Wastage</strong> is recorded in kg only — no price, not part of gross or net.');
     const expTable = st.expenseItems.length ? `<h3 style="margin:18px 0 8px">Expense items · ${esc(monthLabel(month))}</h3><div class="table-wrap"><table><thead><tr><th>Date</th><th>What for?</th><th class="num">Amount</th><th>Notes</th><th>Daily record</th></tr></thead><tbody>${st.expenseItems.map(x => `<tr><td>${esc(dateLabel(x.date))}</td><td style="white-space:normal">${esc(x.purpose)}</td><td class="num">${money(x.amount)}</td><td style="white-space:normal">${esc(x.notes) || '—'}</td><td>${esc(dateLabel(x.recordDate))}</td></tr>`).join('')}</tbody><tfoot><tr><td colspan="2">Total</td><td class="num">${money(t.expenses)}</td><td colspan="2"></td></tr></tfoot></table></div>` : '';
     const p = state.profile;
     return `<div class="card-head no-print" style="margin-bottom:12px">${monthNav('reportMonth', 'Report month')}<div class="btn-row">${exportButtons(true)}</div></div>
@@ -1303,9 +1415,7 @@
         ${expTable}
         ${notes.map(n => `<div class="notice" style="margin-top:12px">${n}</div>`).join('')}
       </section>
-      <section class="card section-gap no-print"><div class="card-head"><div><h2>Download this statement</h2><div class="muted small">${CFG[activeProduct].name} · ${esc(monthLabel(month))} · files are named ${esc(fileBase(activeProduct, month))}.*</div></div></div>
-        <div class="quick-grid">${quick('data-action="export-pdf"', 'file', 'PDF', 'Print → “Save as PDF”')}${quick('data-action="export-xlsx"', 'table', 'Excel (.xlsx)', 'Statement + expense items')}${quick('data-action="export-png"', 'image', 'PNG image', 'Download or share to Gallery')}${quick('data-action="export-csv"', 'list', 'CSV', 'Plain data file')}</div>
-        <div class="muted small" style="margin-top:10px">PDF uses your browser’s print dialog — choose “Save as PDF” as the destination. On phones that support it, PNG opens the share sheet so you can save to Photos/Gallery; otherwise it downloads.</div></section>`;
+`;
   }
   const exportButtons = compact => `<button class="btn small-btn" type="button" data-action="export-pdf">${icon('file')} PDF</button><button class="btn small-btn" type="button" data-action="export-xlsx">${icon('table')} Excel</button><button class="btn small-btn" type="button" data-action="export-png">${icon('image')} PNG</button>${compact ? `<button class="btn small-btn" type="button" data-action="export-csv">${icon('list')} CSV</button>` : ''}`;
 
@@ -1315,18 +1425,16 @@
   function toolsView() {
     const nb = dataset('brinjal').length, nm = dataset('muskmelon').length;
     return `<div class="grid equal">
-      <section class="card"><div class="card-head"><div><h2>Monthly exports</h2><div class="muted small">For the selected business and month</div></div><span class="kpi-icon">${icon('download')}</span></div>
-        <div class="field" style="margin-bottom:12px"><span class="field-label">${CFG[activeProduct].name} statement month</span>${monthNav('toolsMonth', 'Export month')}</div>
-        <div class="quick-grid cols-2">${quick('data-action="export-pdf"', 'file', 'PDF statement', 'Print → Save as PDF')}${quick('data-action="export-xlsx"', 'table', 'Excel (.xlsx)', esc(fileBase(activeProduct, month)) + '.xlsx')}${quick('data-action="export-csv"', 'list', 'CSV', 'Plain data file')}${quick('data-action="export-png"', 'image', 'PNG image', 'Share or save to Gallery')}</div>
-        <div style="height:14px"></div><div class="quick-grid cols-2">${quick('data-nav="reports"', 'report', 'Open monthly report', 'Preview before exporting')}${quick('data-nav="settings"', 'settings', 'Settings', 'Theme, text, brinjal types')}${quick('data-nav="profile"', 'user', 'Farm profile', 'Name, owner, phone, location')}${quick('data-nav="records"', 'list', 'Records', 'All saved days')}</div></section>
-      <section class="card"><div class="card-head"><div><h2>Backup &amp; restore</h2><div class="muted small">Move data between phones or browsers</div></div><span class="kpi-icon">${icon('database')}</span></div>
-        <div class="notice">Entries live only in this browser. To change device or browser: <strong>1.</strong> Export a complete backup here. <strong>2.</strong> Copy the .json file to the new device. <strong>3.</strong> Open FieldLedger there → More → Restore from backup.</div>
-        <div class="btn-row" style="margin-top:14px"><button class="btn primary" type="button" data-action="export-json">${icon('download')} Export complete backup (JSON)</button><button class="btn" type="button" data-action="import-json">${icon('upload')} Restore from backup…</button></div>
+      <section class="card"><div class="card-head"><h2>Export ${esc(CFG[activeProduct].name)} statement</h2></div>
+        <div style="margin-bottom:12px">${monthNav('toolsMonth', 'Export month')}</div>
+        <div class="quick-grid cols-2">${quick('data-action="export-pdf"', 'file', 'PDF', 'Print → Save as PDF')}${quick('data-action="export-xlsx"', 'table', 'Excel', '.xlsx')}${quick('data-action="export-csv"', 'list', 'CSV', 'Data file')}${quick('data-action="export-png"', 'image', 'Image', 'PNG')}</div>
+        <div style="height:12px"></div><div class="quick-grid cols-2">${quick('data-nav="settings"', 'settings', 'Settings', 'Wages, types, theme')}${quick('data-nav="profile"', 'user', 'Farm profile', 'Name & location')}</div></section>
+      <section class="card"><div class="card-head"><h2>Backup &amp; restore</h2></div>
+        <div class="btn-row"><button class="btn primary" type="button" data-action="export-json">${icon('download')} Export backup</button><button class="btn" type="button" data-action="import-json">${icon('upload')} Restore backup…</button></div>
         <div id="importStatus" class="small" role="status" style="margin-top:10px">${importStatus}</div>
         <div class="report-summary" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:14px"><div class="report-tile"><span>Brinjal records</span><strong>${fmt(nb)}</strong></div><div class="report-tile"><span>Muskmelon records</span><strong>${fmt(nm)}</strong></div></div>
-        <div class="form-section"><h3>Sample data</h3><p class="muted small" style="margin:7px 0 12px">Replaces both businesses' records with the October 2026 demo figures from the original sheet. Settings and profile are kept. Export a backup first if you have real data.</p><button class="btn danger" type="button" data-action="reset-demo">${icon('restore')} Restore sample data</button></div></section></div>
-      ${updatesCard()}
-      <div class="notice section-gap"><strong>Privacy:</strong> your records stay on this device. Nothing is uploaded; there is no account, server or cloud sync.</div>`;
+        ${cloud.session() ? '' : `<div class="form-section"><button class="btn danger" type="button" data-action="reset-demo">${icon('restore')} Restore sample data</button></div>`}</section></div>
+      ${updatesCard()}`;
   }
   function updatesCard() {
     const ni = nativeInfo();
@@ -1352,18 +1460,26 @@
   };
 
   function settingsView() {
-    const s = state.settings;
-    const usage = {}; dataset('brinjal').forEach(r => r.bagDetails.forEach(b => { usage[b.brinjalType] = (usage[b.brinjalType] || 0) + 1; }));
-    const types = s.brinjalTypes.map(t => `<span class="type-pill"><span>${esc(t)}</span><span class="muted small">${usage[t] ? usage[t] + ' bags' : ''}</span><button type="button" title="Remove ${esc(t)}" aria-label="Remove brinjal type ${esc(t)}" data-action="remove-type" data-type="${esc(t)}">${icon('x')}</button></span>`).join('');
-    const orphan = Object.keys(usage).filter(t => !s.brinjalTypes.includes(t));
-    return `<div class="settings-layout"><section class="card"><div class="card-head"><div><h2>Appearance</h2><div class="muted small">Saved on this device</div></div><span class="kpi-icon">${icon('sun')}</span></div>
-        <div class="field" style="margin-bottom:18px"><span class="field-label" id="themeLbl">Theme</span><div class="setting-choice" role="group" aria-labelledby="themeLbl"><button class="choice ${s.theme === 'light' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'light'}" data-action="set-theme" data-value="light">${icon('sun')} Light</button><button class="choice ${s.theme === 'dark' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'dark'}" data-action="set-theme" data-value="dark">${icon('moon')} Dark</button></div></div>
-        <div class="field"><span class="field-label" id="textLbl">Text size</span><div class="setting-choice" role="group" aria-labelledby="textLbl">${['small', 'medium', 'large'].map(v => `<button class="choice ${s.textSize === v ? 'active' : ''}" type="button" aria-pressed="${s.textSize === v}" data-action="set-text" data-value="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}</div></div>
-        <div class="notice" style="margin-top:18px">Brinjal uses a violet accent; Muskmelon uses yellow/amber. Animations are reduced automatically when your device’s “reduce motion” setting is on${prefersReducedMotion() ? ' (currently on)' : ''}.</div></section>
-      <section class="card"><div class="card-head"><div><h2>Brinjal types / categories</h2><div class="muted small">Choices offered for each bag in Daily entry</div></div><span class="kpi-icon">🍆</span></div>
-        <form id="typeForm" novalidate><div class="field"><label for="newBrinjalType">Add a brinjal type</label><input id="newBrinjalType" name="type" maxlength="50" placeholder="e.g. Green long" autocomplete="off"></div><div class="form-actions"><span class="muted small">To rename, add the new name and remove the old one.</span><button class="btn primary" type="submit">${icon('plus')} Add type</button></div></form>
+    const s = state.settings; const st = cloud.status(); const sess = cloud.session();
+    const usage = {}; dataset('brinjal').forEach(r => { usage[r.brinjalType] = (usage[r.brinjalType] || 0) + 1; });
+    const types = s.brinjalTypes.map((t, i) => `<span class="type-pill">${i === 0 ? `<span class="tag">recent</span>` : ''}<span>${esc(t)}</span><span class="muted small">${usage[t] ? usage[t] + ' days' : ''}</span><button type="button" title="Remove ${esc(t)}" aria-label="Remove brinjal type ${esc(t)}" data-action="remove-type" data-type="${esc(t)}">${icon('x')}</button></span>`).join('');
+    const wageRow = p => `<div class="wage-row"><strong>${productIcon(p)} ${CFG[p].name}</strong><div class="field"><label for="wage-${p}-men">Men (₹/day)</label><input id="wage-${p}-men" type="number" inputmode="decimal" min="0" step="1" value="${esc(s.wages[p].men)}"></div><div class="field"><label for="wage-${p}-women">Women (₹/day)</label><input id="wage-${p}-women" type="number" inputmode="decimal" min="0" step="1" value="${esc(s.wages[p].women)}"></div></div>`;
+    return `<div class="settings-layout">
+      <section class="card"><div class="card-head"><h2>Appearance</h2></div>
+        <div class="field" style="margin-bottom:16px"><span class="field-label" id="themeLbl">Theme</span><div class="setting-choice" role="group" aria-labelledby="themeLbl"><button class="choice ${s.theme === 'light' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'light'}" data-action="set-theme" data-value="light">${icon('sun')} Light</button><button class="choice ${s.theme === 'dark' ? 'active' : ''}" type="button" aria-pressed="${s.theme === 'dark'}" data-action="set-theme" data-value="dark">${icon('moon')} Dark</button></div></div>
+        <div class="field"><span class="field-label" id="textLbl">Text size</span><div class="setting-choice" role="group" aria-labelledby="textLbl">${['small', 'medium', 'large'].map(v => `<button class="choice ${s.textSize === v ? 'active' : ''}" type="button" aria-pressed="${s.textSize === v}" data-action="set-text" data-value="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('')}</div></div></section>
+      <section class="card"><div class="card-head"><h2>Account &amp; sync</h2></div>
+        <div class="sync-line"><span class="status-dot ${st.color}" aria-hidden="true"></span><span>${esc(st.label)}</span></div>
+        <p class="muted small" style="margin:8px 0 12px">${sess ? `Signed in as <strong>${esc(sess.email)}</strong>.` : 'Not signed in — records are kept on this device only.'}</p>
+        <button class="btn" type="button" data-action="account">${icon('user')} ${sess ? 'Account & sync' : 'Sign in'}</button></section>
+      <section class="card"><div class="card-head"><h2>Labour wages</h2></div>
+        <form id="wagesForm" novalidate>${PRODUCTS.map(wageRow).join('')}
+        <div class="form-actions"><span class="muted small">Filled in for every new entry. You can still change them on a single day's entry.</span><button class="btn primary" type="submit">${icon('check')} Save wages</button></div></form></section>
+      <section class="card"><div class="card-head"><h2>Brinjal types</h2></div>
+        <form id="typeForm" novalidate><div class="field"><label for="newBrinjalType">Add a type</label><div class="inline-action"><input id="newBrinjalType" name="type" maxlength="50" placeholder="e.g. Green long" autocomplete="off"><button class="btn primary" type="submit">${icon('plus')} Add</button></div></div></form>
         <div class="type-list">${types}</div>
-        <div class="notice" style="margin-top:15px">Removing a type only removes it from the dropdown. Saved bags keep their original label${orphan.length ? ` — currently in use but removed: ${orphan.map(esc).join(', ')}` : ''}.</div></section></div>`;
+        <p class="muted small" style="margin-top:12px">Most recently used first. Types typed as “New type…” in Daily entry are added here. Removing a type keeps it on past entries.</p></section>
+    </div>`;
   }
   function profileView() {
     const p = state.profile;
@@ -1407,7 +1523,7 @@
   function statementMatrix(st) {
     const cols = statementColumns(st);
     const out = [cols.map(c => c.label)];
-    st.rows.forEach(r => out.push(cols.map(c => c.key === 'date' ? r.date : (r[c.key] == null ? '' : r2(r[c.key])))));
+    st.rows.forEach(r => out.push(cols.map(c => c.key === 'date' ? r.date : (r[c.key] == null ? '' : c.type === 'text' ? r[c.key] : r2(r[c.key])))));
     out.push(cols.map(c => c.key === 'date' ? 'TOTAL' : (c.total ? r2(st.totals[c.key]) : '')));
     return { cols, rows: out };
   }
@@ -1458,9 +1574,9 @@
       [],
       cols.map(c => ({ v: c.label, s: 1 }))
     ];
-    const data = st.rows.map(r => cols.map(c => c.key === 'date' ? { v: r.date + (r.kind === 'expense-only' ? ' (expenses only)' : '') } : { v: r[c.key] == null ? '' : r2(r[c.key]), s: style(c, false) }));
+    const data = st.rows.map(r => cols.map(c => c.key === 'date' ? { v: r.date + (r.kind === 'expense-only' ? ' (expenses only)' : '') } : { v: r[c.key] == null ? '' : c.type === 'text' ? r[c.key] : r2(r[c.key]), s: style(c, false) }));
     const total = cols.map(c => c.key === 'date' ? { v: 'TOTAL', s: 1 } : (c.total ? { v: r2(st.totals[c.key]), s: style(c, true) } : { v: '' }));
-    const notes = [[], [{ v: 'Wastage (kg) is recorded only — it has no price and is not part of gross or net.' }], [{ v: 'Gross = weight/quantity × rate per kg. Net = gross − operating expenses' + (activeProduct === 'brinjal' ? ' − labour salary.' : '.') }], [{ v: 'Operating expenses are reported on each expense item’s own date (see "Expense items" sheet).' }]];
+    const notes = [[], [{ v: 'Wastage (kg) is recorded only — it has no price and is not part of gross or net.' }], [{ v: 'Gross = weight/quantity × rate per kg. Net = gross − operating expenses − labour salary.' }], [{ v: 'Operating expenses are reported on each expense item’s own date (see "Expense items" sheet).' }]];
     if (st.hasLegacy) notes.push([{ v: 'Legacy workers: historical totals from the source sheet; men/women split unknown.' }]);
     const sheet1 = sheetXml([...head, ...data, total, ...notes], cols.map(c => c.key === 'date' ? 22 : Math.max(12, c.label.length + 2)), 4);
     const expRows = [[{ v: `Expense items — ${CFG[activeProduct].name}, ${monthLabel(month)}`, s: 6 }], [], ['Date', 'What for?', 'Amount (₹)', 'Notes', 'Daily record date'].map(v => ({ v, s: 1 })),
@@ -1515,7 +1631,7 @@
     const W = Math.round(Math.max(minW, widths.reduce((a, b) => a + b, 0) + 60));
     const accent = isB ? '#7248df' : '#b07a06'; const soft = isB ? '#f3eeff' : '#fff5d6'; const ink = '#201d2b';
     const tiles = isB ? [['TOTAL BAGS', fmt(t.bags)], ['TOTAL WEIGHT', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['GROSS SALES', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['LABOUR SALARY', money(t.labour)], ['NET AFTER COSTS', money(t.net)]]
-      : [['TOTAL QUANTITY', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['GROSS INCOME', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['NET AFTER EXPENSES', money(t.net)]];
+      : [['TOTAL QUANTITY', fmt(t.kg) + ' kg'], ['WASTAGE', fmt(t.wastage) + ' kg'], ['LABOUR SALARY', money(t.labour)], ['GROSS INCOME', money(t.gross)], ['OPERATING EXPENSES', money(t.expenses)], ['NET AFTER COSTS', money(t.net)]];
     const gap = 10; const tw = (W - 60 - gap * (tiles.length - 1)) / tiles.length;
     let svg = '';
     tiles.forEach(([l, v], i) => { const x = 30 + i * (tw + gap); svg += `<rect x="${x}" y="128" width="${tw}" height="74" rx="12" fill="${soft}" stroke="#e7e1f3"/><text x="${x + 12}" y="153" font-size="11" font-weight="700" fill="#6c6880">${xmlEsc(l)}</text><text x="${x + 12}" y="185" font-size="${tw < 170 ? 17 : 21}" font-weight="800" fill="${l.startsWith('NET') && t.net < 0 ? '#c93f3f' : accent}">${xmlEsc(v)}</text>`; });
@@ -1531,7 +1647,7 @@
     });
     const H = top + lines.length * rowH + 70;
     const p = state.profile;
-    const full = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${font}"><rect width="100%" height="100%" fill="#ffffff"/><rect width="100%" height="8" fill="${accent}"/><text x="30" y="46" font-size="13" font-weight="700" letter-spacing="2" fill="${accent}">FIELDLEDGER · ${xmlEsc((p.farmName || 'My Farm').toUpperCase())}${p.location ? ' · ' + xmlEsc(p.location.toUpperCase()) : ''}</text><text x="30" y="86" font-size="30" font-weight="800" fill="${ink}">${xmlEsc(`${CFG[activeProduct].name} monthly statement · ${monthLabel(month)}`)}</text><text x="30" y="110" font-size="13" fill="#6c6880">Generated ${xmlEsc(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))} · ${t.records} daily record(s)${st.hasLegacy ? ' · legacy workers = historical totals, split unknown' : ''}</text>${svg}<text x="30" y="${H - 26}" font-size="11.5" fill="#6c6880">Net = gross − operating expenses${isB ? ' − labour salary' : ''}. Wastage is in kg only (no price). Expenses are counted on their own date. Costs not entered in FieldLedger are not included.</text></svg>`;
+    const full = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="${font}"><rect width="100%" height="100%" fill="#ffffff"/><rect width="100%" height="8" fill="${accent}"/><text x="30" y="46" font-size="13" font-weight="700" letter-spacing="2" fill="${accent}">FIELDLEDGER · ${xmlEsc((p.farmName || 'My Farm').toUpperCase())}${p.location ? ' · ' + xmlEsc(p.location.toUpperCase()) : ''}</text><text x="30" y="86" font-size="30" font-weight="800" fill="${ink}">${xmlEsc(`${CFG[activeProduct].name} monthly statement · ${monthLabel(month)}`)}</text><text x="30" y="110" font-size="13" fill="#6c6880">Generated ${xmlEsc(new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }))} · ${t.records} daily record(s)${st.hasLegacy ? ' · legacy workers = historical totals, split unknown' : ''}</text>${svg}<text x="30" y="${H - 26}" font-size="11.5" fill="#6c6880">Net = gross − operating expenses − labour salary. Wastage is in kg only (no price). Expenses are counted on their own date. Costs not entered in FieldLedger are not included.</text></svg>`;
     const url = URL.createObjectURL(new Blob([full], { type: 'image/svg+xml;charset=utf-8' }));
     const img = new Image();
     img.onload = () => {
@@ -1580,9 +1696,259 @@
     }
     const prev = state; state = res.state;
     if (!saveState()) { state = prev; return; }
+    PRODUCTS.forEach(p => { const ids = new Set([...prev.data[p].map(r => r.id), ...state.data[p].map(r => r.id)]); ids.forEach(id => cloud.queueEntry(p, id)); });
+    cloud.queueSettings();
     draft = null; draftDirty = false; startupNotice = '';
     importStatus = `<span class="positive">Backup restored: ${nb} Brinjal and ${nm} Muskmelon records.</span>`;
     render(); showToast('Backup restored successfully.');
+  }
+
+  /* ------------------------------------------------------------------
+   * Cloud account & sync (Supabase Auth + PostgREST over fetch — no SDK)
+   * ------------------------------------------------------------------
+   * Tables (see docs/SUPABASE_SETUP.md): ledger_entries(user_id, id, product, entry_date, data, deleted,
+   * updated_at, server_updated_at) and ledger_settings(user_id, settings, profile, updated_at), both with
+   * row-level security "user_id = auth.uid()". Every save is queued in an outbox kept in local storage,
+   * so the app works offline and catches up when the connection returns. Conflicts: newest edit wins.
+   */
+  const CLOUD_KEY = 'fieldledger-cloud';
+  // Optional: fill these in before building so people only see email + password on the sign-in screen.
+  const CLOUD_DEFAULTS = { url: '', anonKey: '' };
+  const cloud = (() => {
+    const cfg = { url: '', anonKey: '', session: null, localOnly: false, lastPull: '', outbox: {}, lastSyncAt: '', lastError: '', settingsUpdatedAt: '' };
+    try { Object.assign(cfg, JSON.parse(lsGet(CLOUD_KEY) || '{}')); } catch (_) { /* fresh */ }
+    if (!cfg.url && CLOUD_DEFAULTS.url) { cfg.url = CLOUD_DEFAULTS.url; cfg.anonKey = CLOUD_DEFAULTS.anonKey; }
+    let syncing = false, online = navigator.onLine !== false, timer = null, seq = 0;
+    const persist = () => { try { lsSet(CLOUD_KEY, JSON.stringify(cfg)); } catch (_) { /* storage full: banner already shown by saveState */ } };
+    const available = () => !!NATIVE || !HOSTED();   // claude.ai pages cannot contact other servers
+    const configured = () => !!(cfg.url && cfg.anonKey);
+    const session = () => (cfg.session && cfg.session.user && cfg.session.user.id ? { id: cfg.session.user.id, email: cfg.session.user.email || '' } : null);
+    const pending = () => Object.keys(cfg.outbox).length;
+    const ts = v => { const t = Date.parse(v || ''); return Number.isFinite(t) ? t : 0; };
+    function status() {
+      if (!online) return { color: 'red', label: `Offline${pending() ? ` · ${pending()} change${pending() === 1 ? '' : 's'} waiting` : ''}` };
+      if (!available()) return { color: 'orange', label: 'Online · records saved in this browser only' };
+      if (!session()) return { color: 'orange', label: 'Online · not signed in (this device only)' };
+      if (syncing) return { color: 'orange', label: 'Syncing…' };
+      if (pending()) return { color: 'orange', label: `${pending()} change${pending() === 1 ? '' : 's'} waiting to sync` };
+      if (cfg.lastError) return { color: 'orange', label: 'Sync problem: ' + cfg.lastError };
+      return { color: 'green', label: 'Online · all changes synced' };
+    }
+    function setOnline(v) { if (online !== v) { online = v; renderStatus(); } }
+    async function req(path, { method = 'GET', body, auth = true, headers = {}, token = '' } = {}) {
+      if (!configured()) throw new Error('Cloud account is not set up yet.');
+      if (auth && !token) await refreshIfNeeded();
+      // Legacy anon keys are JWTs and go in both headers; new "sb_publishable_…" keys go only in apikey.
+      const bearer = token || (auth && cfg.session ? cfg.session.access_token : (cfg.anonKey.startsWith('sb_') ? '' : cfg.anonKey));
+      const h = { apikey: cfg.anonKey, ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}), ...headers };
+      if (body !== undefined) h['Content-Type'] = 'application/json';
+      let res;
+      try { res = await fetch(cfg.url.replace(/\/+$/, '') + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body) }); }
+      catch (_) { setOnline(false); const err = new Error('No internet connection.'); err.network = true; throw err; }
+      setOnline(true);
+      const text = await res.text(); let data = null;
+      try { data = text ? JSON.parse(text) : null; } catch (_) { data = text; }
+      if (!res.ok) {
+        const msg = (data && typeof data === 'object' && (data.error_description || data.msg || data.message || data.error)) || `Server error ${res.status}`;
+        const err = new Error(String(msg)); err.status = res.status; throw err;
+      }
+      return data;
+    }
+    function storeSession(d) {
+      if (!d || !d.access_token) return false;
+      const user = d.user || {};
+      cfg.session = { access_token: d.access_token, refresh_token: d.refresh_token, expires_at: d.expires_at || Math.floor(Date.now() / 1000) + (d.expires_in || 3600), user: { id: user.id, email: user.email } };
+      cfg.localOnly = false; persist(); return true;
+    }
+    async function refreshIfNeeded() {
+      const s = cfg.session; if (!s || s.expires_at - 60 > Date.now() / 1000) return;
+      try { storeSession(await req('/auth/v1/token?grant_type=refresh_token', { method: 'POST', body: { refresh_token: s.refresh_token }, auth: false })); }
+      catch (e) { if (!e.network) { cfg.session = null; persist(); e.expired = true; } throw e; }
+    }
+    function queue(key, item) { cfg.outbox[key] = { ...item, v: ++seq + ':' + Date.now() }; persist(); renderStatus(); schedule(); }
+    const queueEntry = (product, id) => { if (session()) queue(`e:${product}:${id}`, { kind: 'entry', product, id }); };
+    const queueSettings = () => { cfg.settingsUpdatedAt = nowISO(); persist(); if (session()) queue('settings', { kind: 'settings' }); };
+    const syncedSettings = () => ({ brinjalTypes: state.settings.brinjalTypes, wages: state.settings.wages });
+    function schedule(ms = 1200) { clearTimeout(timer); timer = setTimeout(() => syncNow(false), ms); }
+    async function push() {
+      const snapshot = Object.entries(cfg.outbox); if (!snapshot.length) return;
+      const uidv = session().id; const rows = [];
+      let settingsItem = null;
+      for (const [, it] of snapshot) {
+        if (it.kind === 'settings') { settingsItem = it; continue; }
+        const r = dataset(it.product).find(x => x.id === it.id);
+        if (r && r.sample) continue;
+        rows.push(r ? { user_id: uidv, id: it.id, product: it.product, entry_date: r.date, data: r, deleted: false, updated_at: r.updatedAt || nowISO() }
+          : { user_id: uidv, id: it.id, product: it.product, entry_date: null, data: {}, deleted: true, updated_at: nowISO() });
+      }
+      for (let i = 0; i < rows.length; i += 200) await req('/rest/v1/ledger_entries?on_conflict=user_id,id', { method: 'POST', body: rows.slice(i, i + 200), headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
+      if (settingsItem) await req('/rest/v1/ledger_settings?on_conflict=user_id', { method: 'POST', body: [{ user_id: uidv, settings: syncedSettings(), profile: state.profile, updated_at: cfg.settingsUpdatedAt || nowISO() }], headers: { Prefer: 'resolution=merge-duplicates,return=minimal' } });
+      // Only clear what was sent; anything changed meanwhile has a new version and stays queued.
+      snapshot.forEach(([k, it]) => { if (cfg.outbox[k] && cfg.outbox[k].v === it.v) delete cfg.outbox[k]; });
+      persist();
+    }
+    async function pull() {
+      let changed = false; const seen = new Set();
+      for (let page = 0; page < 50; page++) {
+        const since = cfg.lastPull ? `&server_updated_at=gt.${encodeURIComponent(cfg.lastPull)}` : '';
+        const rows = await req(`/rest/v1/ledger_entries?select=id,product,data,deleted,updated_at,server_updated_at${since}&order=server_updated_at.asc&limit=500`);
+        if (!Array.isArray(rows) || !rows.length) break;
+        for (const row of rows) {
+          if (row.server_updated_at) cfg.lastPull = row.server_updated_at;
+          if (!PRODUCTS.includes(row.product)) continue;
+          seen.add(row.product + ':' + row.id);
+          const arr = dataset(row.product); const i = arr.findIndex(x => x.id === row.id); const local = i >= 0 ? arr[i] : null;
+          if (local && cfg.outbox[`e:${row.product}:${row.id}`] && ts(local.updatedAt) > ts(row.updated_at)) continue; // newer local edit waiting to upload
+          if (row.deleted) { if (local) { arr.splice(i, 1); changed = true; } continue; }
+          if (local && ts(local.updatedAt) >= ts(row.updated_at) && JSON.stringify(local) === JSON.stringify(row.data)) continue;
+          const res = normRecord(row.product, row.data, state.settings.brinjalTypes);
+          if (res.value) { if (i >= 0) arr[i] = res.value; else arr.push(res.value); changed = true; }
+        }
+        persist();
+        if (rows.length < 500) break;
+      }
+      const srows = await req('/rest/v1/ledger_settings?select=settings,profile,updated_at');
+      const sr = Array.isArray(srows) && srows[0];
+      if (sr && !cfg.outbox.settings && ts(sr.updated_at) > ts(cfg.settingsUpdatedAt)) {
+        const ns = normSettings({ ...state.settings, ...(sr.settings || {}) });
+        state.settings.brinjalTypes = ns.brinjalTypes; state.settings.wages = ns.wages;
+        if (sr.profile) state.profile = normProfile(sr.profile);
+        cfg.settingsUpdatedAt = sr.updated_at; changed = true;
+      }
+      if (changed) saveState();
+      persist();
+      return { changed, seen, hasSettings: !!sr };
+    }
+    async function syncNow(manual) {
+      if (!session() || !configured()) return;
+      if (syncing) { if (manual) showToast('Sync is already running…'); return; }
+      if (navigator.onLine === false) { setOnline(false); if (manual) showToast('You are offline. Changes will sync when you are back online.', true); return; }
+      syncing = true; renderStatus();
+      try {
+        await push(); const r = await pull();
+        cfg.lastSyncAt = nowISO(); cfg.lastError = ''; persist();
+        if (r.changed) refreshAfterSync();
+        if (manual) showToast('All changes synced.');
+      } catch (e) {
+        if (e.expired || e.status === 401) { cfg.session = null; persist(); showToast('Your sign-in expired. Please sign in again.', true); render(); }
+        else if (e.network) { if (manual) showToast('You are offline. Changes will sync when you are back online.', true); }
+        else { cfg.lastError = e.message; persist(); if (manual) showToast('Sync failed: ' + e.message, true); }
+      } finally { syncing = false; renderStatus(); }
+    }
+    async function afterLogin() {
+      // Demo records shipped with the app are not uploaded; they are removed once an account is used.
+      PRODUCTS.forEach(p => { state.data[p] = dataset(p).filter(r => !r.sample); });
+      cfg.lastPull = ''; persist(); saveState();
+      const r = await pull();
+      PRODUCTS.forEach(p => dataset(p).forEach(rec => { if (!r.seen.has(p + ':' + rec.id)) queueEntry(p, rec.id); }));
+      if (!r.hasSettings) queueSettings();
+      await syncNow(false);
+    }
+    async function signIn(email, password) { storeSession(await req('/auth/v1/token?grant_type=password', { method: 'POST', body: { email, password }, auth: false })); await afterLogin(); }
+    async function signUp(email, password) {
+      const d = await req('/auth/v1/signup', { method: 'POST', body: { email, password }, auth: false });
+      if (storeSession(d)) { await afterLogin(); return 'signed-in'; }
+      return 'confirm-email';
+    }
+    const resetPassword = email => req('/auth/v1/recover', { method: 'POST', body: { email }, auth: false });
+    const updatePassword = (token, password) => req('/auth/v1/user', { method: 'PUT', body: { password }, token });
+    async function signOut() {
+      try { await req('/auth/v1/logout', { method: 'POST' }); } catch (_) { /* token may already be invalid */ }
+      cfg.session = null; cfg.lastPull = ''; cfg.outbox = {}; cfg.lastSyncAt = ''; cfg.lastError = ''; cfg.settingsUpdatedAt = ''; persist();
+      state.data = { brinjal: [], muskmelon: [] }; saveState();
+    }
+    function setServer(url, key) {
+      const u = String(url || '').trim().replace(/\/+$/, ''); const k = String(key || '').trim();
+      if (!/^https:\/\/[^\s/]+$/.test(u) && !/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(u)) throw new Error('Project URL must look like https://xxxx.supabase.co');
+      if (k.length < 20) throw new Error('Paste the anon public key from Supabase → Project Settings → API.');
+      cfg.url = u; cfg.anonKey = k; persist();
+    }
+    function useLocally() { cfg.localOnly = true; persist(); }
+    function wantLogin() { cfg.localOnly = false; persist(); }
+    window.addEventListener('online', () => { setOnline(true); schedule(300); });
+    window.addEventListener('offline', () => setOnline(false));
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') schedule(500); });
+    setInterval(() => { if (document.visibilityState === 'visible' && session()) syncNow(false); }, 60000);
+    return {
+      available, configured, session, pending, status, syncNow, signIn, signUp, signOut, resetPassword, updatePassword, setServer, useLocally, wantLogin, queueEntry, queueSettings,
+      needsLogin: () => available() && !session() && !cfg.localOnly,
+      server: () => cfg.url, lastSyncAt: () => cfg.lastSyncAt,
+      clearServer: () => { cfg.url = ''; cfg.anonKey = ''; cfg.session = null; persist(); },
+      startup: () => { if (session()) schedule(800); }
+    };
+  })();
+  function refreshAfterSync() {
+    if (modalOpen() || askOpen() || (activeView === 'entry' && draftDirty) || ['settings', 'profile', 'entry'].includes(activeView)) { renderStatus(); return; }
+    const y = window.scrollY; render(); window.scrollTo(0, y);
+  }
+  function renderStatus() {
+    const dot = $('#statusDot'); if (!dot) return;
+    const st = cloud.status();
+    dot.className = 'status-dot ' + st.color;
+    const chip = $('#accountChip'); chip.title = st.label; chip.setAttribute('aria-label', 'Account and sync — ' + st.label);
+    const live = $('#syncStatusText'); if (live) live.textContent = st.label;
+  }
+
+  // Links in Supabase emails come back as #access_token=…&type=recovery|signup on the page set as the Site URL.
+  const authLink = (() => { try { const q = new URLSearchParams(location.hash.replace(/^#/, '')); const type = q.get('type'); return q.get('access_token') && type ? { type, token: q.get('access_token') } : null; } catch (_) { return null; } })();
+  let recoveryToken = authLink && authLink.type === 'recovery' ? authLink.token : '';
+  function resetPasswordView() {
+    return `<section class="card login-card"><div class="login-brand"><div class="brand-mark big" aria-hidden="true"><span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span></div><h2>Set a new password</h2></div>
+      <form id="newPasswordForm" novalidate><div class="field"><label for="newPassword">New password</label><input id="newPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters"></div>
+      <button class="btn primary wide" type="submit">${icon('check')} Save new password</button></form><div id="loginStatus" class="small" role="status" style="text-align:center"></div></section>`;
+  }
+  function loginView() {
+    const host = (() => { try { return new URL(cloud.server()).host; } catch (_) { return ''; } })();
+    const setup = !cloud.configured();
+    return `<section class="card login-card">
+      <div class="login-brand"><div class="brand-mark big" aria-hidden="true"><span class="bm-a">${brinjalSvg}</span><span class="bm-b">${melonSvg}</span></div><h2>FieldLedger</h2><p class="muted">Sign in to keep your records safe and use them on every phone.</p></div>
+      ${setup ? `<form id="cloudSetupForm" novalidate><div class="notice">First time: connect your Supabase project (Project Settings → API). The setup guide explains each step.</div>
+        <div class="field"><label for="cloudUrl">Project URL</label><input id="cloudUrl" type="url" inputmode="url" placeholder="https://xxxx.supabase.co" autocomplete="off"></div>
+        <div class="field"><label for="cloudKey">Anon public key</label><input id="cloudKey" type="text" placeholder="eyJhbGciOi…" autocomplete="off" spellcheck="false"></div>
+        <button class="btn primary wide" type="submit">${icon('check')} Connect</button></form>`
+      : `<form id="loginForm" novalidate>
+        <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com"></div>
+        <div class="field"><label for="loginPassword">Password</label><div class="inline-action"><input id="loginPassword" type="password" autocomplete="current-password" placeholder="At least 6 characters"><button class="btn" type="button" data-action="toggle-password" aria-label="Show password">${icon('eye')}</button></div></div>
+        <button class="btn primary wide" type="submit" id="loginSubmit">${icon('check')} Sign in</button>
+        <div class="login-links"><button class="btn" type="button" data-action="signup">Create account</button><button class="btn" type="button" data-action="forgot-password">Forgot password?</button></div>
+        <div class="muted small" style="text-align:center">Server: ${esc(host)} · <button class="link-btn" type="button" data-action="change-server">Change</button></div></form>`}
+      <div class="login-divider"><span>or</span></div>
+      <button class="btn wide" type="button" data-action="local-only">${icon('user')} Use without an account (this phone only)</button>
+      <div id="loginStatus" class="small" role="status" style="margin-top:10px;text-align:center"></div></section>`;
+  }
+  function setLoginStatus(msg, bad) { const el = $('#loginStatus'); if (el) { el.textContent = msg; el.className = 'small ' + (bad ? 'negative' : 'muted'); } }
+  async function loginAction(kind) {
+    const email = str($('#loginEmail') && $('#loginEmail').value, 200), pw = ($('#loginPassword') && $('#loginPassword').value) || '';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return markInvalid($('#loginEmail'), 'Enter a valid email address.');
+    if (kind !== 'forgot' && pw.length < 6) return markInvalid($('#loginPassword'), 'Password must be at least 6 characters.');
+    $$('#loginForm button').forEach(b => { b.disabled = true; });
+    setLoginStatus(kind === 'signin' ? 'Signing in…' : kind === 'signup' ? 'Creating account…' : 'Sending reset email…');
+    try {
+      if (kind === 'signin') { await cloud.signIn(email, pw); showToast('Signed in. Your records are syncing.'); render(); return; }
+      if (kind === 'signup') {
+        const r = await cloud.signUp(email, pw);
+        if (r === 'signed-in') { showToast('Account created. You are signed in.'); render(); return; }
+        setLoginStatus('Account created. Open the confirmation email, then sign in here.');
+      }
+      if (kind === 'forgot') { await cloud.resetPassword(email); setLoginStatus('If that email has an account, a password-reset link is on its way.'); }
+    } catch (e) {
+      setLoginStatus(e.network ? 'No internet connection. Try again when you are online.' : e.message, true);
+    } finally { $$('#loginForm button').forEach(b => { b.disabled = false; }); }
+  }
+  function openAccountSheet() {
+    const s = cloud.session(); const st = cloud.status();
+    const last = cloud.lastSyncAt() ? new Date(cloud.lastSyncAt()).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '—';
+    modalCtx = { kind: 'account', isDirty: () => false };
+    openModal(`<section class="modal-panel narrow" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+      <div class="modal-head"><div><h2 id="accountTitle">${s ? esc(s.email) : 'Not signed in'}</h2><div class="sync-line"><span class="status-dot ${st.color}" aria-hidden="true"></span><span id="syncStatusText">${esc(st.label)}</span></div></div><button class="icon-btn" type="button" data-modal-close aria-label="Close">${icon('x')}</button></div>
+      <div class="modal-body">
+        ${s ? `<div class="detail-list"><div class="report-tile"><span>Last synced</span><strong style="font-size:14px">${esc(last)}</strong></div><div class="report-tile"><span>Waiting</span><strong style="font-size:14px">${cloud.pending()} change(s)</strong></div></div>
+          <div class="btn-row"><button class="btn primary" type="button" data-action="sync-now">${icon('restore')} Sync now</button><button class="btn danger" type="button" data-action="sign-out">Sign out</button></div>`
+        : cloud.available() ? `<p class="muted small">Records are saved on this phone only. Sign in to back them up and use them on other phones.</p><button class="btn primary" type="button" data-action="go-login">${icon('user')} Sign in or create account</button>`
+        : `<p class="muted small">This page cannot reach the cloud. Records stay in this browser. Use the Android app or the hosted web app to sign in.</p>`}
+        <div class="legend"><span><span class="status-dot green"></span>Online & synced</span><span><span class="status-dot orange"></span>Syncing / waiting / not signed in</span><span><span class="status-dot red"></span>Offline</span></div>
+        <div class="btn-row" style="margin-top:12px"><button class="btn" type="button" data-nav="settings">${icon('settings')} Settings</button><button class="btn" type="button" data-nav="profile">${icon('user')} Farm profile</button></div>
+      </div></section>`, '[data-modal-close]');
   }
 
   /* ------------------------------------------------------------------
@@ -1599,7 +1965,8 @@
     if (modalOpen()) closeModal();
     if (view !== 'entry') { draft = null; draftDirty = false; }
     else if (activeView !== 'entry') { draft = null; draftDirty = false; }
-    activeView = view; render();
+    const from = NAV.findIndex(n => n[0] === activeView), to = NAV.findIndex(n => n[0] === view);
+    activeView = view; withTransition(render, to >= from ? 'forward' : 'back');
     if (!opts.fromHistory) pushHash();
     scrollTop(); return true;
   }
@@ -1609,7 +1976,7 @@
     if (modalOpen()) closeModal();
     activeProduct = p; saveUI(); draft = null; draftDirty = false; recordsFilter = { month: '', q: '' };
     if (activeView === 'entry') activeView = 'dashboard';
-    render(); pushHash();
+    withTransition(render, 'product'); pushHash();
   }
   const hashFor = () => `#/${activeProduct}/${activeView}`;
   function pushHash() { try { if (location.hash !== hashFor()) history.pushState(null, '', hashFor()); } catch (_) { /* sandboxed frame */ } }
@@ -1625,7 +1992,23 @@
   });
   window.addEventListener('beforeunload', e => { if (activeView === 'entry' && draftDirty) { e.preventDefault(); e.returnValue = ''; } });
 
+  /** Animates a screen change with the View Transitions API where available (skipped for reduced motion). */
+  function withTransition(update, kind) {
+    if (!document.startViewTransition || prefersReducedMotion() || document.visibilityState !== 'visible') { update(); return; }
+    const root = document.documentElement; root.dataset.vt = kind;
+    try { document.startViewTransition(update).finished.finally(() => { delete root.dataset.vt; }); }
+    catch (_) { delete root.dataset.vt; update(); }
+  }
   function render() {
+    if (recoveryToken && cloud.configured()) {
+      document.body.classList.add('login-mode'); renderShell(); document.body.dataset.view = 'login';
+      $('#viewContainer').innerHTML = resetPasswordView(); return;
+    }
+    if (cloud.needsLogin()) {
+      document.body.classList.add('login-mode'); renderShell(); document.body.dataset.view = 'login';
+      $('#viewContainer').innerHTML = loginView(); return;
+    }
+    document.body.classList.remove('login-mode');
     renderShell();
     const views = { dashboard: dashboardView, entry: entryView, records: recordsView, reports: reportView, tools: toolsView, settings: settingsView, profile: profileView };
     $('#viewContainer').innerHTML = (views[activeView] || dashboardView)();
@@ -1643,10 +2026,10 @@
   async function removeBrinjalType(type) {
     const list = state.settings.brinjalTypes;
     if (list.length <= 1) { showToast('Keep at least one brinjal type.', true); return; }
-    let used = 0; dataset('brinjal').forEach(r => r.bagDetails.forEach(b => { if (b.brinjalType === type) used++; }));
-    if (!(await ask(`Remove “${type}” from the brinjal type list?\n\n${used ? `${used} saved bag(s) use this type. They will KEEP the label “${type}” — it is only removed from the dropdown for new bags.` : 'No saved bags use this type.'}`))) return;
+    const used = dataset('brinjal').filter(r => r.brinjalType === type).length;
+    if (!(await ask(`Remove “${type}” from the brinjal type list?\n\n${used ? `${used} saved entr${used === 1 ? 'y uses' : 'ies use'} this type. They will KEEP the label “${type}” — it is only removed from the dropdown for new entries.` : 'No saved entries use this type.'}`))) return;
     state.settings.brinjalTypes = list.filter(t => t !== type);
-    if (saveState()) { render(); showToast(`“${type}” removed from the list.`); }
+    if (saveState()) { cloud.queueSettings(); render(); showToast(`“${type}” removed from the list.`); }
   }
   async function handleAction(el) {
     const id = el.dataset.id;
@@ -1667,6 +2050,21 @@
       case 'delete-record': deleteRecord(id); break;
       case 'records-clear': recordsFilter = { month: '', q: '' }; render(); break;
       case 'export-json': exportJSON(); break;
+      case 'account': openAccountSheet(); break;
+      case 'sync-now': cloud.syncNow(true); break;
+      case 'go-login': if (modalOpen()) closeModal(); cloud.wantLogin(); render(); break;
+      case 'local-only': cloud.useLocally(); render(); showToast('Using FieldLedger on this phone only. Sign in any time from the account button.'); break;
+      case 'signup': loginAction('signup'); break;
+      case 'forgot-password': loginAction('forgot'); break;
+      case 'toggle-password': { const pw = $('#loginPassword'); pw.type = pw.type === 'password' ? 'text' : 'password'; break; }
+      case 'change-server': if (await ask('Change the cloud server?\n\nYou will need the Project URL and anon key again.', { ok: 'Change' })) { cloud.clearServer(); render(); } break;
+      case 'sign-out': {
+        if (cloud.pending()) await cloud.syncNow(false);
+        const left = cloud.pending();
+        if (!(await ask(`Sign out?\n\n${left ? `${left} change(s) have not reached the cloud yet and will be lost. ` : 'Your records are safe in your account. '}This phone’s copy will be removed until you sign in again.`, { ok: 'Sign out', danger: true }))) return;
+        await cloud.signOut(); if (modalOpen()) closeModal(); draft = null; draftDirty = false; activeView = 'dashboard'; render(); showToast('Signed out.');
+        break;
+      }
       case 'check-updates': if (NATIVE) { updateStatus = 'Checking for updates…'; const el = $('#updateStatus'); if (el) el.textContent = updateStatus; NATIVE.checkForUpdates(true); } break;
       case 'import-json': $('#importFile').value = ''; $('#importFile').click(); break;
       case 'export-csv': exportCSV(); break;
@@ -1677,6 +2075,7 @@
       case 'set-text': state.settings.textSize = el.dataset.value; saveState(); render(); showToast(`Text size: ${el.dataset.value}.`); break;
       case 'remove-type': removeBrinjalType(el.dataset.type); break;
       case 'reset-demo':
+        if (cloud.session()) { showToast('Sample data is not available while signed in — it would mix demo figures into your account.', true); return; }
         if (!(await ask('Restore the October 2026 sample data?\n\nAll current Brinjal and Muskmelon records in this browser will be REPLACED. Settings and profile are kept.'))) return;
         { const prev = state.data; state.data = seedState().data; if (!saveState()) { state.data = prev; return; } }
         month = '2026-10'; draft = null; draftDirty = false; render(); showToast('Sample data restored.');
@@ -1696,7 +2095,7 @@
       if (addBag) { if (modalCtx.items.length >= MAX_BAGS * 2) return; modalCtx.items = resizeBags(modalCtx.items, modalCtx.items.length + 1); renderBagModal('#bagWeight' + (modalCtx.items.length - 1)); return; }
       const rmBag = t.closest('[data-bag-remove]');
       if (rmBag) { const i = Number(rmBag.dataset.bagRemove); modalCtx.items.splice(i, 1); renderBagModal(modalCtx.items.length ? '#bagWeight' + Math.max(0, i - 1) : '[data-bag-add]'); showToast(`Bag ${i + 1} removed from this list.`); return; }
-      if (t.closest('[data-bag-copy]')) { const f = modalCtx.items[0]; modalCtx.items.forEach(b => { b.brinjalType = f.brinjalType; b.size = f.size; }); renderBagModal('[data-bag-copy]'); showToast('Bag 1 type and size applied to every bag.'); return; }
+      if (t.closest('[data-bag-copy]')) { const f = modalCtx.items[0]; modalCtx.items.forEach(b => { b.size = f.size; }); renderBagModal('[data-bag-copy]'); showToast('Bag 1 size applied to every bag.'); return; }
       if (t.closest('[data-exp-add]')) { modalCtx.items.push(blankExpense()); renderExpenseModal('#expensePurpose' + (modalCtx.items.length - 1)); return; }
       const rmExp = t.closest('[data-exp-remove]');
       if (rmExp) { const i = Number(rmExp.dataset.expRemove); modalCtx.items.splice(i, 1); renderExpenseModal(modalCtx.items.length ? '#expensePurpose' + Math.max(0, i - 1) : '[data-exp-add]'); return; }
@@ -1722,8 +2121,12 @@
       else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
   });
-  $('#quickThemeBtn').addEventListener('click', () => { state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark'; saveState(); if (activeView === 'entry') renderShell(); else render(); });
-  $('#quickTextBtn').addEventListener('click', () => { const cycle = { small: 'medium', medium: 'large', large: 'small' }; state.settings.textSize = cycle[state.settings.textSize]; saveState(); if (activeView === 'entry') renderShell(); else render(); showToast(`Text size: ${state.settings.textSize}.`); });
+  $('#quickThemeBtn').addEventListener('click', e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    document.documentElement.style.setProperty('--vt-x', Math.round(r.left + r.width / 2) + 'px');
+    document.documentElement.style.setProperty('--vt-y', Math.round(r.top + r.height / 2) + 'px');
+    withTransition(() => { state.settings.theme = state.settings.theme === 'dark' ? 'light' : 'dark'; saveState(); if (activeView === 'entry') renderShell(); else render(); }, 'theme');
+  });
   $('#viewContainer').addEventListener('change', e => {
     if (e.target.classList.contains('month-input')) { if (e.target.value) setMonth(e.target.value); return; }
     if (e.target.id === 'recordsMonth') { recordsFilter.month = isMonth(e.target.value) ? e.target.value : ''; $('#recordsList').innerHTML = recordsList(); }
@@ -1737,8 +2140,36 @@
       const input = $('#newBrinjalType'); const value = str(input.value, 50);
       if (!value) { input.setAttribute('aria-invalid', 'true'); input.focus(); showToast('Type a name for the brinjal type.', true); return; }
       if (state.settings.brinjalTypes.some(t => t.toLowerCase() === value.toLowerCase())) { input.setAttribute('aria-invalid', 'true'); showToast('That brinjal type already exists.', true); return; }
-      state.settings.brinjalTypes.push(value);
-      if (saveState()) { render(); $('#newBrinjalType').focus(); showToast(`“${value}” added — it now appears in the bag type dropdown.`); }
+      state.settings.brinjalTypes.unshift(value);
+      if (saveState()) { cloud.queueSettings(); render(); $('#newBrinjalType').focus(); showToast(`“${value}” added to the type list.`); }
+    }
+    if (e.target.id === 'wagesForm') {
+      e.preventDefault();
+      const next = {};
+      for (const p of PRODUCTS) for (const g of ['men', 'women']) {
+        const el = $(`#wage-${p}-${g}`); const v = parseNonNeg(el.value);
+        if (v === null) return markInvalid(el, 'Wages must be numbers (0 or more).');
+        (next[p] = next[p] || {})[g] = v;
+      }
+      state.settings.wages = next;
+      if (saveState()) { cloud.queueSettings(); render(); showToast('Default wages saved. New entries will use them.'); }
+    }
+    if (e.target.id === 'cloudSetupForm') {
+      e.preventDefault();
+      try { cloud.setServer($('#cloudUrl').value, $('#cloudKey').value); render(); showToast('Connected. Now sign in or create an account.'); }
+      catch (err) { setLoginStatus(err.message, true); }
+      return;
+    }
+    if (e.target.id === 'loginForm') { e.preventDefault(); loginAction('signin'); return; }
+    if (e.target.id === 'newPasswordForm') {
+      e.preventDefault();
+      const pw = $('#newPassword').value;
+      if (pw.length < 6) return markInvalid($('#newPassword'), 'Password must be at least 6 characters.');
+      cloud.updatePassword(recoveryToken, pw).then(() => {
+        recoveryToken = ''; try { history.replaceState(null, '', location.pathname); } catch (_) { /* ignore */ }
+        showToast('Password changed. Sign in with your new password.'); render();
+      }).catch(err => setLoginStatus(err.network ? 'No internet connection.' : err.message, true));
+      return;
     }
     if (e.target.id === 'updateUrlForm' && NATIVE) {
       e.preventDefault();
@@ -1750,7 +2181,7 @@
       e.preventDefault();
       const fd = new FormData(e.target);
       state.profile = normProfile({ farmName: fd.get('farmName'), ownerName: fd.get('ownerName'), phone: fd.get('phone'), location: fd.get('location') });
-      if (saveState()) { render(); showToast('Profile saved.'); }
+      if (saveState()) { cloud.queueSettings(); render(); showToast('Profile saved.'); }
     }
   });
   $('#importFile').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; handleImportFile(f); });
@@ -1774,6 +2205,7 @@
   /* ------------------------------------------------------------------
    * Boot
    * ------------------------------------------------------------------ */
+  if (authLink && authLink.type !== 'recovery') { startupNotice = ''; setTimeout(() => showToast('Email confirmed. You can sign in now.'), 300); try { history.replaceState(null, '', location.pathname); } catch (_) { /* ignore */ } }
   const initial = readHash();
   if (initial) { activeProduct = initial.product; activeView = initial.view; }
   if (!lsGet(STORAGE_KEY) && storageOK) saveState();

@@ -1,4 +1,4 @@
-"""Generates the FieldLedger launcher icons (legacy + adaptive layers) with Pillow."""
+"""Generates the FieldLedger launcher icons (legacy + adaptive layers) with Pillow: a brinjal and a muskmelon."""
 import os
 from PIL import Image, ImageDraw, ImageFilter
 
@@ -17,35 +17,55 @@ def gradient(size):
     return img
 
 def glyph(size, scale=1.0):
-    """White ledger book with a green sprout, drawn on transparency, centred."""
-    g = Image.new('RGBA', (size, size), (0, 0, 0, 0))
+    """A plump brinjal in front of a netted muskmelon with an orange slice, centred on transparency."""
+    S4 = size * 4  # draw large, then downsample for smooth edges
+    g = Image.new('RGBA', (S4, S4), (0, 0, 0, 0))
+    u = S4 / 100 * scale; c = S4 / 2
+    def shadow(box, r=None):
+        sh = Image.new('RGBA', (S4, S4), (0, 0, 0, 0)); ImageDraw.Draw(sh).ellipse(box, fill=(30, 15, 60, 120))
+        return sh.filter(ImageFilter.GaussianBlur(3 * u))
+    # --- muskmelon (back, right)
+    mx, my, mr = c + 13 * u, c - 4 * u, 25 * u
+    g = Image.alpha_composite(g, shadow([mx - mr, my - mr + 6 * u, mx + mr, my + mr + 6 * u]))
     d = ImageDraw.Draw(g)
-    c = size / 2; u = size / 100 * scale
-    # shadow
-    sh = Image.new('RGBA', (size, size), (0, 0, 0, 0)); sd = ImageDraw.Draw(sh)
-    sd.rounded_rectangle([c - 30*u, c - 18*u + 4*u, c + 30*u, c + 30*u + 4*u], radius=6*u, fill=(40, 20, 80, 110))
-    g = Image.alpha_composite(g, sh.filter(ImageFilter.GaussianBlur(3*u))); d = ImageDraw.Draw(g)
-    # book
-    d.rounded_rectangle([c - 30*u, c - 18*u, c + 30*u, c + 30*u], radius=6*u, fill=(255, 255, 255, 255))
-    d.rectangle([c - 1.2*u, c - 18*u, c + 1.2*u, c + 30*u], fill=(214, 204, 240, 255))
-    for i in range(4):
-        y = c - 8*u + i * 9*u
-        d.rounded_rectangle([c - 24*u, y, c - 7*u, y + 2.6*u], radius=1.3*u, fill=(160, 140, 220, 255))
-        d.rounded_rectangle([c + 7*u, y, c + 24*u, y + 2.6*u], radius=1.3*u, fill=(232, 180, 70, 255))
-    # sprout
-    d.line([c, c - 18*u, c, c - 30*u], fill=(70, 150, 60, 255), width=int(3*u))
-    d.ellipse([c - 16*u, c - 38*u, c - 1*u, c - 28*u], fill=(110, 190, 80, 255))
-    d.ellipse([c + 1*u, c - 42*u, c + 17*u, c - 31*u], fill=(90, 175, 70, 255))
-    return g
+    d.ellipse([mx - mr, my - mr, mx + mr, my + mr], fill=(228, 200, 120, 255), outline=(150, 118, 44, 255), width=int(1.6 * u))
+    # netting: crossing diagonal lines, clipped to the melon
+    net = Image.new('RGBA', (S4, S4), (0, 0, 0, 0)); nd = ImageDraw.Draw(net)
+    step = 7 * u
+    for k in range(-12, 13):
+        o = k * step
+        nd.line([mx - mr + o, my - mr, mx + mr + o, my + mr], fill=(252, 240, 205, 230), width=int(1.3 * u))
+        nd.line([mx + mr + o, my - mr, mx - mr + o, my + mr], fill=(252, 240, 205, 230), width=int(1.3 * u))
+    mask = Image.new('L', (S4, S4), 0); ImageDraw.Draw(mask).ellipse([mx - mr + 2 * u, my - mr + 2 * u, mx + mr - 2 * u, my + mr - 2 * u], fill=255)
+    g.paste(net, (0, 0), Image.composite(net.split()[3], Image.new('L', (S4, S4), 0), mask))
+    d = ImageDraw.Draw(g)
+    # orange slice wedge
+    d.pieslice([mx - mr, my - mr, mx + mr, my + mr], -40, 35, fill=(247, 145, 59, 255), outline=(190, 98, 27, 255), width=int(1.4 * u))
+    d.pieslice([mx - mr * 0.8, my - mr * 0.8, mx + mr * 0.8, my + mr * 0.8], -36, 31, fill=(255, 178, 102, 255))
+    for a, rr in [(-20, .55), (-5, .45), (12, .6)]:
+        import math
+        x = mx + math.cos(math.radians(a)) * mr * rr; y = my + math.sin(math.radians(a)) * mr * rr
+        d.ellipse([x - 1.2 * u, y - 1.2 * u, x + 1.2 * u, y + 1.2 * u], fill=(255, 243, 214, 255))
+    # --- brinjal (front, left): plump body
+    bx, by = c - 12 * u, c + 8 * u
+    g = Image.alpha_composite(g, shadow([bx - 20 * u, by - 18 * u + 7 * u, bx + 20 * u, by + 24 * u + 7 * u]))
+    d = ImageDraw.Draw(g)
+    d.ellipse([bx - 20 * u, by - 18 * u, bx + 20 * u, by + 24 * u], fill=(122, 63, 200, 255))
+    d.ellipse([bx - 14 * u, by - 13 * u, bx + 6 * u, by + 10 * u], fill=(150, 95, 222, 255))
+    d.ellipse([bx - 12 * u, by - 9 * u, bx - 5 * u, by + 2 * u], fill=(214, 186, 255, 220))
+    # calyx + stem
+    d.polygon([(bx - 15 * u, by - 14 * u), (bx - 6 * u, by - 22 * u), (bx, by - 17 * u), (bx + 6 * u, by - 22 * u), (bx + 15 * u, by - 14 * u), (bx + 4 * u, by - 10 * u), (bx - 4 * u, by - 10 * u)], fill=(95, 158, 60, 255))
+    d.line([bx, by - 20 * u, bx + 3 * u, by - 31 * u], fill=(76, 128, 48, 255), width=int(4 * u))
+    return g.resize((size, size), Image.LANCZOS)
 
 def rounded(img, radius_frac=0.22):
     m = Image.new('L', img.size, 0)
     ImageDraw.Draw(m).rounded_rectangle([0, 0, img.size[0] - 1, img.size[1] - 1], radius=int(img.size[0] * radius_frac), fill=255)
     out = Image.new('RGBA', img.size, (0, 0, 0, 0)); out.paste(img, (0, 0), m); return out
 
-legacy = rounded(Image.alpha_composite(gradient(S).convert('RGBA'), glyph(S, 1.05)))
+legacy = rounded(Image.alpha_composite(gradient(S).convert('RGBA'), glyph(S, 1.0)))
 bg = gradient(S)
-fg = glyph(S, 0.72)  # inside the adaptive-icon safe zone
+fg = glyph(S, 0.66)  # inside the adaptive-icon safe zone
 for q, px, apx in [('mdpi', 48, 108), ('hdpi', 72, 162), ('xhdpi', 96, 216), ('xxhdpi', 144, 324), ('xxxhdpi', 192, 432)]:
     d = os.path.join(RES, 'mipmap-' + q); os.makedirs(d, exist_ok=True)
     legacy.resize((px, px), Image.LANCZOS).save(os.path.join(d, 'ic_launcher.png'), optimize=True)

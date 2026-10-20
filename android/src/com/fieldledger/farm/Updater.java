@@ -111,8 +111,17 @@ class Updater {
                         if (manual) toast("FieldLedger is up to date (v" + versionName() + ").");
                     }
                 } catch (final Exception e) {
-                    status("Could not check for updates: " + describe(e));
-                    if (manual) toast("Could not check for updates. Check your internet connection.");
+                    String why = describe(e);
+                    if (why.contains("404")) {
+                        status("No update has been published at the update address yet (v" + versionName() + " installed).");
+                        if (manual) toast("No update published yet. You have v" + versionName() + ".");
+                    } else if (e instanceof java.io.IOException) {
+                        status("Could not reach the update server. Check your internet connection.");
+                        if (manual) toast("Could not reach the update server. Check your internet connection.");
+                    } else {
+                        status("Could not check for updates: " + why);
+                        if (manual) toast("Could not check for updates: " + why);
+                    }
                 } finally {
                     checking = false;
                 }
