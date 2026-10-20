@@ -1,0 +1,43 @@
+# Publishes FieldLedger automatically on every push to the default branch:
+#   • the web app (index.html) and the Android release files (release/) to GitHub Pages
+# Pages is switched on by this workflow itself (configure-pages "enablement"), so nothing has to be
+# clicked in Settings. The site is https://<owner>.github.io/<repo>/ and also serves /release/version.json.
+name: Publish web app
+
+on:
+  push:
+    paths: ['index.html', 'release/**', '.github/workflows/publish.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Assemble site
+        run: |
+          mkdir -p _site/release
+          cp index.html _site/
+          cp release/* _site/release/
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4
